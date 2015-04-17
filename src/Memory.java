@@ -5,220 +5,203 @@ import java.io.IOException;
 import java.util.Random;
 
 public class Memory {
-	// þodþio dydis
+	// word size
 	public static int WORD_SIZE = 4;
-	// þodþiø skaièius atmintyje
+	// number of words in a block
 	public static int NUMBER_OF_WORDS = 256;
-	// blokø skaièius atmintyje
-	public static int NUMBER_OF_BLOCKS = 256;
-	// vartotojo atmintis
-	public char memory[][] = new char[NUMBER_OF_WORDS][WORD_SIZE];
-	// uþimti blokai
+	// number of blocks
+	public static int NUMBER_OF_BLOCKS = 16;
+	// ram memory
+	public char memory[][] = new char[NUMBER_OF_BLOCKS * NUMBER_OF_WORDS][WORD_SIZE];
+	// used blocks
 	public boolean usedBlock[] = new boolean[NUMBER_OF_BLOCKS];
-	// inicializuoja atmintá
+	public boolean usedWords[][] = new boolean[NUMBER_OF_BLOCKS][NUMBER_OF_WORDS];
+	
 	public Memory() {
-		for (int i = 0; i < NUMBER_OF_WORDS; i++) {
+		for (int i = 0; i < memory.length; i++) {
 		    for(int j = 0; j < WORD_SIZE; j++) {
 			    memory[i][j] = '0';
 			}   
 		}
 		for (int i = 0; i < NUMBER_OF_BLOCKS; i++) {
 			usedBlock[i] = false;
+			for(int j = 0; j < NUMBER_OF_WORDS; j++) {
+				usedWords[i][j] = false;	
+			}
+		} 
+	}
+	
+	public char[][] getMemory() {
+		return memory;
+	}
+
+	// sets word at index
+	// place - 0..NUMBER_OF_WORDS - 1
+	public void setWord(int block, int place, char[] data) {
+		int memoryPlace = 0;
+
+		if(usedWords[block][place]) { 
+			GraphicalUserInterface.getInstance().appendOutputText("#WORD IN: "+ block +" BLOCK\n");
+			GraphicalUserInterface.getInstance().appendOutputText("#AND: "+ place +" PLACE OVERWRITTEN!\n");
+		}
+		if(block > 0 && place > 0) {
+			memoryPlace = block * place;
+		} else if(block == 0) {
+			memoryPlace = place;
+		} else if(place == 0) {
+			memoryPlace = block * NUMBER_OF_WORDS;
+		}
+		
+		if(data.length < WORD_SIZE) {
+			for (int i = 0; i < WORD_SIZE - 2; i++) {
+				memory[memoryPlace][i] = '0';
+			}
+			memory[memoryPlace][2] = data[0];
+			memory[memoryPlace][3] = data[1];
+		} else {
+			for (int i = 0; i < WORD_SIZE; i++) {
+				memory[memoryPlace][i] = data[i];
+			}
+		}
+
+		if(!usedWords[block][place]) {
+			usedWords[block][place] = true;
+		}
+		if(!usedBlock[block]) {
+			usedBlock[block] = true;
 		}
 	}
-	// iðspausdina atmintá
-	public void printMemory() {
-		for (int i = 0; i < NUMBER_OF_WORDS; i++) {
-			System.out.print(i);
-			System.out.print(" ");
-			System.out.println(memory[i]);
-		}
-	}
-	// nustato reikðmæ atmintyje
-	public void setWord(int place, char[] data) {
-		for (int i = 0; i < WORD_SIZE; i++) {
-			memory[place][i] = data[i];
-		}
-	}
-	// paima reikðmæ ið atminties
-	public char[] getWord(int place) {
+
+	// returns word from memory at index
+	// place - 0..NUMBER_OF_WORDS - 1
+	public char[] getWord(int block, int place) {
 		char data[] = new char[4];
+		int memoryPlace = 0;
+		if(block > 0 && place > 0) {
+			memoryPlace = block * place;
+		} else if (block == 0) {
+			memoryPlace = 0;
+		} else if (place == 0) {
+			memoryPlace = block * NUMBER_OF_WORDS;
+		}
 		for (int i = 0; i < WORD_SIZE; i++) {
-			data[i] = memory[place][i];
+			data[i] = memory[memoryPlace][i];
 		}
 		return data;
 	}
-	// nunulina þodá nurodytu adresu
-	public void nullWord(int place) {
-		for (int i = 0; i < WORD_SIZE; i++) {
-			memory[place][i] = '0';
+
+	// null the word at index
+	// place - 0..NUMBER_OF_WORDS - 1
+	public void nullWord(int block, int place) {
+		int memoryPlace = 0;
+		if(block > 0 && place > 0) {
+			memoryPlace = block * place;
+		} else if (block == 0) {
+			memoryPlace = 0;
+		} else if (place == 0) {
+			memoryPlace = block * NUMBER_OF_WORDS;
 		}
+		for (int i = 0; i < WORD_SIZE; i++) {
+			memory[memoryPlace][i] = '0';
+		}
+		usedWords[block][place] = false;
 	}
-	// gauna laisvo bloko indeksà
+
+	// returns index of unused block
 	public int getFreeBlock() {
 		for (int i = 0; i < NUMBER_OF_BLOCKS; i++) {
 			if (!usedBlock[i]) {
 				return i;
 			}
 		}
-		return NUMBER_OF_BLOCKS;
-	}
-	// gràþina realø adresà
-	public int getRealAddress(char[] PTR, char x, char y) {
-		char tempData[] = new char[WORD_SIZE];
-		int tempAddress;
-		tempAddress = 256*(256*Character.getNumericValue(PTR[2]) + Character.getNumericValue(PTR[3])) + Character.getNumericValue(x);
-		tempData = getWord(tempAddress);
-		return 256*(256*Character.getNumericValue(tempData[2]) + Character.getNumericValue(tempData[3])) + Character.getNumericValue(y);	
-	}
-	// sukuria naujà puslapiø lentelæ
+		return -1;
+	}	
+
+	// returns index of unused word in a block
+	public int getFreeWord(int block) {
+		for (int i = 0; i < NUMBER_OF_WORDS; i++) {
+			if (!usedWords[block][i]) {
+				return i;
+
+			}
+		}
+		return -1;
+	}	
+
+	// creates new page table with virtual machine blocks real addresses
+	// returns PTR
 	public char[] newPageTable() {
 		Random generator = new Random();
 		char PTR[] = new char[WORD_SIZE];
-		int pageTableAddress;
-		int blockNumber;
-		int tempBlock;
+
+		int pageTableAddress = 0;
+		int blockNumber = 0;
+		int tempBlock = 0;
 		int freeBlocks = 0;
-		int blocks = 0;
+
 		PTR[0] = PTR[1] = PTR[2] = PTR[3] = '0';
+
+		// how much free block we have?
 		for (int i = 0; i < NUMBER_OF_BLOCKS; i++) {
 			if (!usedBlock[i]) {
 				freeBlocks++;
 			}
 		}
-		if (freeBlocks < 17) {
-			Machine.showMessage("Not enough memory for virtual machine!");
-		}
-		else {
+
+		// less than 256 blocks ~ SPECIFIC CASE NEEDS SWAPING
+		if (freeBlocks < NUMBER_OF_BLOCKS) {
 			blockNumber = getFreeBlock();
+			if(blockNumber < 0) {
+				GraphicalUserInterface.getInstance().appendOutputText("#~PAGE TABLE NOT SET!\n#~NO FREE BLOCKS IN MEMORY!\n");
+				char[][] nullWord = new char[1][4];
+				nullWord[0][0] = nullWord[0][1] = nullWord[0][2] = nullWord[0][3] = '0';
+				return nullWord[0];
+			}
 			usedBlock[blockNumber] = true;
-			PTR[2] = Character.toUpperCase(Character.forDigit((blockNumber / 256) % 256, 256));
-			PTR[3] = Character.toUpperCase(Character.forDigit((blockNumber % 256) % 256, 256));
-			pageTableAddress = 256*(256*Character.getNumericValue(PTR[2]) + Character.getNumericValue(PTR[3]));
-			while (blocks != 256) {
-				tempBlock = generator.nextInt(64);
-				if (!usedBlock[tempBlock]) {
-					blocks++;
+			pageTableAddress = getRealAddress(blockNumber);
+			PTR[2] = Character.forDigit((blockNumber / 16), 16);
+			PTR[3] = Character.forDigit((blockNumber % 16), 16);
+			pageTableAddress = ((16 * Character.getNumericValue(PTR[2]) + Character.getNumericValue(PTR[3])) * NUMBER_OF_WORDS);
+			System.out.println("memory" + pageTableAddress);
+			
+			// write real address for every virtual block
+			int i = 0;
+			tempBlock = getFreeBlock();
+			while (i < NUMBER_OF_WORDS) {
+				// while there are free blocks count real address for it
+				if(tempBlock > 0) {
+					memory[pageTableAddress] = Utilities.getInstance().decToHex(getRealAddress(tempBlock)).toCharArray();
 					usedBlock[tempBlock] = true;
-					memory[pageTableAddress][2] = Character.toUpperCase(Character.forDigit((tempBlock / 256) % 256, 256));
-					memory[pageTableAddress][3] = Character.toUpperCase(Character.forDigit((tempBlock % 256) % 256, 256));
-					pageTableAddress++;
+					tempBlock = getFreeBlock();
 				}
-			}		
-		}
+				else { // no more blocks left, address is with negative sign
+					memory[pageTableAddress] = ("----").toCharArray();
+				}
+				pageTableAddress++;
+				i++;
+			}
+		} // more than 256 block ~ NO SWAPING NEEDED
+
 		return PTR;
 	}
-	// uþkrauna programà á atmintá
-	public void loadProgram(char[] PTR) throws IOException {
-		String programFile = "program.txt";
-		char buffer[] = new char[4];
-		String line;
-		char dataBlock = '0';
-		char codeBlock = '0';
-		char codeWord = '0';
-		char dataWord = '0';
-		boolean toData = false;
-		boolean nextToData = false;
-		boolean toCode = false;
-		boolean nextToCode = false;
-		boolean interrupt = false;
-		boolean prog = false;
-		boolean name = false;
-		boolean datx = false; 
-		boolean data = false;
-		boolean code = false;
-		String programName = null;
 
-		try {	
-			BufferedReader br = new BufferedReader(new FileReader(programFile));
-			while (!interrupt) {
-				if ((line = br.readLine()).equals("&END")) {
-					interrupt = true;
-					break;
-				}
-				buffer = line.toCharArray();
-				if (nextToData) {
-					nextToData = false;
-					toData = true;
-				}
-				if (nextToCode) {
-					nextToCode = false;
-					toCode = true;
-				}
-				if (line.equals("PROG") && !prog) {
-					prog = true;
-				}
-				if (buffer[0] == 'N' && buffer[1] == 'A' && buffer[2] == 'M' && buffer[3] == 'E' && !name) {
-					if (prog) {
-						programName = line.substring(5);
-						name = true;
-					}
-					else {
-						interrupt = true;
-						Machine.showMessage("Wrong program file format!");
-						break;
-					}
-				}
-				if (buffer[0] == 'D' && buffer[1] == 'A' && buffer[2] == 'T' && Character.getNumericValue(buffer[3]) > 0 && Character.getNumericValue(buffer[3]) < 12 && !datx) {
-					if (name) {
-						datx = true;
-						dataBlock = Character.forDigit((12 - Character.getNumericValue(buffer[3])) % 256, 256);
-					}
-					else {
-						interrupt = true;
-						Machine.showMessage("Wrong program file format!");
-						break;
-					}
-				}
-				if (line.equals("DATA") && !data) {
-					if (datx) {
-						nextToData = true;
-						data = true;
-					}
-					else {
-						interrupt = true;
-						Machine.showMessage("Wrong program file format!");
-						break;
-					}
-				}
-				if (line.equals("CODE") && prog && !code) {
-					if (data == datx && name ) {
-						toData = false;
-						nextToCode = true;
-						code = true;
-					}
-					else {
-						interrupt = true;
-						Machine.showMessage("Wrong program file format!");
-						break;
-					}
-				}
-				if (toData) {
-					setWord(getRealAddress(PTR, dataBlock, dataWord), buffer);
-					if ((Character.getNumericValue(dataWord) + 1) % 256 == 0) {
-						dataBlock = Character.forDigit((Character.getNumericValue(dataBlock) + 1) % 256, 256);
-						dataWord = '0';
-					}
-					else {
-						dataWord = Character.forDigit((Character.getNumericValue(dataWord) + 1) % 256, 256);
-					}			
-				}
-				if (toCode) {
-					setWord(getRealAddress(PTR, codeBlock, codeWord), buffer);
-					if ((Character.getNumericValue(codeWord) + 1) % 256 == 0) {
-						codeBlock = Character.forDigit((Character.getNumericValue(codeBlock) + 1) % 256, 256);
-						codeWord = '0';
-					}
-					else {
-						codeWord = Character.forDigit((Character.getNumericValue(codeWord) + 1) % 256, 256);
-					}	
-				}
-			
-			}
-			Machine.showMessage("The program "+programName+" has been successfully uploaded to memory!");
-			br.close();
-		} catch (FileNotFoundException e) {
-			Machine.showMessage("Program file is not found!");
-		}
+	// return real address for free block
+	public int getRealAddress(int freeBlock) {
+		char[] address = new char[WORD_SIZE];
+		address[0] = address[1] = address[2] = address[3] = '0';
+		address[2] = Character.forDigit((freeBlock / 16), 16);
+		address[3] = Character.forDigit((freeBlock % 16), 16);
+
+		int realAddress = ((16 * Character.getNumericValue(address[2]) + Character.getNumericValue(address[3])) * NUMBER_OF_WORDS);
+		return realAddress;		
 	}
+
+	// getVMblock(int virtualBlock) ~ virtualBlock = any from (0..255)
+	// 1. get real address from page table for a virtual block. EX1. get 255 virtual block from page table (address = 0200)
+	// 2. return block from 0200..02FF
+	// 3. EX2. get 15 virtual block real address (address = 4E00)
+	// 4. return block from 4E00..4EFF
+	// THIS FUNCTION SHOULD RETURN DECIMAL VALUE OF VIRTUAL BLOCK REAL ADDRESS
+
+
 }
