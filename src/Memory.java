@@ -108,6 +108,32 @@ public class Memory {
 		usedWords[block][place] = false;
 	}
 
+	public void nullBlock(int block) {
+		int place = 0;
+		if(block == 0) {
+			place = 0;
+		} else if(block > 0) {
+			place = block * NUMBER_OF_WORDS;
+		}
+		for(int i = 0; i<NUMBER_OF_WORDS; i++) {
+			for(int j = 0; j < WORD_SIZE; j++) {
+				memory[place+i][j] = '0';
+			}
+		} 
+	}
+
+	public String[] getBlock(int block) {
+		int place = 0;
+		String blockArray[] = new String[NUMBER_OF_WORDS];
+		if(block > 0) {
+			place = block * NUMBER_OF_WORDS;
+		}
+		for(int i = 0; i < NUMBER_OF_WORDS; i++) {
+			blockArray[i] = new String( memory[place + i] );
+		}
+		return blockArray;
+	}
+
 	// returns index of unused block
 	public int getFreeBlock() {
 		for (int i = 0; i < NUMBER_OF_BLOCKS; i++) {
@@ -132,7 +158,6 @@ public class Memory {
 	// creates new page table with virtual machine blocks real addresses
 	// returns PTR
 	public char[] newPageTable() {
-		Random generator = new Random();
 		char PTR[] = new char[WORD_SIZE];
 
 		int pageTableAddress = 0;
@@ -163,7 +188,7 @@ public class Memory {
 			PTR[2] = Character.forDigit((blockNumber / 16), 16);
 			PTR[3] = Character.forDigit((blockNumber % 16), 16);
 			pageTableAddress = ((16 * Character.getNumericValue(PTR[2]) + Character.getNumericValue(PTR[3])) * NUMBER_OF_WORDS);
-			System.out.println("memory " + pageTableAddress);
+			// System.out.println("memory " + pageTableAddress);
 			
 			// write real address for every virtual block
 			int i = 0;
@@ -182,7 +207,6 @@ public class Memory {
 				i++;
 			}
 		} // more than 256 block ~ NO SWAPING NEEDED
-
 		return PTR;
 	}
 
@@ -195,6 +219,40 @@ public class Memory {
 
 		int realAddress = ((16 * Character.getNumericValue(address[2]) + Character.getNumericValue(address[3])) * NUMBER_OF_WORDS);
 		return realAddress;		
+	}
+
+	public char[] getActiveVMblock(char[] ptr) {
+		int ptrAddress = Utilities.getInstance().hexToDec(new String(ptr));
+		
+		while(new String(memory[ptrAddress]).equals("----")) {
+			ptrAddress++;
+		}
+		return memory[ptrAddress];
+	}
+
+	public int getPageTablePlaceForActiveBlock(char[] ptr, String active) {
+		int ptrAddress = Utilities.getInstance().hexToDec(new String(ptr));
+		for(int i = 0; i < NUMBER_OF_WORDS; i++) {
+			if(active.equals(new String(memory[ptrAddress + i]))) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	public void setBlockInactive(int block, int place) {
+		int memoryPlace = 0;
+		if(block > 0 && place > 0) {
+			memoryPlace = block * place;
+		} else if (block == 0) {
+			memoryPlace = 0;
+		} else if (place == 0) {
+			memoryPlace = block * NUMBER_OF_WORDS;
+		}
+		for (int i = 0; i < WORD_SIZE; i++) {
+			memory[memoryPlace][i] = '-';
+		}
+		usedWords[block][place] = false;
 	}
 
 	// getVMblock(int virtualBlock) ~ virtualBlock = any from (0..255)

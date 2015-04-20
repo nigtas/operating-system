@@ -5,6 +5,7 @@ public class RealMachine {
 	private static RealMachine instance = null;
 	private VirtualMachine vm = null;
 	private Memory ram = null;
+   private Swapping swapping = null;
    //commands interpretator
    private CommandsInterpretator ci = new CommandsInterpretator();
 
@@ -48,6 +49,7 @@ public class RealMachine {
 
    	private void initRM() {
    		ram = new Memory();
+         swapping = new Swapping();
 
          // setting PTR register
          setPTR(ram.newPageTable());
@@ -106,12 +108,25 @@ public class RealMachine {
    	}
 
       public void initStack() {
-         int ssAddress = Utilities.getInstance().hexToDec(new String(getPTR())) + 192;
-         // ram.setWord();
-         System.out.println(ram.getWord(ssAddress - 192, ssAddress));
-         //set stack pointer
-         setESP(new char[] {'0', '0', '0', '0'});
-         setSS(Utilities.getInstance().decToHex(ssAddress).toCharArray());
+         int ssAddress = Utilities.getInstance().hexToDec(new String(getPTR())) + 192;         
+         String ssValue = new String(ram.getWord(ssAddress - 192, ssAddress));
+         if(ssValue.equals("----")) {
+            System.out.println("ss not active");
+            String activeVMBlock = new String( ram.getActiveVMblock(getPTR()) );
+            int pageTablePlaceForActiveBlock = ram.getPageTablePlaceForActiveBlock(getPTR(), activeVMBlock);
+            int activeBlockNr = Utilities.getInstance().hexToDec(activeVMBlock);
+            
+            swapping.swap(activeBlockNr / 256, ram.getBlock(activeBlockNr / 256));
+            ram.setBlockInactive(Utilities.getInstance().hexToDec(new String(getPTR())), pageTablePlaceForActiveBlock);
+
+            ram.setWord(Utilities.getInstance().hexToDec(new String(getPTR())), 192, activeVMBlock.toCharArray());
+            setSS(activeVMBlock.toCharArray());
+
+            int newESP = 255 + Utilities.getInstance().hexToDec(new String(getSS()));
+            setESP(Utilities.getInstance().decToHex(newESP).toCharArray());
+
+            
+         } 
       }
 
       public void execute(String[] code) {
