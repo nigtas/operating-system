@@ -109,6 +109,7 @@ public class RealMachine {
 
       public void initStack() {
          int ssAddress = Utilities.getInstance().hexToDec(new String(getPTR())) + 192;         
+
          String ssValue = new String(ram.getWord(ssAddress - 192, ssAddress));
          if(ssValue.equals("----")) {
             System.out.println("ss not active");
