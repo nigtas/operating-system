@@ -101,9 +101,10 @@ public class CommandsInterpretator {
 	}
 
 	public void halt() {
-
+		System.out.println(RealMachine.getInstance().getSI());
+		char[] chars = {'0', '3'};
+		RealMachine.getInstance().setSI(chars);
+		System.out.println(RealMachine.getInstance().getSI());
 	}
-
-
 
 }

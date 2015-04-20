@@ -75,12 +75,13 @@ public class Memory {
 	// returns word from memory at index
 	// place - 0..NUMBER_OF_WORDS - 1
 	public char[] getWord(int block, int place) {
+		System.out.println(block + " " + place);
 		char data[] = new char[4];
 		int memoryPlace = 0;
 		if(block > 0 && place > 0) {
 			memoryPlace = block * place;
 		} else if (block == 0) {
-			memoryPlace = 0;
+			memoryPlace = place;
 		} else if (place == 0) {
 			memoryPlace = block * NUMBER_OF_WORDS;
 		}
@@ -149,7 +150,7 @@ public class Memory {
 		}
 
 		// less than 256 blocks ~ SPECIFIC CASE NEEDS SWAPING
-		if (freeBlocks < NUMBER_OF_BLOCKS) {
+		if (freeBlocks <= NUMBER_OF_BLOCKS) {
 			blockNumber = getFreeBlock();
 			if(blockNumber < 0) {
 				GraphicalUserInterface.getInstance().appendOutputText("#~PAGE TABLE NOT SET!\n#~NO FREE BLOCKS IN MEMORY!\n");
@@ -162,7 +163,7 @@ public class Memory {
 			PTR[2] = Character.forDigit((blockNumber / 16), 16);
 			PTR[3] = Character.forDigit((blockNumber % 16), 16);
 			pageTableAddress = ((16 * Character.getNumericValue(PTR[2]) + Character.getNumericValue(PTR[3])) * NUMBER_OF_WORDS);
-			System.out.println("memory" + pageTableAddress);
+			System.out.println("memory " + pageTableAddress);
 			
 			// write real address for every virtual block
 			int i = 0;

@@ -48,94 +48,10 @@ public class RealMachine {
 
    	private void initRM() {
    		ram = new Memory();
-   		vm = new VirtualMachine();
-
-   		char[][] commands = new char[15][4];
-   		commands[0][0] = 'L';
-   		commands[0][1] = 'D';
-   		commands[0][2] = 'x';
-   		commands[0][3] = 'y';
-
-   		commands[1][0] = 'P';
-   		commands[1][1] = 'T';
-   		commands[1][2] = 'x';
-   		commands[1][3] = 'y';
-
-   		commands[2][0] = '0';
-   		commands[2][1] = 'A';
-   		commands[2][2] = 'D';
-   		commands[2][3] = 'D';
-
-   		commands[3][0] = '0';
-   		commands[3][1] = 'S';
-   		commands[3][2] = 'U';
-   		commands[3][3] = 'B';
-
-   		commands[4][0] = '0';
-   		commands[4][1] = 'M';
-   		commands[4][2] = 'U';
-   		commands[4][3] = 'L';
-
-   		commands[5][0] = '0';
-   		commands[5][1] = 'D';
-   		commands[5][2] = 'I';
-   		commands[5][3] = 'V';
-
-   		commands[6][0] = 'C';
-   		commands[6][1] = 'D';
-   		commands[6][2] = 'S';
-   		commands[6][3] = 'x';
-
-   		commands[7][0] = 'C';
-   		commands[7][1] = 'C';
-   		commands[7][2] = 'S';
-   		commands[7][3] = 'x';
-
-   		commands[8][0] = 'C';
-   		commands[8][1] = 'S';
-   		commands[8][2] = 'S';
-   		commands[8][3] = 'x';
-
-   		commands[9][0] = 'J';
-   		commands[9][1] = 'P';
-   		commands[9][2] = 'x';
-   		commands[9][3] = 'y';
-
-   		commands[10][0] = 'J';
-   		commands[10][1] = 'E';
-   		commands[10][2] = 'x';
-   		commands[10][3] = 'y';
-
-   		commands[11][0] = 'J';
-   		commands[11][1] = 'L';
-   		commands[11][2] = 'x';
-   		commands[11][3] = 'y';
-
-   		commands[12][0] = 'J';
-   		commands[12][1] = 'G';
-   		commands[12][2] = 'x';
-   		commands[12][3] = 'y';
-
-   		commands[13][0] = 'G';
-   		commands[13][1] = 'D';
-   		commands[13][2] = 'x';
-   		commands[13][3] = 'y';
-
-   		commands[14][0] = 'P';
-   		commands[14][1] = 'D';
-   		commands[14][2] = 'x';
-   		commands[14][3] = 'y';
-
-
-
-         // initializing COMMAND array
-         int block = ram.getFreeBlock();
-   		for(int i = 0; i < commands.length; i++) {
-               ram.setWord(block, i, commands[i]);
-   		}
 
          // setting PTR register
          setPTR(ram.newPageTable());
+         initStack();
 
    		char[][] memory = ram.getMemory();
    		String word = "";
@@ -188,6 +104,15 @@ public class RealMachine {
    		array[13] = new String(c);
    		return array;
    	}
+
+      public void initStack() {
+         int ssAddress = Utilities.getInstance().hexToDec(new String(getPTR())) + 192;
+         ram.setWord();
+         System.out.println(ram.getWord(ssAddress - 192, ssAddress));
+         //set stack pointer
+         setESP(new char[] {'0', '0', '0', '0'});
+         setSS(Utilities.getInstance().decToHex(ssAddress).toCharArray());
+      }
 
       public void execute(String[] code) {
          ci.executeCommand(code);
