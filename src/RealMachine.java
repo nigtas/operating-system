@@ -107,7 +107,7 @@ public class RealMachine {
 
       public void initStack() {
          int ssAddress = Utilities.getInstance().hexToDec(new String(getPTR())) + 192;
-         ram.setWord();
+         // ram.setWord();
          System.out.println(ram.getWord(ssAddress - 192, ssAddress));
          //set stack pointer
          setESP(new char[] {'0', '0', '0', '0'});
@@ -122,6 +122,32 @@ public class RealMachine {
    	public void setESP(char[] reg) {
    		this.esp = reg;
    	}
+      public boolean incESP(){
+         int decValue = Integer.parseInt(new String(getESP()), 16);
+         int decValueSS = Integer.parseInt(new String(getSS()), 16);
+         if(decValue - decValueSS == 255) {
+            return false;
+         }
+         else {
+            ++decValue;
+            String hex = Integer.toHexString(decValue);
+            setESP(hex.toCharArray());
+            return true;
+         }
+      }
+      public boolean decESP() {
+         int decValue = Integer.parseInt(new String(getESP()), 16);
+         int decValueSS = Integer.parseInt(new String(getSS()), 16);
+         if(decValue - decValueSS == 0) {
+            return false;
+         }
+         else {
+            --decValue;
+            String hex = Integer.toHexString(decValue);
+            setESP(hex.toCharArray());
+            return true;
+         }
+      }
    	public void setDS(char[] reg) {
    		this.ds = reg;
    	}
@@ -203,6 +229,9 @@ public class RealMachine {
    	public char[] getTM() {
    		return this.tm;
    	}
+      public Memory getRAM() {
+         return this.ram;
+      }
    	// ============================================
 
 }

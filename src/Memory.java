@@ -98,7 +98,7 @@ public class Memory {
 		if(block > 0 && place > 0) {
 			memoryPlace = block * place;
 		} else if (block == 0) {
-			memoryPlace = 0;
+			memoryPlace = place;
 		} else if (place == 0) {
 			memoryPlace = block * NUMBER_OF_WORDS;
 		}

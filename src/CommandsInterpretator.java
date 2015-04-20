@@ -45,23 +45,112 @@ public class CommandsInterpretator {
 
 	/*commands functions*/
 	public void ld(String elements) {
-
+		int block = Integer.parseInt(new String(RealMachine.getInstance().getDS()));
+		int place = Integer.parseInt(elements, 16);
+		char[] valueFromMemory = RealMachine.getInstance().getRAM().getWord(block, place);
+		int stackPlace = Integer.parseInt(new String(RealMachine.getInstance().getSS()), 16);
+		int stackTop = Integer.parseInt(new String(RealMachine.getInstance().getESP()), 16);
+		System.out.println("place " + stackPlace + " top " + stackTop + " value " + new String(valueFromMemory));
+		if(RealMachine.getInstance().decESP()){
+			RealMachine.getInstance().getRAM().setWord(stackPlace, stackTop, valueFromMemory);	
+		}
+		else {
+			System.out.println("Stack is full!");
+		}
 	}
 
 	public void pt(String elements) {
-
+		int stackPlace = Integer.parseInt(new String(RealMachine.getInstance().getSS()), 16);
+		int block = Integer.parseInt(new String(RealMachine.getInstance().getDS()));
+		int place = Integer.parseInt(elements, 16);
+		if(RealMachine.getInstance().incESP()){
+			int stackTop = Integer.parseInt(new String(RealMachine.getInstance().getESP()), 16);
+			char[] valueFromStack = RealMachine.getInstance().getRAM().getWord(stackPlace, stackTop);
+			System.out.println("place " + stackPlace + " top " + stackTop + " value " + new String(valueFromStack));
+			RealMachine.getInstance().getRAM().nullWord(stackPlace, stackTop);
+			RealMachine.getInstance().getRAM().setWord(block, place, valueFromStack);	
+		}
+		else {
+			System.out.println("Stack is empty!");
+		}
 	}
 
 	public void add() {
-
+		int espValue = Integer.parseInt(new String(RealMachine.getInstance().getESP()), 16);
+		if(espValue > 253){
+			System.out.println("Not enough elements!");
+		}
+		else {
+			int stackPlace = Integer.parseInt(new String(RealMachine.getInstance().getSS()), 16);
+			int firstElStackTop = Integer.parseInt(new String(RealMachine.getInstance().getESP()), 16) - 1;
+			char[] firstValueFromStack = RealMachine.getInstance().getRAM().getWord(stackPlace, firstElStackTop);
+			int secondElStackTop = Integer.parseInt(new String(RealMachine.getInstance().getESP()), 16) - 2;
+			char[] secondValueFromStack = RealMachine.getInstance().getRAM().getWord(stackPlace, secondElStackTop);
+			int stackTop = Integer.parseInt(new String(RealMachine.getInstance().getESP()), 16);
+			if(RealMachine.getInstance().decESP()){
+				int sum = Integer.parseInt(new String(firstValueFromStack), 16) +
+				Integer.parseInt(new String(secondValueFromStack), 16);
+				char[] valueToAdd = (Integer.toHexString(sum)).toCharArray();
+				System.out.println("first value " + new String(firstValueFromStack) +
+				" second value " + new String(secondValueFromStack) + " value " + new String(valueToAdd));
+				RealMachine.getInstance().getRAM().setWord(stackPlace, stackTop, valueToAdd);	
+			}
+			else {
+				System.out.println("Stack is full!");
+			}
+		}
 	}
 
 	public void sub() {
-
+		int espValue = Integer.parseInt(new String(RealMachine.getInstance().getESP()), 16);
+		if(espValue > 253){
+			System.out.println("Not enough elements!");
+		}
+		else {
+			int stackPlace = Integer.parseInt(new String(RealMachine.getInstance().getSS()), 16);
+			int firstElStackTop = Integer.parseInt(new String(RealMachine.getInstance().getESP()), 16) - 1;
+			char[] firstValueFromStack = RealMachine.getInstance().getRAM().getWord(stackPlace, firstElStackTop);
+			int secondElStackTop = Integer.parseInt(new String(RealMachine.getInstance().getESP()), 16) - 2;
+			char[] secondValueFromStack = RealMachine.getInstance().getRAM().getWord(stackPlace, secondElStackTop);
+			int stackTop = Integer.parseInt(new String(RealMachine.getInstance().getESP()), 16);
+			if(RealMachine.getInstance().decESP()){
+				int sub = Integer.parseInt(new String(firstValueFromStack), 16) -
+				Integer.parseInt(new String(secondValueFromStack), 16);
+				char[] valueToAdd = (Integer.toHexString(sub)).toCharArray();
+				System.out.println("first value " + new String(firstValueFromStack) +
+				" second value " + new String(secondValueFromStack) + " value " + new String(valueToAdd));
+				RealMachine.getInstance().getRAM().setWord(stackPlace, stackTop, valueToAdd);	
+			}
+			else {
+				System.out.println("Stack is full!");
+			}
+		}
 	}
 
 	public void mul() {
-
+		int espValue = Integer.parseInt(new String(RealMachine.getInstance().getESP()), 16);
+		if(espValue > 253){
+			System.out.println("Not enough elements!");
+		}
+		else {
+			int stackPlace = Integer.parseInt(new String(RealMachine.getInstance().getSS()), 16);
+			int firstElStackTop = Integer.parseInt(new String(RealMachine.getInstance().getESP()), 16) - 1;
+			char[] firstValueFromStack = RealMachine.getInstance().getRAM().getWord(stackPlace, firstElStackTop);
+			int secondElStackTop = Integer.parseInt(new String(RealMachine.getInstance().getESP()), 16) - 2;
+			char[] secondValueFromStack = RealMachine.getInstance().getRAM().getWord(stackPlace, secondElStackTop);
+			int stackTop = Integer.parseInt(new String(RealMachine.getInstance().getESP()), 16);
+			if(RealMachine.getInstance().decESP()){
+				int mul = Integer.parseInt(new String(firstValueFromStack), 16) *
+				Integer.parseInt(new String(secondValueFromStack), 16);
+				char[] valueToAdd = (Integer.toHexString(mul)).toCharArray();
+				System.out.println("first value " + new String(firstValueFromStack) +
+				" second value " + new String(secondValueFromStack) + " value " + new String(valueToAdd));
+				RealMachine.getInstance().getRAM().setWord(stackPlace, stackTop, valueToAdd);	
+			}
+			else {
+				System.out.println("Stack is full!");
+			}
+		}
 	}
 
 	public void div() {
