@@ -38,6 +38,7 @@ public class Memory {
 	// sets word at index
 	// place - 0..NUMBER_OF_WORDS - 1
 	public void setWord(int block, int place, char[] data) {
+		System.out.println(block + "place " + place);
 		int memoryPlace = 0;
 
 		if(usedWords[block][place]) { 

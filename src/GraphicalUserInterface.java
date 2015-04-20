@@ -188,6 +188,11 @@ public class GraphicalUserInterface {
 		return label;
 	}	
 
+	public static void updateRAMCell(int index, String data) {
+		ramData.remove(index);
+		ramData.add(index, Utilities.getInstance().decToHex(index) + ". " + data);
+	}
+
 	// index - shows cell position (0..65535)
 	// data - data to print
 	public static void printDataToRAMCell(int index, String data) {

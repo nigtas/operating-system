@@ -48,11 +48,12 @@ public class CommandsInterpretator {
 		int block = Integer.parseInt(new String(RealMachine.getInstance().getDS()));
 		int place = Integer.parseInt(elements, 16);
 		char[] valueFromMemory = RealMachine.getInstance().getRAM().getWord(block, place);
-		int stackPlace = Integer.parseInt(new String(RealMachine.getInstance().getSS()), 16);
+		int stackPlace = (Integer.parseInt(new String(RealMachine.getInstance().getSS()), 16))/256;
 		int stackTop = Integer.parseInt(new String(RealMachine.getInstance().getESP()), 16);
-		System.out.println("place " + stackPlace + " top " + stackTop + " value " + new String(valueFromMemory));
+		System.out.println("place " + stackPlace + " top " + (stackTop/stackPlace - 256) + " value " + new String(valueFromMemory));
 		if(RealMachine.getInstance().decESP()){
-			RealMachine.getInstance().getRAM().setWord(stackPlace, stackTop, valueFromMemory);	
+			RealMachine.getInstance().getRAM().setWord(stackPlace, (stackTop/stackPlace - 256), valueFromMemory);
+			GraphicalUserInterface.getInstance().updateRAMCell(stackPlace * stackTop, new String(valueFromMemory));
 		}
 		else {
 			System.out.println("Stack is full!");
@@ -67,8 +68,8 @@ public class CommandsInterpretator {
 			int stackTop = Integer.parseInt(new String(RealMachine.getInstance().getESP()), 16);
 			char[] valueFromStack = RealMachine.getInstance().getRAM().getWord(stackPlace, stackTop);
 			System.out.println("place " + stackPlace + " top " + stackTop + " value " + new String(valueFromStack));
-			RealMachine.getInstance().getRAM().nullWord(stackPlace, stackTop);
-			RealMachine.getInstance().getRAM().setWord(block, place, valueFromStack);	
+			RealMachine.getInstance().getRAM().nullWord(stackPlace/256, stackTop);
+			RealMachine.getInstance().getRAM().setWord(block/256, place, valueFromStack);	
 		}
 		else {
 			System.out.println("Stack is empty!");
@@ -93,7 +94,7 @@ public class CommandsInterpretator {
 				char[] valueToAdd = (Integer.toHexString(sum)).toCharArray();
 				System.out.println("first value " + new String(firstValueFromStack) +
 				" second value " + new String(secondValueFromStack) + " value " + new String(valueToAdd));
-				RealMachine.getInstance().getRAM().setWord(stackPlace, stackTop, valueToAdd);	
+				RealMachine.getInstance().getRAM().setWord(stackPlace/256, stackTop, valueToAdd);	
 			}
 			else {
 				System.out.println("Stack is full!");
@@ -119,7 +120,7 @@ public class CommandsInterpretator {
 				char[] valueToAdd = (Integer.toHexString(sub)).toCharArray();
 				System.out.println("first value " + new String(firstValueFromStack) +
 				" second value " + new String(secondValueFromStack) + " value " + new String(valueToAdd));
-				RealMachine.getInstance().getRAM().setWord(stackPlace, stackTop, valueToAdd);	
+				RealMachine.getInstance().getRAM().setWord(stackPlace/256, stackTop, valueToAdd);	
 			}
 			else {
 				System.out.println("Stack is full!");
@@ -145,7 +146,7 @@ public class CommandsInterpretator {
 				char[] valueToAdd = (Integer.toHexString(mul)).toCharArray();
 				System.out.println("first value " + new String(firstValueFromStack) +
 				" second value " + new String(secondValueFromStack) + " value " + new String(valueToAdd));
-				RealMachine.getInstance().getRAM().setWord(stackPlace, stackTop, valueToAdd);	
+				RealMachine.getInstance().getRAM().setWord(stackPlace/256, stackTop, valueToAdd);	
 			}
 			else {
 				System.out.println("Stack is full!");
