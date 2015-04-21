@@ -168,8 +168,8 @@ public class RealMachine {
    		this.esp = reg;
    	}
       public boolean incESP(){
-         int decValue = Integer.parseInt(new String(getESP()), 16);
-         int decValueSS = Integer.parseInt(new String(getSS()), 16);
+         int decValue = Utilities.charToInt(getESP(), 16);
+         int decValueSS = Utilities.charToInt(getSS(), 16);
          if(decValue - decValueSS == 255) {
             return false;
          }
@@ -181,8 +181,8 @@ public class RealMachine {
          }
       }
       public boolean decESP() {
-         int decValue = Integer.parseInt(new String(getESP()), 16);
-         int decValueSS = Integer.parseInt(new String(getSS()), 16);
+         int decValue = Utilities.charToInt(getESP(), 16);
+         int decValueSS = Utilities.charToInt(getSS(), 16);
          if(decValue - decValueSS == 0) {
             return false;
          }

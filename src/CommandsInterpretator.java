@@ -51,11 +51,11 @@ public class CommandsInterpretator {
 
 	/*commands functions*/
 	public void ld(String elements) {
-		int block = Integer.parseInt(new String(RealMachine.getInstance().getDS()));
+		int block = Utilities.charToInt(RealMachine.getInstance().getDS());
 		int place = Integer.parseInt(elements, 16);
 		char[] valueFromMemory = RealMachine.getInstance().getRAM().getWord(block, place);
-		int stackPlace = (Integer.parseInt(new String(RealMachine.getInstance().getSS()), 16))/256;
-		int stackTop = Integer.parseInt(new String(RealMachine.getInstance().getESP()), 16);
+		int stackPlace = (Utilities.charToInt(RealMachine.getInstance().getESP(), 16)) / 256;
+		int stackTop = Utilities.charToInt(RealMachine.getInstance().getESP(), 16);
 		System.out.println("place " + stackPlace + " top " + (stackTop/stackPlace - 256) + " value " + new String(valueFromMemory));
 		if(RealMachine.getInstance().decESP()){
 			RealMachine.getInstance().getRAM().setWord(stackPlace, (stackTop/stackPlace - 256), valueFromMemory);
@@ -67,11 +67,11 @@ public class CommandsInterpretator {
 	}
 
 	public void pt(String elements) {
-		int stackPlace = Integer.parseInt(new String(RealMachine.getInstance().getSS()), 16)/256;
-		int block = Integer.parseInt(new String(RealMachine.getInstance().getDS()));
+		int stackPlace = Utilities.charToInt(RealMachine.getInstance().getSS(), 16);
+		int block = Utilities.charToInt(RealMachine.getInstance().getDS());\
 		int place = Integer.parseInt(elements, 16);
 		if(RealMachine.getInstance().incESP()){
-			int stackTop = Integer.parseInt(new String(RealMachine.getInstance().getESP()), 16);
+			int stackTop = Utilities.charToInt(RealMachine.getInstance().getESP(), 16);
 			char[] valueFromStack = RealMachine.getInstance().getRAM().getWord(stackPlace, stackTop);
 			System.out.println("place " + stackPlace + " top " + (stackTop/stackPlace - 256) + " value " + new String(valueFromStack));
 			RealMachine.getInstance().getRAM().nullWord(stackPlace, (stackTop/stackPlace - 256));
@@ -83,20 +83,19 @@ public class CommandsInterpretator {
 	}
 
 	public void add() {
-		int espValue = Integer.parseInt(new String(RealMachine.getInstance().getESP()), 16);
+		int espValue = Utilities.charToInt(RealMachine.getInstance().getESP(), 16);
 		if(espValue > 253){
 			System.out.println("Not enough elements!");
 		}
 		else {
-			int stackPlace = Integer.parseInt(new String(RealMachine.getInstance().getSS()), 16);
-			int firstElStackTop = Integer.parseInt(new String(RealMachine.getInstance().getESP()), 16) - 1;
+			int stackPlace = Utilities.charToInt(RealMachine.getInstance().getSS(), 16);
+			int firstElStackTop = (Utilities.charToInt(RealMachine.getInstance().getESP(), 16)) - 1;
 			char[] firstValueFromStack = RealMachine.getInstance().getRAM().getWord(stackPlace, firstElStackTop);
-			int secondElStackTop = Integer.parseInt(new String(RealMachine.getInstance().getESP()), 16) - 2;
+			int secondElStackTop = (Utilities.charToInt(RealMachine.getInstance().getESP(), 16)) - 2;
 			char[] secondValueFromStack = RealMachine.getInstance().getRAM().getWord(stackPlace, secondElStackTop);
-			int stackTop = Integer.parseInt(new String(RealMachine.getInstance().getESP()), 16);
+			int stackTop = Utilities.charToInt(RealMachine.getInstance().getESP(), 16);
 			if(RealMachine.getInstance().decESP()){
-				int sum = Integer.parseInt(new String(firstValueFromStack), 16) +
-				Integer.parseInt(new String(secondValueFromStack), 16);
+				int sum = Utilities.charToInt(firstValueFromStack, 16) + Utilities.charToInt(secondValueFromStack, 16);
 				char[] valueToAdd = (Integer.toHexString(sum)).toCharArray();
 				System.out.println("first value " + new String(firstValueFromStack) +
 				" second value " + new String(secondValueFromStack) + " value " + new String(valueToAdd));
@@ -109,20 +108,19 @@ public class CommandsInterpretator {
 	}
 
 	public void sub() {
-		int espValue = Integer.parseInt(new String(RealMachine.getInstance().getESP()), 16);
+		int espValue = Utilities.charToInt(RealMachine.getInstance().getESP(), 16);
 		if(espValue > 253){
 			System.out.println("Not enough elements!");
 		}
 		else {
-			int stackPlace = Integer.parseInt(new String(RealMachine.getInstance().getSS()), 16);
-			int firstElStackTop = Integer.parseInt(new String(RealMachine.getInstance().getESP()), 16) - 1;
+			int stackPlace = Utilities.charToInt(RealMachine.getInstance().getSS(), 16);
+			int firstElStackTop = (Utilities.charToInt(RealMachine.getInstance().getESP(), 16)) - 1;
 			char[] firstValueFromStack = RealMachine.getInstance().getRAM().getWord(stackPlace, firstElStackTop);
-			int secondElStackTop = Integer.parseInt(new String(RealMachine.getInstance().getESP()), 16) - 2;
+			int secondElStackTop = (Utilities.charToInt(RealMachine.getInstance().getESP(), 16)) - 2;
 			char[] secondValueFromStack = RealMachine.getInstance().getRAM().getWord(stackPlace, secondElStackTop);
-			int stackTop = Integer.parseInt(new String(RealMachine.getInstance().getESP()), 16);
+			int stackTop = Utilities.charToInt(RealMachine.getInstance().getESP(), 16);
 			if(RealMachine.getInstance().decESP()){
-				int sub = Integer.parseInt(new String(firstValueFromStack), 16) -
-				Integer.parseInt(new String(secondValueFromStack), 16);
+				int sub = Utilities.charToInt(firstValueFromStack, 16) - Utilities.charToInt(secondValueFromStack, 16);
 				char[] valueToAdd = (Integer.toHexString(sub)).toCharArray();
 				System.out.println("first value " + new String(firstValueFromStack) +
 				" second value " + new String(secondValueFromStack) + " value " + new String(valueToAdd));
@@ -135,20 +133,19 @@ public class CommandsInterpretator {
 	}
 
 	public void mul() {
-		int espValue = Integer.parseInt(new String(RealMachine.getInstance().getESP()), 16);
+		int espValue = Utilities.charToInt(RealMachine.getInstance().getESP(), 16);
 		if(espValue > 253){
 			System.out.println("Not enough elements!");
 		}
 		else {
-			int stackPlace = Integer.parseInt(new String(RealMachine.getInstance().getSS()), 16);
-			int firstElStackTop = Integer.parseInt(new String(RealMachine.getInstance().getESP()), 16) - 1;
+			int stackPlace = Utilities.charToInt(RealMachine.getInstance().getSS(), 16);
+			int firstElStackTop = (Utilities.charToInt(RealMachine.getInstance().getESP(), 16)) - 1;
 			char[] firstValueFromStack = RealMachine.getInstance().getRAM().getWord(stackPlace, firstElStackTop);
-			int secondElStackTop = Integer.parseInt(new String(RealMachine.getInstance().getESP()), 16) - 2;
+			int secondElStackTop = (Utilities.charToInt(RealMachine.getInstance().getESP(), 16)) - 2;
 			char[] secondValueFromStack = RealMachine.getInstance().getRAM().getWord(stackPlace, secondElStackTop);
-			int stackTop = Integer.parseInt(new String(RealMachine.getInstance().getESP()), 16);
+			int stackTop = Utilities.charToInt(RealMachine.getInstance().getESP(), 16);
 			if(RealMachine.getInstance().decESP()){
-				int mul = Integer.parseInt(new String(firstValueFromStack), 16) *
-				Integer.parseInt(new String(secondValueFromStack), 16);
+				int mul = Utilities.charToInt(firstValueFromStack, 16) * Utilities.charToInt(secondValueFromStack, 16);
 				char[] valueToAdd = (Integer.toHexString(mul)).toCharArray();
 				System.out.println("first value " + new String(firstValueFromStack) +
 				" second value " + new String(secondValueFromStack) + " value " + new String(valueToAdd));
