@@ -1,5 +1,7 @@
 import java.lang.*;
 import javax.swing.*;
+import java.io.*;
+import java.util.*;
 
 public class RealMachine {
 	private static RealMachine instance = null;
@@ -7,7 +9,7 @@ public class RealMachine {
 	private Memory ram = null;
    private Swapping swapping = null;
    //commands interpretator
-   private CommandsInterpretator ci = new CommandsInterpretator();
+   private CommandsInterpretator ci = null;
 
 	// Registers
 	private char[] esp = {'0', '0', '0', '0'};      // Steko rodykles registras
@@ -24,7 +26,6 @@ public class RealMachine {
 	private char[] ioi = {'0', '0'};                // I/O registas 
 	private char[] mode = {'0', '1'};               // MODE registas
 	private char[] tm = {'0', '9'};                 // TM registras
-
 
 	protected RealMachine() {
       try {
@@ -130,8 +131,36 @@ public class RealMachine {
          } 
       }
 
-      public void execute(String[] code) {
-         ci.executeCommand(code);
+      public void execute() {
+         ci.executeCommand();
+      }
+
+      public void loadCode() {
+         List<String> code = new ArrayList<String>();
+         BufferedReader br = null;
+         try {
+            String sCurrentLine;
+            br = new BufferedReader(new FileReader("code.txt"));
+            while ((sCurrentLine = br.readLine()) != null) {
+               code.add(sCurrentLine);
+            } 
+         }
+         catch (IOException e) {
+            e.printStackTrace();
+         }
+         finally {
+            try {
+               if (br != null)br.close();
+            }  
+            catch (IOException ex) {
+               ex.printStackTrace();
+            }
+         }
+         String[] convertedCode = new String[code.size()];
+         convertedCode = code.toArray(convertedCode);
+         System.out.println(convertedCode[1]);
+         ci = new CommandsInterpretator(convertedCode);
+         GraphicalUserInterface.getInstance().loadCodeToWritingArea(convertedCode);
       }
 
    	// =========== SETERS AND GETTERS ===========

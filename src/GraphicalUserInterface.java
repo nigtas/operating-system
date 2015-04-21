@@ -2,6 +2,11 @@ import javax.swing.*;
 import java.awt.*;
 import java.lang.*;
 import java.awt.event.*;
+import javax.swing.text.LayeredHighlighter.LayerPainter;
+import javax.swing.text.DefaultHighlighter.*;
+import javax.swing.text.BadLocationException;
+
+
 
 
 /* METHODS
@@ -127,7 +132,9 @@ public class GraphicalUserInterface {
 	}
 
 	private void initWritingArea() {
+		JPanel subPanel = new JPanel();
 		JButton executeBtn = new JButton("Execute");
+		JButton loadBtn = new JButton("Load");
  		writingArea = new JTextArea();
 		writingArea.setWrapStyleWord(true);
 		writingArea.setLineWrap(true);
@@ -136,7 +143,9 @@ public class GraphicalUserInterface {
 		listScroller.setPreferredSize(new Dimension(150, 600));
 		centerLeftMost.add(initTextField("CODE"), BorderLayout.NORTH);
 		centerLeftMost.add(listScroller, BorderLayout.CENTER);
-		centerLeftMost.add(executeBtn, BorderLayout.SOUTH);
+		subPanel.add(executeBtn);
+		subPanel.add(loadBtn);
+		centerLeftMost.add(subPanel, BorderLayout.SOUTH);
 
 
 		// execute button listener
@@ -144,13 +153,20 @@ public class GraphicalUserInterface {
             public void actionPerformed(ActionEvent e)
             {
                 //Execute when button is pressed
-                String[] lines = getProgramCode();
-				for(String line : lines) {
-					System.out.println(line);
-				}
-				RealMachine.getInstance().execute(lines);
+                // String[] lines = getProgramCode();
+				// for(String line : lines) {
+				// 	System.out.println(line);
+				// }
+				RealMachine.getInstance().execute();
             }
-        });      
+        });   
+
+		// load button listener
+        loadBtn.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+        		RealMachine.getInstance().loadCode();
+        	}
+        });
 	}
 
 	private void initOutputArea() {
@@ -187,6 +203,25 @@ public class GraphicalUserInterface {
 		label.setMaximumSize(label.getPreferredSize());
 		return label;
 	}	
+
+	public static void loadCodeToWritingArea(String[] code) {
+		for(String command : code) {
+			writingArea.append(command + "\n");
+		}
+	}
+
+	public static void highlightCurrendCodeLine(int index) {
+		try { 
+			if(index > 0) {
+				writingArea.getHighlighter().removeHighlight(writingArea.getHighlighter().getHighlights()[0]);
+			}
+			int startIndex = writingArea.getLineStartOffset(index);
+        	int endIndex = writingArea.getLineEndOffset(index);
+			DefaultHighlightPainter painter = new DefaultHighlightPainter(Color.cyan);
+			writingArea.getHighlighter().addHighlight(startIndex, endIndex, painter);
+		} 
+		catch (BadLocationException ex) { ex.printStackTrace(); }
+	}
 
 	public static void updateRAMCell(int index, String data) {
 		ramData.remove(index);

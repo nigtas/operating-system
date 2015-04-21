@@ -1,11 +1,15 @@
 public class CommandsInterpretator {
+	private String[] code;
+	private int executionLine = 0;
 
-	CommandsInterpretator() {
-
+	CommandsInterpretator(String[] code) {
+		setCode(code);
 	}
 
-	public void executeCommand(String[] commands) {
-		for(String command : commands) {
+	public void executeCommand() {
+		GraphicalUserInterface.getInstance().highlightCurrendCodeLine(executionLine);
+		if(code.length >= (executionLine + 1)) {
+			String command = code[executionLine];
 			System.out.println(command.substring(0, 2));
 			String executionCode = command.substring(0, 2);
 			switch(executionCode) {
@@ -40,7 +44,9 @@ public class CommandsInterpretator {
 				case "HA" : halt();
 							break;
 			}
+			++executionLine;
 		}
+			
 	}
 
 	/*commands functions*/
@@ -61,14 +67,14 @@ public class CommandsInterpretator {
 	}
 
 	public void pt(String elements) {
-		int stackPlace = Integer.parseInt(new String(RealMachine.getInstance().getSS()), 16);
+		int stackPlace = Integer.parseInt(new String(RealMachine.getInstance().getSS()), 16)/256;
 		int block = Integer.parseInt(new String(RealMachine.getInstance().getDS()));
 		int place = Integer.parseInt(elements, 16);
 		if(RealMachine.getInstance().incESP()){
 			int stackTop = Integer.parseInt(new String(RealMachine.getInstance().getESP()), 16);
 			char[] valueFromStack = RealMachine.getInstance().getRAM().getWord(stackPlace, stackTop);
-			System.out.println("place " + stackPlace + " top " + stackTop + " value " + new String(valueFromStack));
-			RealMachine.getInstance().getRAM().nullWord(stackPlace/256, stackTop);
+			System.out.println("place " + stackPlace + " top " + (stackTop/stackPlace - 256) + " value " + new String(valueFromStack));
+			RealMachine.getInstance().getRAM().nullWord(stackPlace, (stackTop/stackPlace - 256));
 			RealMachine.getInstance().getRAM().setWord(block/256, place, valueFromStack);	
 		}
 		else {
@@ -195,6 +201,15 @@ public class CommandsInterpretator {
 		char[] chars = {'0', '3'};
 		RealMachine.getInstance().setSI(chars);
 		System.out.println(RealMachine.getInstance().getSI());
+	}
+
+	//setters, getters
+	public void setCode(String[] code) {
+		this.code = code;
+	}
+
+	public String[] getCode() {
+		return code;
 	}
 
 }
