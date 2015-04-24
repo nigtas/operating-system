@@ -51,12 +51,13 @@ public class RealMachine {
    	private void initRM() {
    		ram = new Memory();
          swapping = new Swapping();
+         ci = new CommandsInterpretator();
 
          // setting PTR register
          setPTR(ram.newPageTable());
          initStack();
          setESP(new char[]{'0', '0', 'F', 'F'});
-         initDataSegment();
+         // initDataSegment();
          initCodeSegment();
 
 
@@ -170,10 +171,26 @@ public class RealMachine {
             }
          }
          String[] convertedCode = new String[code.size()];
+         int memoryBlockForCode = Utilities.getInstance().charToInt(ram.getWord(0, Utilities.getInstance().charToInt(getCS())));
+         System.out.println("block number for code " + memoryBlockForCode);
          convertedCode = code.toArray(convertedCode);
-         // System.out.println(convertedCode[1]);
-         ci = new CommandsInterpretator(convertedCode);
+         loadCodeToMemory(memoryBlockForCode, convertedCode);
+         ci = new CommandsInterpretator();
          GraphicalUserInterface.getInstance().loadCodeToWritingArea(convertedCode);
+      }
+
+      public void loadCodeToMemory(int blockNumber, String[] code) {
+         // TODO: check if code is not more than 255
+         for(int i = 0; i < code.length; ++i) {
+            ram.setWord(blockNumber, i, code[i].toCharArray());
+            GraphicalUserInterface.getInstance().updateRAMCell(blockNumber * 256 + i, code[i]);
+         }
+      }
+
+      public String getCodeFromMemory(int ip) {
+         int blockNumber = Utilities.getInstance().charToInt(ram.getWord(0, Utilities.getInstance().charToInt(getCS())));
+         System.out.println("cs block " + blockNumber);
+         return new String(ram.getWord(blockNumber, ip));
       }
 
    	// =========== SETERS AND GETTERS ===========
@@ -204,6 +221,30 @@ public class RealMachine {
             String hex = Integer.toHexString(decValue);
             setESP(hex.toCharArray());
             return true;
+         }
+      }
+      public char[] incReg(char[] value) {
+         int decValue = Utilities.getInstance().charToInt(value, 16);
+         if(decValue + 1 == 255) {
+            System.out.println("Cannot increase!");
+            return value;
+         }
+         else {
+            ++decValue;
+            char[] hex = Integer.toHexString(decValue).toCharArray();
+            return hex;
+         }
+      }
+      public char[] decReg(char[] value) {
+         int decValue = Utilities.getInstance().charToInt(value, 16);
+         if(decValue - 1 < 0) {
+            System.out.println("Cannot decrease!");
+            return value;
+         }
+         else {
+            --decValue;
+            char[] hex = Integer.toHexString(decValue).toCharArray();
+            return hex;
          }
       }
    	public void setDS(char[] reg) {

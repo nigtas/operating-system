@@ -54,7 +54,7 @@ public class Memory {
 			GraphicalUserInterface.getInstance().appendOutputText("#AND: "+ place +" PLACE OVERWRITTEN!\n");
 		}
 		if(block > 0 && place > 0) {
-			memoryPlace = block * place;
+			memoryPlace = block * NUMBER_OF_WORDS + place;
 		} else if(block == 0) {
 			memoryPlace = place;
 		} else if(place == 0) {
@@ -88,7 +88,7 @@ public class Memory {
 		char data[] = new char[4];
 		int memoryPlace = 0;
 		if(block > 0 && place > 0) {
-			memoryPlace = block * place;
+			memoryPlace = block * NUMBER_OF_WORDS + place;
 		} else if (block == 0) {
 			memoryPlace = place;
 		} else if (place == 0) {
@@ -105,7 +105,7 @@ public class Memory {
 	public void nullWord(int block, int place) {
 		int memoryPlace = 0;
 		if(block > 0 && place > 0) {
-			memoryPlace = block * place;
+			memoryPlace = block * NUMBER_OF_WORDS + place;
 		} else if (block == 0) {
 			memoryPlace = place;
 		} else if (place == 0) {
@@ -244,7 +244,6 @@ public class Memory {
 				break;
 			}
 		}
-		System.out.println("i = " + i);
 		return memory[i];
 	}
 

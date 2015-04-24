@@ -1,4 +1,5 @@
-asd12
-asdas12
-asdasd23
-asdasd12
+PROG
+LD01
+LD01
+ADD
+HALT

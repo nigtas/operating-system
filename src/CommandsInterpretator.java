@@ -1,65 +1,68 @@
 public class CommandsInterpretator {
 	private String[] code;
-	private int executionLine = 0;
 
-	CommandsInterpretator(String[] code) {
-		setCode(code);
+	CommandsInterpretator() {
 	}
 
 	public void executeCommand() {
+		int executionLine = Utilities.getInstance().charToInt(RealMachine.getInstance().getIP(), 16);
 		GraphicalUserInterface.getInstance().highlightCurrentCodeLine(executionLine);
-		if(code.length >= (executionLine + 1)) {
-			String command = code[executionLine];
-			// System.out.println(command.substring(0, 2));
-			String executionCode = command.substring(0, 2);
-			switch(executionCode) {
-				case "LD" : ld(command.substring(2, 4));
-							break;
-				case "PT" : pt(command.substring(2, 4));
-							break;
-				case "AD" : add();
-							break;
-				case "SU" : sub();
-							break;
-				case "MU" : mul();
-							break;
-				case "DI" : div();
-							break;
-				case "CD" : cds(command.substring(2, 3));
-							break;
-				case "CC" : ccs(command.substring(2, 3));
-							break;
-				case "CS" : css(command.substring(2, 3));
-							break;
-				case "JP" : jp(command.substring(2, 4));
-							break;
-				case "JL" : jl(command.substring(2, 4));
-							break;
-				case "JG" : jg(command.substring(2, 4));
-							break;
-				case "GD" : gd(command.substring(2, 4));
-							break;
-				case "PD" : pd(command.substring(2, 4));
-							break;
-				case "HA" : halt();
-							break;
-			}
-			++executionLine;
+		String command = RealMachine.getInstance().getCodeFromMemory(executionLine);
+		String executionCode = command.substring(0, 2);
+		System.out.println("code" + executionCode);
+		switch(executionCode) {
+			case "LD" : ld(command.substring(2, 4));
+						break;
+			case "PT" : pt(command.substring(2, 4));
+						break;
+			case "AD" : add();
+						break;
+			case "SU" : sub();
+						break;
+			case "MU" : mul();
+						break;
+			case "DI" : div();
+						break;
+			case "CD" : cds(command.substring(2, 3));
+						break;
+			case "CC" : ccs(command.substring(2, 3));
+						break;
+			case "CS" : css(command.substring(2, 3));
+						break;
+			case "JP" : jp(command.substring(2, 4));
+						break;
+			case "JL" : jl(command.substring(2, 4));
+						break;
+			case "JG" : jg(command.substring(2, 4));
+						break;
+			case "GD" : gd(command.substring(2, 4));
+						break;
+			case "PD" : pd(command.substring(2, 4));
+						break;
+			case "HA" : halt();
+						break;
 		}
-			
+		RealMachine.getInstance().setIP(RealMachine.getInstance().
+			incReg(Utilities.getInstance().decToHex(executionLine).toCharArray()));
 	}
 
 	/*commands functions*/
 	public void ld(String elements) {
-		int block = Utilities.charToInt(RealMachine.getInstance().getDS());
+		// int ds = Utilities.getInstance().charToInt(RealMachine.getInstance().getDS(), 16);
+		int ptr = Utilities.getInstance().charToInt(RealMachine.getInstance().getPTR(), 16);
+		// System.out.println("ds " + ds + " ptr " + ptr);
+		// int block = Utilities.getInstance().charToInt(RealMachine.getInstance().getRAM().getWord(ptr, ds), 16);
 		int place = Integer.parseInt(elements, 16);
-		char[] valueFromMemory = RealMachine.getInstance().getRAM().getWord(block, place);
-		int stackPlace = (Utilities.charToInt(RealMachine.getInstance().getESP(), 16)) / 256;
+		// System.out.println("LOAD block: " + block + " place: " + place);
+		char[] valueFromMemory = RealMachine.getInstance().getRAM().getWord(0, place);			// 0 only for fuction chech, here must be block
+		System.out.println("LOAD value from memory: " + new String(valueFromMemory));
+		int ss = Utilities.charToInt(RealMachine.getInstance().getSS(), 16);
+		int stackBlock = Utilities.charToInt(RealMachine.getInstance().getRAM().getWord(ptr, ss), 16);
 		int stackTop = Utilities.charToInt(RealMachine.getInstance().getESP(), 16);
-		// System.out.println("place " + stackPlace + " top " + (stackTop/stackPlace - 256) + " value " + new String(valueFromMemory));
+		 System.out.println("place " + stackBlock + " top " + stackTop + " value " + new String(valueFromMemory));
 		if(RealMachine.getInstance().decESP()){
-			RealMachine.getInstance().getRAM().setWord(stackPlace, (stackTop/stackPlace - 256), valueFromMemory);
-			GraphicalUserInterface.getInstance().updateRAMCell(stackPlace * stackTop, new String(valueFromMemory));
+			RealMachine.getInstance().getRAM().setWord(stackBlock, stackTop, valueFromMemory);
+			GraphicalUserInterface.getInstance().updateRAMCell(stackBlock * 256 + stackTop, new String(valueFromMemory));
 		}
 		else {
 			System.out.println("Stack is full!");
@@ -99,7 +102,7 @@ public class CommandsInterpretator {
 				char[] valueToAdd = (Integer.toHexString(sum)).toCharArray();
 				// System.out.println("first value " + new String(firstValueFromStack) +
 				// " second value " + new String(secondValueFromStack) + " value " + new String(valueToAdd));
-				RealMachine.getInstance().getRAM().setWord(stackPlace/256, stackTop, valueToAdd);	
+				RealMachine.getInstance().getRAM().setWord(stackPlace, stackTop, valueToAdd);	
 			}
 			else {
 				System.out.println("Stack is full!");
