@@ -62,11 +62,12 @@ public class Memory {
 		}
 		
 		if(data.length < WORD_SIZE) {
-			for (int i = 0; i < WORD_SIZE - 2; i++) {
+			for (int i = 0; i < (WORD_SIZE - data.length); i++) {
 				memory[memoryPlace][i] = '0';
 			}
-			memory[memoryPlace][2] = data[0];
-			memory[memoryPlace][3] = data[1];
+			for (int i = (WORD_SIZE - data.length); i < WORD_SIZE; i++) {
+				memory[memoryPlace][i] = data[i-(WORD_SIZE - data.length)];
+			}
 		} else {
 			for (int i = 0; i < WORD_SIZE; i++) {
 				memory[memoryPlace][i] = data[i];

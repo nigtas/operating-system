@@ -5,7 +5,22 @@ import java.awt.event.*;
 import javax.swing.text.LayeredHighlighter.LayerPainter;
 import javax.swing.text.DefaultHighlighter.*;
 import javax.swing.text.BadLocationException;
-import java.util.Random;
+
+
+
+
+/* METHODS
+	1 - printDataToRAMCell(int index, String data) - sets cell data at index cell
+	2 - getDataFromRAMCell(int index) - return String data from cell at index position
+	3 - printDataToVRAMCell(int index, String data) - sets cell data at index cell
+	4 - getDataFromVRAMCell(int index) - return String data from cell at index position
+	5 - printDataToHDDCell(int index, String data) - sets cell data at index cell
+	6 - getDataFromHDDCell(int index) - return String data from cell at index position
+	7 - setOutputText(String text) - sets text to be displayed in output window (overwrites old text)
+	8 - appendOutputText(String text) - appends text to displayed in output (concatenates old text with new)
+	9 - getProgramCode() - returns array of Strings, each line of code window is one array element
+	10 - setRegisters(String[] array) - sets all registers, need to pass array of registers (array structure written below)
+*/
 
 /* ARRAY OF REGISTERS 
 	0 - ESP
@@ -48,9 +63,6 @@ public class GraphicalUserInterface {
 	private static JTextArea writingArea = null;
 	private static JTextArea outputArea = null;
 
-	// colors 
-	private static Color colors[] = new Color[Memory.NUMBER_OF_BLOCKS];
-
 	private static JTextField[] fields = {
 		 new JTextField("ESP: "),
 		 new JTextField("DS: "),
@@ -78,8 +90,7 @@ public class GraphicalUserInterface {
 		initWritingArea();
 		initOutputArea();
 		initRAMlist();
-
-		initColors();
+		initVRAMlist();
 
 		frame.setSize(1000, 700);
 		frame.setLocationRelativeTo(null);
@@ -101,11 +112,13 @@ public class GraphicalUserInterface {
 		left.setLayout(new GridLayout(7, 1)); 
 		centerLeftMost.setLayout(new BorderLayout());
 		centerLeft.setLayout(new BorderLayout());
+		centerRight.setLayout(new BorderLayout()); 
 		right.setLayout(new BorderLayout()); 
 
 		pane.add(left);
 		pane.add(centerLeftMost);
 		pane.add(centerLeft);
+		pane.add(centerRight);
 		pane.add(right);
 	}
 
@@ -123,6 +136,9 @@ public class GraphicalUserInterface {
 		JButton executeBtn = new JButton("Execute");
 		JButton loadBtn = new JButton("Load");
  		writingArea = new JTextArea();
+		writingArea.setWrapStyleWord(true);
+		writingArea.setLineWrap(true);
+		writingArea.setCaretPosition(0);
 		writingArea.setEditable(false);
 		JScrollPane listScroller = new JScrollPane(writingArea);
 		listScroller.setPreferredSize(new Dimension(150, 600));
@@ -138,6 +154,10 @@ public class GraphicalUserInterface {
             public void actionPerformed(ActionEvent e)
             {
                 //Execute when button is pressed
+                // String[] lines = getProgramCode();
+				// for(String line : lines) {
+				// 	System.out.println(line);
+				// }
 				RealMachine.getInstance().execute();
             }
         });   
@@ -148,20 +168,6 @@ public class GraphicalUserInterface {
         		RealMachine.getInstance().loadCode();
         	}
         });
-	}
-
-	private void initColors() {
-		Random rand = new Random();
-		float luminance = 0.7f;
-
-		for(int i = 0; i < Memory.NUMBER_OF_BLOCKS; i++){
-	    	float hue = rand.nextFloat();
-			// Saturation between 0.1 and 0.3
-			float saturation = (rand.nextInt(7000) + 1000) / 10000f;
-			Color color = Color.getHSBColor(hue, saturation, luminance);
-			colors[i] = color;	
-		}
-		
 	}
 
 	private void initOutputArea() {
@@ -184,6 +190,15 @@ public class GraphicalUserInterface {
 		right.add(listScroller, BorderLayout.CENTER);
 	}
 
+	private void initVRAMlist() {
+		vram = new JList<String>();
+		vram.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
+		JScrollPane listScroller = new JScrollPane(vram);
+		listScroller.setPreferredSize(new Dimension(150, 600));
+		centerRight.add(initTextField("VRAM"), BorderLayout.NORTH);
+		centerRight.add(listScroller, BorderLayout.CENTER);
+	}
+
 	private JLabel initTextField(String text) {
 		JLabel label = new JLabel(text, SwingConstants.CENTER);
 		label.setMaximumSize(label.getPreferredSize());
@@ -197,7 +212,8 @@ public class GraphicalUserInterface {
 	}
 
 	public static void highlightCurrentCodeLine(int index) {
-		try { 
+		if(index <= writingArea.getLineCount()-2) {
+			try {
 			if(index > 0) {
 				writingArea.getHighlighter().removeHighlight(writingArea.getHighlighter().getHighlights()[0]);
 			}
@@ -207,6 +223,7 @@ public class GraphicalUserInterface {
 			writingArea.getHighlighter().addHighlight(startIndex, endIndex, painter);
 		} 
 		catch (BadLocationException ex) { ex.printStackTrace(); }
+		}	
 	}
 
 	public static void updateRAMCell(int index, String data) {
@@ -218,22 +235,27 @@ public class GraphicalUserInterface {
 	// data - data to print
 	public static void printDataToRAMCell(int index, String data) {
 		ramData.add(index, Utilities.getInstance().decToHex(index) + ". " + data);
-		ram.setCellRenderer(new DefaultListCellRenderer() {
-		    @Override
-		    public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-		        JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-		        int block = index / 256;
-		        label.setBackground(colors[block]); 
-		        
-		        return label;
-		    }
-		});
+		
 	}
 
 	// index - shows cell position (0..65535)
 	// method returns data from index cell
 	public static String getDataFromRAMCell(int index) {
 		String cell = ramData.get(index);
+		String cellData = cell.substring(cell.lastIndexOf(".") + 1).trim();
+		return cellData;
+	}
+
+	// index - shows cell position (0..65535)
+	// data - data to print
+	public static void printDataToVRAMCell(int index, String data) {
+		vramData.add(index, Utilities.getInstance().decToHex(index) + ". " + data);
+	}
+
+	// index - shows cell position (0..65535)
+	// method returns data from index cell
+	public static String getDataFromVRAMCell(int index) {
+		String cell = vramData.get(index);
 		String cellData = cell.substring(cell.lastIndexOf(".") + 1).trim();
 		return cellData;
 	}

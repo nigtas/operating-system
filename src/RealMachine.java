@@ -172,7 +172,6 @@ public class RealMachine {
          }
          String[] convertedCode = new String[code.size()];
          int memoryBlockForCode = Utilities.getInstance().charToInt(ram.getWord(0, Utilities.getInstance().charToInt(getCS())));
-         System.out.println("block number for code " + memoryBlockForCode);
          convertedCode = code.toArray(convertedCode);
          loadCodeToMemory(memoryBlockForCode, convertedCode);
          ci = new CommandsInterpretator();
@@ -183,14 +182,67 @@ public class RealMachine {
          // TODO: check if code is not more than 255
          for(int i = 0; i < code.length; ++i) {
             ram.setWord(blockNumber, i, code[i].toCharArray());
-            GraphicalUserInterface.getInstance().updateRAMCell(blockNumber * 256 + i, code[i]);
+            GraphicalUserInterface.getInstance().updateRAMCell(blockNumber * 256 + i, new String(ram.getWord(blockNumber, i)));
          }
       }
 
       public String getCodeFromMemory(int ip) {
          int blockNumber = Utilities.getInstance().charToInt(ram.getWord(0, Utilities.getInstance().charToInt(getCS())));
-         System.out.println("cs block " + blockNumber);
          return new String(ram.getWord(blockNumber, ip));
+      }
+
+      public void test() {
+         int pi = Utilities.getInstance().charToInt(getPI(), 16);
+         int ti = Utilities.getInstance().charToInt(getTI(), 16);
+         int si = Utilities.getInstance().charToInt(getSI(), 16);
+         int ioi = Utilities.getInstance().charToInt(getIOI(), 16);
+         if(pi > 0) {
+            switch(pi) {
+               case 1: System.out.println("Division by 0");
+                       break;
+               case 2: System.out.println("Negative value");
+                       break;
+               case 3: System.out.println("Wrong address");
+                       break;
+               case 4: System.out.println("Stack is full");
+                       break;
+               case 5: System.out.println("Stack is empty");
+                       break;
+               case 6: System.out.println("Overflow");
+                       break;
+               case 7: System.out.println("Wrong operation code");
+                       break;
+               case 8: System.out.println("DS changed");
+                       break;
+               case 9: System.out.println("CS changed");
+                       break;
+               case 10: System.out.println("SS changed");
+                        break;
+            }
+         }
+         if(ti == 1) {
+            System.out.println("Time is out");
+         }
+         if(si > 0) {
+            switch(si) {
+               case 1: System.out.println("Input command");
+                       break;
+               case 2: System.out.println("Output command");
+                       break;
+               case 3: System.out.println("HALT");
+                       break;
+            }
+         }
+         if(ioi > 0) {
+             switch(ioi) {
+               case 1: System.out.println("Interrupt in 1st channel");
+                       break;
+               case 2: System.out.println("Interrupt in 2nd channel");
+                       break;
+               case 3: System.out.println("Interrupt in 3rd channel");
+                       break;
+            }
+         }
       }
 
    	// =========== SETERS AND GETTERS ===========
