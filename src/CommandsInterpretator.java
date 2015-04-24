@@ -148,7 +148,7 @@ public class CommandsInterpretator {
 				int mul = Utilities.charToInt(firstValueFromStack, 16) * Utilities.charToInt(secondValueFromStack, 16);
 				char[] valueToAdd = (Integer.toHexString(mul)).toCharArray();
 				System.out.println("first value " + new String(firstValueFromStack) +
-				" second value " + new String(secondValueFromStack) + " value " + new String(valueToAdd));
+					" second value " + new String(secondValueFromStack) + " value " + new String(valueToAdd));
 				RealMachine.getInstance().getRAM().setWord(stackPlace/256, stackTop, valueToAdd);	
 			}
 			else {
@@ -158,7 +158,35 @@ public class CommandsInterpretator {
 	}
 
 	public void div() {
-
+		int espValue = Utilities.charToInt(RealMachine.getInstance().getESP(), 16);
+		if (espValue > 253) {
+			System.out.println("Not enough elements!");
+		} else {
+			int stackPlace = Utilities.charToInt(RealMachine.getInstance().getSS(), 16);
+			int firstElStackTop = (Utilities.charToInt(RealMachine.getInstance().getESP(), 16)) - 1;
+			char[] firstValueFromStack = RealMachine.getInstance().getRAM().getWord(stackPlace, firstElStackTop);
+			int secondElStackTop = (Utilities.charToInt(RealMachine.getInstance().getESP(), 16)) - 2;
+			char[] secondValueFromStack = RealMachine.getInstance().getRAM().getWord(stackPlace, secondElStackTop);
+			int stackTop = Utilities.charToInt(RealMachine.getInstance().getESP(), 16);
+			if (RealMachine.getInstance().decESP()) {
+				int div = Utilities.charToInt(secondValueFromStack, 16) / Utilities.charToInt(firstValueFromStack, 16);
+				int mod = Utilities.charToInt(secondValueFromStack, 16) % Utilities.charToInt(secondValueFromStack, 16);
+				char[] valueToAddDiv = (Integer.toHexString(div)).toCharArray();
+				char[] valueToAddMod = (Integer.toHexString(mod)).toCharArray();
+				System.out.println("first value " + new String(firstValueFromStack) + 
+					" second value " + new String(secondValueFromStack) + " Div value " + new String(valueToAddDiv) + 
+					" Mod value " + new String(valueToAddMod));
+				RealMachine.getInstance().getRAM().setWord(stackPlace/256, stackTop, valueToAddDiv);
+				/* liekana */
+				if (RealMachine.getInstance().decESP()) {
+					RealMachine.getInstance().getRAM().setWord(stackPlace/256, stackTop, valueToAddMod);
+				} else {
+					System.out.println("Stack is full! No place for mod.");
+				}
+			} else {
+				System.out.println("Stack is full!");
+			}
+		}
 	}
 
 	public void cds(String elements) {
