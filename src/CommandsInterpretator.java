@@ -174,7 +174,7 @@ public class CommandsInterpretator {
 				char[] valueToAddDiv = (Integer.toHexString(div)).toCharArray();
 				char[] valueToAddMod = (Integer.toHexString(mod)).toCharArray();
 				System.out.println("first value " + new String(firstValueFromStack) + 
-					" second value " + new String(secondValueFromStack) + " value " + new String(valueToAddDiv) + 
+					" second value " + new String(secondValueFromStack) + " Div value " + new String(valueToAddDiv) + 
 					" Mod value " + new String(valueToAddMod));
 				RealMachine.getInstance().getRAM().setWord(stackPlace/256, stackTop, valueToAddDiv);
 				/* liekana */
