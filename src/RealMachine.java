@@ -109,24 +109,22 @@ public class RealMachine {
    	}
 
       public void initStack() {
-         int ssAddress = Utilities.getInstance().hexToDec(new String(getPTR())) + 192;         
+         int ssAddress = Utilities.getInstance().hexToDec(new String(getPTR())) + (Memory.NUMBER_OF_WORDS - Memory.NUMBER_OF_STACK_BLOCK);         
 
-         String ssValue = new String(ram.getWord(ssAddress - 192, ssAddress));
+         String ssValue = new String(ram.getWord(ssAddress - (Memory.NUMBER_OF_WORDS - Memory.NUMBER_OF_STACK_BLOCK), ssAddress));
          if(ssValue.equals("----")) {
-            System.out.println("ss not active");
             String activeVMBlock = new String( ram.getActiveVMblock(getPTR()) );
             int pageTablePlaceForActiveBlock = ram.getPageTablePlaceForActiveBlock(getPTR(), activeVMBlock);
             int activeBlockNr = Utilities.getInstance().hexToDec(activeVMBlock);
             
-            swapping.swap(activeBlockNr / 256, ram.getBlock(activeBlockNr / 256));
+            swapping.swap(activeBlockNr / Memory.NUMBER_OF_WORDS, ram.getBlock(activeBlockNr / Memory.NUMBER_OF_WORDS));
             ram.setBlockInactive(Utilities.getInstance().hexToDec(new String(getPTR())), pageTablePlaceForActiveBlock);
 
-            ram.setWord(Utilities.getInstance().hexToDec(new String(getPTR())), 192, activeVMBlock.toCharArray());
-            setSS(activeVMBlock.toCharArray());
+            ram.setWord(Utilities.getInstance().hexToDec(new String(getPTR())), (Memory.NUMBER_OF_WORDS - Memory.NUMBER_OF_STACK_BLOCK), activeVMBlock.toCharArray());
+            setSS(Utilities.getInstance().decToHex(ssAddress).toCharArray());
 
-            int newESP = 255 + Utilities.getInstance().hexToDec(new String(getSS()));
-            setESP(Utilities.getInstance().decToHex(newESP).toCharArray());
-
+            // set esp
+            // setESP()
             
          } 
       }

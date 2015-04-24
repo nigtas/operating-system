@@ -7,10 +7,10 @@ public class CommandsInterpretator {
 	}
 
 	public void executeCommand() {
-		GraphicalUserInterface.getInstance().highlightCurrendCodeLine(executionLine);
+		GraphicalUserInterface.getInstance().highlightCurrentCodeLine(executionLine);
 		if(code.length >= (executionLine + 1)) {
 			String command = code[executionLine];
-			System.out.println(command.substring(0, 2));
+			// System.out.println(command.substring(0, 2));
 			String executionCode = command.substring(0, 2);
 			switch(executionCode) {
 				case "LD" : ld(command.substring(2, 4));
@@ -56,7 +56,7 @@ public class CommandsInterpretator {
 		char[] valueFromMemory = RealMachine.getInstance().getRAM().getWord(block, place);
 		int stackPlace = (Utilities.charToInt(RealMachine.getInstance().getESP(), 16)) / 256;
 		int stackTop = Utilities.charToInt(RealMachine.getInstance().getESP(), 16);
-		System.out.println("place " + stackPlace + " top " + (stackTop/stackPlace - 256) + " value " + new String(valueFromMemory));
+		// System.out.println("place " + stackPlace + " top " + (stackTop/stackPlace - 256) + " value " + new String(valueFromMemory));
 		if(RealMachine.getInstance().decESP()){
 			RealMachine.getInstance().getRAM().setWord(stackPlace, (stackTop/stackPlace - 256), valueFromMemory);
 			GraphicalUserInterface.getInstance().updateRAMCell(stackPlace * stackTop, new String(valueFromMemory));
@@ -68,7 +68,7 @@ public class CommandsInterpretator {
 
 	public void pt(String elements) {
 		int stackPlace = Utilities.charToInt(RealMachine.getInstance().getSS(), 16);
-		int block = Utilities.charToInt(RealMachine.getInstance().getDS());\
+		int block = Utilities.charToInt(RealMachine.getInstance().getDS());
 		int place = Integer.parseInt(elements, 16);
 		if(RealMachine.getInstance().incESP()){
 			int stackTop = Utilities.charToInt(RealMachine.getInstance().getESP(), 16);

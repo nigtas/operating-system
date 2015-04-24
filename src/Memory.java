@@ -5,8 +5,11 @@ import java.io.IOException;
 import java.util.Random;
 
 public class Memory {
+
 	// word size
 	public static int WORD_SIZE = 4;
+	// stack size
+	public static int NUMBER_OF_STACK_BLOCK = 64;
 	// number of words in a block
 	public static int NUMBER_OF_WORDS = 256;
 	// number of blocks
@@ -150,7 +153,6 @@ public class Memory {
 		for (int i = 0; i < NUMBER_OF_WORDS; i++) {
 			if (!usedWords[block][i]) {
 				return i;
-
 			}
 		}
 		return -1;
@@ -197,7 +199,7 @@ public class Memory {
 			while (i < NUMBER_OF_WORDS) {
 				// while there are free blocks count real address for it
 				if(tempBlock > 0) {
-					memory[pageTableAddress] = Utilities.getInstance().decToHex(getRealAddress(tempBlock)).toCharArray();
+					memory[pageTableAddress] = Utilities.getInstance().decToHex(getRealAddress(tempBlock) / NUMBER_OF_WORDS).toCharArray();
 					usedBlock[tempBlock] = true;
 					tempBlock = getFreeBlock();
 				}
@@ -255,13 +257,5 @@ public class Memory {
 		}
 		usedWords[block][place] = false;
 	}
-
-	// getVMblock(int virtualBlock) ~ virtualBlock = any from (0..255)
-	// 1. get real address from page table for a virtual block. EX1. get 255 virtual block from page table (address = 0200)
-	// 2. return block from 0200..02FF
-	// 3. EX2. get 15 virtual block real address (address = 4E00)
-	// 4. return block from 4E00..4EFF
-	// THIS FUNCTION SHOULD RETURN DECIMAL VALUE OF VIRTUAL BLOCK REAL ADDRESS
-
 
 }
