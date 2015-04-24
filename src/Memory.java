@@ -33,6 +33,10 @@ public class Memory {
 				usedWords[i][j] = false;	
 			}
 		} 
+
+		for (int i = 0; i < NUMBER_OF_WORDS; i++) {
+			usedAndActiveVMblock[i] = false;
+		}
 	}
 	
 	public char[][] getMemory() {
@@ -232,12 +236,12 @@ public class Memory {
 		for(i = ptrAddress; i < ptrAddress + NUMBER_OF_WORDS; i++) {
 			if(new String(memory[i]).equals("----") ) {
 				j++;
+			} else if(usedAndActiveVMblock[j]) {
+				j++;
+				continue;
 			} else {
-				// System.out.println(j);
-				if(!usedAndActiveVMblock[j]) {
-					usedAndActiveVMblock[j] = true;
-					break;
-				}
+				usedAndActiveVMblock[j] = true;
+				break;
 			}
 		}
 		System.out.println("i = " + i);
