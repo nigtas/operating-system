@@ -19,6 +19,7 @@ public class Memory {
 	// used blocks
 	public boolean usedBlock[] = new boolean[NUMBER_OF_BLOCKS];
 	public boolean usedWords[][] = new boolean[NUMBER_OF_BLOCKS][NUMBER_OF_WORDS];
+	public boolean usedAndActiveVMblock[] = new boolean[NUMBER_OF_WORDS]; 
 	
 	public Memory() {
 		for (int i = 0; i < memory.length; i++) {
@@ -41,7 +42,7 @@ public class Memory {
 	// sets word at index
 	// place - 0..NUMBER_OF_WORDS - 1
 	public void setWord(int block, int place, char[] data) {
-		System.out.println(block + "place " + place);
+		// System.out.println(block + "place " + place);
 		int memoryPlace = 0;
 
 		if(usedWords[block][place]) { 
@@ -79,7 +80,7 @@ public class Memory {
 	// returns word from memory at index
 	// place - 0..NUMBER_OF_WORDS - 1
 	public char[] getWord(int block, int place) {
-		System.out.println(block + " " + place);
+		// System.out.println(block + " " + place);
 		char data[] = new char[4];
 		int memoryPlace = 0;
 		if(block > 0 && place > 0) {
@@ -226,11 +227,21 @@ public class Memory {
 
 	public char[] getActiveVMblock(char[] ptr) {
 		int ptrAddress = Utilities.getInstance().hexToDec(new String(ptr));
-		
-		while(new String(memory[ptrAddress]).equals("----")) {
-			ptrAddress++;
+		int i = 0;
+		int j = 0;
+		for(i = ptrAddress; i < ptrAddress + NUMBER_OF_WORDS; i++) {
+			if(new String(memory[i]).equals("----") ) {
+				j++;
+			} else {
+				// System.out.println(j);
+				if(!usedAndActiveVMblock[j]) {
+					usedAndActiveVMblock[j] = true;
+					break;
+				}
+			}
 		}
-		return memory[ptrAddress];
+		System.out.println("i = " + i);
+		return memory[i];
 	}
 
 	public int getPageTablePlaceForActiveBlock(char[] ptr, String active) {
@@ -255,6 +266,7 @@ public class Memory {
 		for (int i = 0; i < WORD_SIZE; i++) {
 			memory[memoryPlace][i] = '-';
 		}
+		usedAndActiveVMblock[place] = false;
 		usedWords[block][place] = false;
 	}
 

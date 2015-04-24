@@ -55,6 +55,10 @@ public class RealMachine {
          // setting PTR register
          setPTR(ram.newPageTable());
          initStack();
+         setESP(new char[]{'0', '0', 'F', 'F'});
+         initDataSegment();
+         initCodeSegment();
+
 
    		char[][] memory = ram.getMemory();
    		String word = "";
@@ -65,6 +69,8 @@ public class RealMachine {
    			}
    			GraphicalUserInterface.getInstance().printDataToRAMCell(i, word);
    		}
+
+
 
    		GraphicalUserInterface.getInstance().getRAMJList().setModel(GraphicalUserInterface.getInstance().getRAMModel());
    		GraphicalUserInterface.getInstance().setRegisters(collectAllRegisters());
@@ -121,12 +127,21 @@ public class RealMachine {
             ram.setBlockInactive(Utilities.getInstance().hexToDec(new String(getPTR())), pageTablePlaceForActiveBlock);
 
             ram.setWord(Utilities.getInstance().hexToDec(new String(getPTR())), (Memory.NUMBER_OF_WORDS - Memory.NUMBER_OF_STACK_BLOCK), activeVMBlock.toCharArray());
-            setSS(Utilities.getInstance().decToHex(ssAddress).toCharArray());
-
-            // set esp
-            // setESP()
-            
+            setSS(Utilities.getInstance().decToHex(ssAddress).toCharArray());            
          } 
+      }
+
+      public void initDataSegment() {
+         String findActiveVmBlock = new String( ram.getActiveVMblock( getPTR()) ); 
+         int pageTablePlaceForActiveBlock = ram.getPageTablePlaceForActiveBlock(getPTR(), findActiveVmBlock);
+         setDS(Utilities.getInstance().decToHex(pageTablePlaceForActiveBlock).toCharArray());
+      }
+
+      public void initCodeSegment() {
+         String findActiveVmBlock = new String( ram.getActiveVMblock( getPTR()) ); 
+         int pageTablePlaceForActiveBlock = ram.getPageTablePlaceForActiveBlock(getPTR(), findActiveVmBlock);
+         System.out.println(pageTablePlaceForActiveBlock);
+         setCS(Utilities.getInstance().decToHex(pageTablePlaceForActiveBlock).toCharArray());
       }
 
       public void execute() {
@@ -156,7 +171,7 @@ public class RealMachine {
          }
          String[] convertedCode = new String[code.size()];
          convertedCode = code.toArray(convertedCode);
-         System.out.println(convertedCode[1]);
+         // System.out.println(convertedCode[1]);
          ci = new CommandsInterpretator(convertedCode);
          GraphicalUserInterface.getInstance().loadCodeToWritingArea(convertedCode);
       }

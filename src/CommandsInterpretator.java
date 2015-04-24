@@ -73,7 +73,7 @@ public class CommandsInterpretator {
 		if(RealMachine.getInstance().incESP()){
 			int stackTop = Utilities.charToInt(RealMachine.getInstance().getESP(), 16);
 			char[] valueFromStack = RealMachine.getInstance().getRAM().getWord(stackPlace, stackTop);
-			System.out.println("place " + stackPlace + " top " + (stackTop/stackPlace - 256) + " value " + new String(valueFromStack));
+			// System.out.println("place " + stackPlace + " top " + (stackTop/stackPlace - 256) + " value " + new String(valueFromStack));
 			RealMachine.getInstance().getRAM().nullWord(stackPlace, (stackTop/stackPlace - 256));
 			RealMachine.getInstance().getRAM().setWord(block/256, place, valueFromStack);	
 		}
@@ -97,8 +97,8 @@ public class CommandsInterpretator {
 			if(RealMachine.getInstance().decESP()){
 				int sum = Utilities.charToInt(firstValueFromStack, 16) + Utilities.charToInt(secondValueFromStack, 16);
 				char[] valueToAdd = (Integer.toHexString(sum)).toCharArray();
-				System.out.println("first value " + new String(firstValueFromStack) +
-				" second value " + new String(secondValueFromStack) + " value " + new String(valueToAdd));
+				// System.out.println("first value " + new String(firstValueFromStack) +
+				// " second value " + new String(secondValueFromStack) + " value " + new String(valueToAdd));
 				RealMachine.getInstance().getRAM().setWord(stackPlace/256, stackTop, valueToAdd);	
 			}
 			else {
@@ -122,8 +122,8 @@ public class CommandsInterpretator {
 			if(RealMachine.getInstance().decESP()){
 				int sub = Utilities.charToInt(firstValueFromStack, 16) - Utilities.charToInt(secondValueFromStack, 16);
 				char[] valueToAdd = (Integer.toHexString(sub)).toCharArray();
-				System.out.println("first value " + new String(firstValueFromStack) +
-				" second value " + new String(secondValueFromStack) + " value " + new String(valueToAdd));
+				// System.out.println("first value " + new String(firstValueFromStack) +
+				// " second value " + new String(secondValueFromStack) + " value " + new String(valueToAdd));
 				RealMachine.getInstance().getRAM().setWord(stackPlace/256, stackTop, valueToAdd);	
 			}
 			else {
@@ -147,8 +147,8 @@ public class CommandsInterpretator {
 			if(RealMachine.getInstance().decESP()){
 				int mul = Utilities.charToInt(firstValueFromStack, 16) * Utilities.charToInt(secondValueFromStack, 16);
 				char[] valueToAdd = (Integer.toHexString(mul)).toCharArray();
-				System.out.println("first value " + new String(firstValueFromStack) +
-					" second value " + new String(secondValueFromStack) + " value " + new String(valueToAdd));
+				// System.out.println("first value " + new String(firstValueFromStack) +
+					// " second value " + new String(secondValueFromStack) + " value " + new String(valueToAdd));
 				RealMachine.getInstance().getRAM().setWord(stackPlace/256, stackTop, valueToAdd);	
 			}
 			else {
@@ -173,9 +173,9 @@ public class CommandsInterpretator {
 				int mod = Utilities.charToInt(secondValueFromStack, 16) % Utilities.charToInt(secondValueFromStack, 16);
 				char[] valueToAddDiv = (Integer.toHexString(div)).toCharArray();
 				char[] valueToAddMod = (Integer.toHexString(mod)).toCharArray();
-				System.out.println("first value " + new String(firstValueFromStack) + 
-					" second value " + new String(secondValueFromStack) + " Div value " + new String(valueToAddDiv) + 
-					" Mod value " + new String(valueToAddMod));
+				// System.out.println("first value " + new String(firstValueFromStack) + 
+					// " second value " + new String(secondValueFromStack) + " Div value " + new String(valueToAddDiv) + 
+					// " Mod value " + new String(valueToAddMod));
 				RealMachine.getInstance().getRAM().setWord(stackPlace/256, stackTop, valueToAddDiv);
 				/* liekana */
 				if (RealMachine.getInstance().decESP()) {
@@ -222,10 +222,10 @@ public class CommandsInterpretator {
 	}
 
 	public void halt() {
-		System.out.println(RealMachine.getInstance().getSI());
+		// System.out.println(RealMachine.getInstance().getSI());
 		char[] chars = {'0', '3'};
 		RealMachine.getInstance().setSI(chars);
-		System.out.println(RealMachine.getInstance().getSI());
+		// System.out.println(RealMachine.getInstance().getSI());
 	}
 
 	//setters, getters
