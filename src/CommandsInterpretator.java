@@ -81,7 +81,7 @@ public class CommandsInterpretator {
 			GraphicalUserInterface.getInstance().updateRAMCell(stackBlock * 256 + stackTop, new String(RealMachine.getInstance().getRAM().getWord(stackBlock, stackTop)));
 		}
 		else {
-			System.out.println("Stack is full!");
+			RealMachine.getInstance().setPI(new char[] {'0', '4'});
 		}
 	}
 
@@ -100,7 +100,7 @@ public class CommandsInterpretator {
 			GraphicalUserInterface.getInstance().updateRAMCell(stackBlock * 256 + stackTop, new String(RealMachine.getInstance().getRAM().getWord(stackBlock, stackTop)));		
 		}
 		else {
-			System.out.println("Stack is empty!");
+			RealMachine.getInstance().setPI(new char[] {'0', '5'});
 		}
 	}
 
@@ -127,7 +127,7 @@ public class CommandsInterpretator {
 				GraphicalUserInterface.getInstance().updateRAMCell(stackBlock * 256 + stackTop, new String(RealMachine.getInstance().getRAM().getWord(stackBlock, stackTop)));	
 			}
 			else {
-				System.out.println("Stack is full!");
+				RealMachine.getInstance().setPI(new char[] {'0', '4'});
 			}
 		}
 	}
@@ -145,6 +145,10 @@ public class CommandsInterpretator {
 			char[] firstValueFromStack = RealMachine.getInstance().getRAM().getWord(stackBlock, firstElStackTop);
 			int secondElStackTop = (Utilities.charToInt(RealMachine.getInstance().getESP(), 16)) + 2;
 			char[] secondValueFromStack = RealMachine.getInstance().getRAM().getWord(stackBlock, secondElStackTop);
+			if(Utilities.charToInt(firstValueFromStack) < Utilities.charToInt(secondValueFromStack)) {
+				RealMachine.getInstance().setPI(new char[] {'0', '2'});
+				return;
+			}
 			int stackTop = Utilities.charToInt(RealMachine.getInstance().getESP(), 16);
 			if(RealMachine.getInstance().decESP()){
 				//TODO check if not negative
@@ -154,7 +158,7 @@ public class CommandsInterpretator {
 				GraphicalUserInterface.getInstance().updateRAMCell(stackBlock * 256 + stackTop, new String(RealMachine.getInstance().getRAM().getWord(stackBlock, stackTop)));	
 			}
 			else {
-				System.out.println("Stack is full!");
+				RealMachine.getInstance().setPI(new char[] {'0', '4'});
 			}
 		}
 	}
@@ -181,7 +185,7 @@ public class CommandsInterpretator {
 				GraphicalUserInterface.getInstance().updateRAMCell(stackBlock * 256 + stackTop, new String(RealMachine.getInstance().getRAM().getWord(stackBlock, stackTop)));	
 			}
 			else {
-				System.out.println("Stack is full!");
+				RealMachine.getInstance().setPI(new char[] {'0', '4'});
 			}
 		}
 	}
@@ -198,6 +202,10 @@ public class CommandsInterpretator {
 			char[] firstValueFromStack = RealMachine.getInstance().getRAM().getWord(stackBlock, firstElStackTop);
 			int secondElStackTop = (Utilities.charToInt(RealMachine.getInstance().getESP(), 16)) + 2;
 			char[] secondValueFromStack = RealMachine.getInstance().getRAM().getWord(stackBlock, secondElStackTop);
+			if(Utilities.charToInt(firstValueFromStack) == 0) {
+				RealMachine.getInstance().setPI(new char[] {'0', '1'});
+				return;
+			}
 			int stackTop = Utilities.charToInt(RealMachine.getInstance().getESP(), 16);
 			if (RealMachine.getInstance().decESP()) {
 				// System.out.println("first value " + Utilities.charToInt(secondValueFromStack, 16) + " second " + Utilities.charToInt(firstValueFromStack, 16));
@@ -215,23 +223,24 @@ public class CommandsInterpretator {
 					GraphicalUserInterface.getInstance().updateRAMCell(stackBlock * 256 + stackTop, new String(RealMachine.getInstance().getRAM().getWord(stackBlock, stackTop)));	
 				} else {
 					System.out.println("Stack is full! No place for mod.");
+					RealMachine.getInstance().setPI(new char[] {'0', '4'});
 				}
 			} else {
-				System.out.println("Stack is full!");
+				RealMachine.getInstance().setPI(new char[] {'0', '4'});
 			}
 		}
 	}
 
 	public void cds(String elements) {
-
+		RealMachine.getInstance().setPI(new char[] {'0', '8'});
 	}
 
 	public void ccs(String elements) {
-
+		RealMachine.getInstance().setPI(new char[] {'0', '9'});
 	}
 
 	public void css(String elements) {
-
+		RealMachine.getInstance().setPI(new char[] {'0', 'A'});
 	}
 
 	public void jp(String elements) {

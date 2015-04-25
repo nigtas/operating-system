@@ -198,25 +198,35 @@ public class RealMachine {
          int ioi = Utilities.getInstance().charToInt(getIOI(), 16);
          if(pi > 0) {
             switch(pi) {
-               case 1: System.out.println("Division by 0");
+               case 1: GraphicalUserInterface.getInstance().setOutputText("Division by 0");
+                       System.out.println("Division by 0"); //done
                        break;
-               case 2: System.out.println("Negative value");
+               case 2: GraphicalUserInterface.getInstance().setOutputText("Negative value");
+                       System.out.println("Negative value"); //done
                        break;
-               case 3: System.out.println("Wrong address");
+               case 3: GraphicalUserInterface.getInstance().setOutputText("Wrong address"));
+                       System.out.println("Wrong address");
                        break;
-               case 4: System.out.println("Stack is full");
+               case 4: GraphicalUserInterface.getInstance().setOutputText("Stack is full");
+                       System.out.println("Stack is full"); //done
                        break;
-               case 5: System.out.println("Stack is empty");
+               case 5: GraphicalUserInterface.getInstance().setOutputText("Stack is empty");
+                       System.out.println("Stack is empty"); //done
                        break;
-               case 6: System.out.println("Overflow");
+               case 6: GraphicalUserInterface.getInstance().setOutputText("Overflow"));
+                       System.out.println("Overflow");
                        break;
-               case 7: System.out.println("Wrong operation code");
+               case 7: GraphicalUserInterface.getInstance().setOutputText("Wrong operation code");
+                       System.out.println("Wrong operation code");
                        break;
-               case 8: System.out.println("DS changed");
+               case 8: GraphicalUserInterface.getInstance().setOutputText("DS changed");
+                       System.out.println("DS changed");  //done (not sure all)
                        break;
-               case 9: System.out.println("CS changed");
+               case 9: GraphicalUserInterface.getInstance().setOutputText("CS changed");
+                       System.out.println("CS changed");  //done (not sure all)
                        break;
-               case 10: System.out.println("SS changed");
+               case 10: GraphicalUserInterface.getInstance().setOutputText("SS changed");
+                        System.out.println("SS changed"); //done (not sure all)
                         break;
             }
          }
@@ -225,21 +235,27 @@ public class RealMachine {
          }
          if(si > 0) {
             switch(si) {
-               case 1: System.out.println("Input command");
+               case 1: GraphicalUserInterface.getInstance().setOutputText("Input command");
+                       System.out.println("Input command");
                        break;
-               case 2: System.out.println("Output command");
+               case 2: GraphicalUserInterface.getInstance().setOutputText("Output command");
+                       System.out.println("Output command");
                        break;
-               case 3: System.out.println("HALT");
+               case 3: GraphicalUserInterface.getInstance().setOutputText("HALT");
+                       System.out.println("HALT");  //done
                        break;
             }
          }
          if(ioi > 0) {
              switch(ioi) {
-               case 1: System.out.println("Interrupt in 1st channel");
+               case 1: GraphicalUserInterface.getInstance().setOutputText("Interrupt in 2nd channel");
+                       System.out.println("Interrupt in 1st channel");
                        break;
-               case 2: System.out.println("Interrupt in 2nd channel");
+               case 2: GraphicalUserInterface.getInstance().setOutputText("Interrupt in 2nd channel");
+                       System.out.println("Interrupt in 2nd channel");
                        break;
-               case 3: System.out.println("Interrupt in 3rd channel");
+               case 3: GraphicalUserInterface.getInstance().setOutputText("Interrupt in 2nd channel");
+                       System.out.println("Interrupt in 3rd channel");
                        break;
             }
          }
