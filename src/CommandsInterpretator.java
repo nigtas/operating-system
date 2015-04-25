@@ -9,6 +9,8 @@ public class CommandsInterpretator {
 		String command = RealMachine.getInstance().getCodeFromMemory(executionLine);
 		String executionCode = command.substring(0, 2);
 		System.out.println("ip " + executionLine + " command " + command + " code" + executionCode);
+		RealMachine.getInstance().setIP(RealMachine.getInstance().incReg(RealMachine.getInstance().getIP()));
+		GraphicalUserInterface.getInstance().setRegisters(RealMachine.getInstance().collectAllRegisters());
 		switch(executionCode) {
 			case "LD" : ld(command.substring(2, 4));
 						RealMachine.getInstance().setTM(RealMachine.getInstance().decReg(RealMachine.getInstance().getTM()));
@@ -46,6 +48,9 @@ public class CommandsInterpretator {
 			case "JG" : jg(command.substring(2, 4));
 						RealMachine.getInstance().setTM(RealMachine.getInstance().decReg(RealMachine.getInstance().getTM()));
 						break;
+			case "JE" : je(command.substring(2, 4));
+						RealMachine.getInstance().setTM(RealMachine.getInstance().decReg(RealMachine.getInstance().getTM()));
+						break;
 			case "GD" : gd(command.substring(2, 4));
 						break;
 			case "PD" : pd(command.substring(2, 4));
@@ -53,9 +58,10 @@ public class CommandsInterpretator {
 			case "HA" : halt();
 						break;
 			case "PR" : break;
-			default : return;
+			default : RealMachine.getInstance().setPI(new char[] {'0', '7'});
+					  return;
 		}
-		RealMachine.getInstance().setIP(RealMachine.getInstance().incReg(Utilities.getInstance().decToHex(executionLine).toCharArray()));
+		
 		if(Utilities.getInstance().charToInt(RealMachine.getInstance().getTM(), 16) == 0) {
 			RealMachine.getInstance().setTI(new char[] {'0', '1'});
 		}
@@ -244,19 +250,93 @@ public class CommandsInterpretator {
 	}
 
 	public void jp(String elements) {
-
+		int place = Integer.parseInt(elements, 16);
+		System.out.println("jump " + place);
+		if(place < 256) {
+			RealMachine.getInstance().setIP(elements.toCharArray());
+		}
+		else {
+			RealMachine.getInstance().setPI(new char[] {'0', '3'});
+		}
 	}
 
 	public void jl(String elements) {
-
+		int espValue = Utilities.charToInt(RealMachine.getInstance().getESP(), 16);
+		if (espValue > 254) {
+			RealMachine.getInstance().setPI(new char[] {'0', '5'});
+		}
+		else {
+			int place = Integer.parseInt(elements, 16);
+			System.out.println("jumpl " + place);
+			if(place < 256) {
+				int ptr = Utilities.getInstance().charToInt(RealMachine.getInstance().getPTR(), 16);
+				int ss = Utilities.charToInt(RealMachine.getInstance().getSS(), 16);
+				int stackBlock = Utilities.charToInt(RealMachine.getInstance().getRAM().getWord(ptr, ss), 16);
+				int firstElStackTop = (Utilities.charToInt(RealMachine.getInstance().getESP(), 16)) + 1;
+				char[] firstValueFromStack = RealMachine.getInstance().getRAM().getWord(stackBlock, firstElStackTop);
+				if(Utilities.getInstance().charToInt(firstValueFromStack, 16) == 0) {
+					RealMachine.getInstance().setIP(elements.toCharArray());
+				}
+				else System.out.println("Top element not 0!");
+			}
+			else {
+				RealMachine.getInstance().setPI(new char[] {'0', '3'});
+			}
+		}
 	}
 
 	public void jg(String elements) {
+		int espValue = Utilities.charToInt(RealMachine.getInstance().getESP(), 16);
+		int place = Integer.parseInt(elements, 16);
+		System.out.println("jumpg " + place);
+		if (espValue > 254) {
+			RealMachine.getInstance().setPI(new char[] {'0', '5'});
+		}
+		else {
+			if(place < 256) {
+				int ptr = Utilities.getInstance().charToInt(RealMachine.getInstance().getPTR(), 16);
+				int ss = Utilities.charToInt(RealMachine.getInstance().getSS(), 16);
+				int stackBlock = Utilities.charToInt(RealMachine.getInstance().getRAM().getWord(ptr, ss), 16);
+				int firstElStackTop = (Utilities.charToInt(RealMachine.getInstance().getESP(), 16)) + 1;
+				char[] firstValueFromStack = RealMachine.getInstance().getRAM().getWord(stackBlock, firstElStackTop);
+				if(Utilities.getInstance().charToInt(firstValueFromStack, 16) == 2) {
+					RealMachine.getInstance().setIP(elements.toCharArray());
+				}
+				else System.out.println("Top element not 2!");
+			}
+			else {
+				RealMachine.getInstance().setPI(new char[] {'0', '3'});
+			}
+		}
+	}
 
+	public void je(String elements) {
+		int espValue = Utilities.charToInt(RealMachine.getInstance().getESP(), 16);
+		int place = Integer.parseInt(elements, 16);
+		System.out.println("jumpe " + place);
+		if (espValue > 254) {
+			RealMachine.getInstance().setPI(new char[] {'0', '5'});
+		}
+		else {
+			if(place < 256) {
+				int ptr = Utilities.getInstance().charToInt(RealMachine.getInstance().getPTR(), 16);
+				int ss = Utilities.charToInt(RealMachine.getInstance().getSS(), 16);
+				int stackBlock = Utilities.charToInt(RealMachine.getInstance().getRAM().getWord(ptr, ss), 16);
+				int firstElStackTop = (Utilities.charToInt(RealMachine.getInstance().getESP(), 16)) + 1;
+				char[] firstValueFromStack = RealMachine.getInstance().getRAM().getWord(stackBlock, firstElStackTop);
+				System.out.println("value " + new String(firstValueFromStack) + "block " + stackBlock + "");
+				if(Utilities.getInstance().charToInt(firstValueFromStack, 16) == 1) {
+					RealMachine.getInstance().setIP(elements.toCharArray());
+				}
+				else System.out.println("Top element not 0!");
+			}
+			else {
+				RealMachine.getInstance().setPI(new char[] {'0', '1'});
+			}
+		}
 	}
 
 	public void gd(String elements) {
-
 	}
 
 	public void pd(String elements) {

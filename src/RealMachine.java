@@ -204,7 +204,7 @@ public class RealMachine {
                case 2: GraphicalUserInterface.getInstance().setOutputText("Negative value");
                        System.out.println("Negative value"); //done
                        break;
-               case 3: GraphicalUserInterface.getInstance().setOutputText("Wrong address"));
+               case 3: GraphicalUserInterface.getInstance().setOutputText("Wrong address");
                        System.out.println("Wrong address");
                        break;
                case 4: GraphicalUserInterface.getInstance().setOutputText("Stack is full");
@@ -213,11 +213,11 @@ public class RealMachine {
                case 5: GraphicalUserInterface.getInstance().setOutputText("Stack is empty");
                        System.out.println("Stack is empty"); //done
                        break;
-               case 6: GraphicalUserInterface.getInstance().setOutputText("Overflow"));
+               case 6: GraphicalUserInterface.getInstance().setOutputText("Overflow");
                        System.out.println("Overflow");
                        break;
                case 7: GraphicalUserInterface.getInstance().setOutputText("Wrong operation code");
-                       System.out.println("Wrong operation code");
+                       System.out.println("Wrong operation code"); //done
                        break;
                case 8: GraphicalUserInterface.getInstance().setOutputText("DS changed");
                        System.out.println("DS changed");  //done (not sure all)
@@ -328,6 +328,7 @@ public class RealMachine {
    		this.ptr = reg;
    	}
    	public void setIP(char[] reg) {
+         // TODO check if possible to set such value!
    		this.ip = reg;
    	}
    	public void setFLAGS(char[] reg) {
