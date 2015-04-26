@@ -55,8 +55,10 @@ public class CommandsInterpretator {
 						break;
 			case "PD" : pd(command.substring(2, 4));
 						break;
-			case "HA" : halt();
+			case "HA" : //TODO stop IP after halt
+					    halt();
 						break;
+						//TODO check, all code start with PROG
 			case "PR" : break;
 			default : RealMachine.getInstance().setPI(new char[] {'0', '7'});
 					  return;
@@ -71,13 +73,13 @@ public class CommandsInterpretator {
 
 	/*commands functions*/
 	public void ld(String elements) {
-		// int ds = Utilities.getInstance().charToInt(RealMachine.getInstance().getDS(), 16);
+		int ds = Utilities.getInstance().charToInt(RealMachine.getInstance().getDS(), 16);
 		int ptr = Utilities.getInstance().charToInt(RealMachine.getInstance().getPTR(), 16);
 		// System.out.println("ds " + ds + " ptr " + ptr);
-		// int block = Utilities.getInstance().charToInt(RealMachine.getInstance().getRAM().getWord(ptr, ds), 16);
+		int block = Utilities.getInstance().charToInt(RealMachine.getInstance().getRAM().getWord(ptr, ds), 16);
 		int place = Integer.parseInt(elements, 16);
 		// System.out.println("LOAD block: " + block + " place: " + place);
-		char[] valueFromMemory = RealMachine.getInstance().getRAM().getWord(0, place);			// 0 only for fuction chech, here must be block
+		char[] valueFromMemory = RealMachine.getInstance().getRAM().getWord(block, place);			
 		int ss = Utilities.charToInt(RealMachine.getInstance().getSS(), 16);
 		int stackBlock = Utilities.charToInt(RealMachine.getInstance().getRAM().getWord(ptr, ss), 16);
 		int stackTop = Utilities.charToInt(RealMachine.getInstance().getESP(), 16);
@@ -184,11 +186,16 @@ public class CommandsInterpretator {
 			char[] secondValueFromStack = RealMachine.getInstance().getRAM().getWord(stackBlock, secondElStackTop);
 			int stackTop = Utilities.charToInt(RealMachine.getInstance().getESP(), 16);
 			if(RealMachine.getInstance().decESP()){
-				//TODO check if not above
 				int mul = Utilities.charToInt(firstValueFromStack, 16) * Utilities.charToInt(secondValueFromStack, 16);
-				char[] valueToAdd = (Integer.toHexString(mul)).toCharArray();
-				RealMachine.getInstance().getRAM().setWord(stackBlock, stackTop, valueToAdd);
-				GraphicalUserInterface.getInstance().updateRAMCell(stackBlock * 256 + stackTop, new String(RealMachine.getInstance().getRAM().getWord(stackBlock, stackTop)));	
+				if(mul > 255) {
+					RealMachine.getInstance().setPI(new char[] {'0', '6'});
+					return;
+				}
+				else {
+					char[] valueToAdd = (Integer.toHexString(mul)).toCharArray();
+					RealMachine.getInstance().getRAM().setWord(stackBlock, stackTop, valueToAdd);
+					GraphicalUserInterface.getInstance().updateRAMCell(stackBlock * 256 + stackTop, new String(RealMachine.getInstance().getRAM().getWord(stackBlock, stackTop)));	
+				}
 			}
 			else {
 				RealMachine.getInstance().setPI(new char[] {'0', '4'});
