@@ -4,55 +4,55 @@ import java.io.*;
 import java.util.*;
 
 public class RealMachine {
-	private static RealMachine instance = null;
-	private VirtualMachine vm = null;
-	private Memory ram = null;
-   private Swapping swapping = null;
-   //commands interpretator
-   private CommandsInterpretator ci = null;
+   	private static RealMachine instance = null;
+   	private VirtualMachine vm = null;
+   	private Memory ram = null;
+      private Swapping swapping = null;
+      //commands interpretator
+      private CommandsInterpretator ci = null;
 
-	// Registers
-	private char[] esp = {'0', '0', '0', '0'};      // Steko rodykles registras
-	private char[] ds = {'0', '0', '0', '0'};       // Data segmentas
-	private char[] cs = {'0', '0', '0', '0'};       // Kodo segmentas
-	private char[] ss = {'0', '0', '0', '0'};       // Steko segmentas
-	private char[] ptr = {'0', '0', '0', '0'};      // Puslapiu lenteles registras
-	private char[] ip = {'0', '0'}; 				      // VM programos skaitiklias
-	private char[] flags = {'0', '0'}; 				   // Pozymiu registras
-	private char[] c = {'1', '1'};					   // Kanalo registas
-	private char[] ti = {'0', '0'};                 // Taimerio pertraukimo registras
-	private char[] pi = {'0', '0'};                 // Programiniu pertraukimu registras  
-	private char[] si = {'0', '0'};                 // Supervizoriniu pertraukimu registras 
-	private char[] ioi = {'0', '0'};                // I/O registas 
-	private char[] mode = {'0', '1'};               // MODE registas
-	private char[] tm = {'0', '9'};                 // TM registras
+   	// Registers
+   	private char[] esp = {'0', '0', '0', '0'};      // Steko rodykles registras
+   	private char[] ds = {'9', '9', '9', '9'};       // Data segmentas
+   	private char[] cs = {'9', '9', '9', '9'};       // Kodo segmentas
+   	private char[] ss = {'9', '9', '9', '9'};       // Steko segmentas
+   	private char[] ptr = {'0', '0', '0', '0'};      // Puslapiu lenteles registras
+   	private char[] ip = {'0', '0'}; 				      // VM programos skaitiklias
+   	private char[] flags = {'0', '0'}; 				   // Pozymiu registras
+   	private char[] c = {'1', '1'};					   // Kanalo registas
+   	private char[] ti = {'0', '0'};                 // Taimerio pertraukimo registras
+   	private char[] pi = {'0', '0'};                 // Programiniu pertraukimu registras  
+   	private char[] si = {'0', '0'};                 // Supervizoriniu pertraukimu registras 
+   	private char[] ioi = {'0', '0'};                // I/O registas 
+   	private char[] mode = {'0', '1'};               // MODE registas
+   	private char[] tm = {'0', '9'};                 // TM registras
 
-   /*
-      FLAGS :
-      0 - Sign flag (value : 01)
-      1 - Zero flag (value : 02)
-   */
+      /*
+         FLAGS :
+         0 - Sign flag (value : 01)
+         1 - Zero flag (value : 02)
+      */
 
-	protected RealMachine() {
-      try {
-         SwingUtilities.invokeAndWait(new Runnable() {
-            public void run() {
-               GraphicalUserInterface.getInstance();
-            }
-         });
-      } catch (Exception e) {
+   	protected RealMachine() {
+         try {
+            SwingUtilities.invokeAndWait(new Runnable() {
+               public void run() {
+                  GraphicalUserInterface.getInstance();
+               }
+            });
+         } catch (Exception e) {
 
-      }
-		
-		initRM();
-	}
+         }
+   		
+   		initRM();
+   	}
 
-	public static RealMachine getInstance() {
-		if(instance == null) {
-			instance = new RealMachine();
-		}
-		return instance;
-   	}	
+   	public static RealMachine getInstance() {
+   		if(instance == null) {
+   			instance = new RealMachine();
+   		}
+   		return instance;
+      }	
 
    	private void initRM() {
    		ram = new Memory();
@@ -126,11 +126,11 @@ public class RealMachine {
 
          String ssValue = new String(ram.getWord(ssAddress - (Memory.NUMBER_OF_WORDS - Memory.NUMBER_OF_STACK_BLOCK), ssAddress));
          if(ssValue.equals("----")) {
-            String activeVMBlock = new String( ram.getActiveVMblock(getPTR()) );
+            String activeVMBlock = new String( ram.getActiveVMblockForSwapping(getPTR(), getDS(), getSS(), getCS() ) );
             int pageTablePlaceForActiveBlock = ram.getPageTablePlaceForActiveBlock(getPTR(), activeVMBlock);
             int activeBlockNr = Utilities.getInstance().hexToDec(activeVMBlock);
             
-            swapping.swap(activeBlockNr / Memory.NUMBER_OF_WORDS, ram.getBlock(activeBlockNr / Memory.NUMBER_OF_WORDS));
+            swapping.swap(pageTablePlaceForActiveBlock, ram.getBlock(activeBlockNr / Memory.NUMBER_OF_WORDS));
             ram.setBlockInactive(Utilities.getInstance().hexToDec(new String(getPTR())), pageTablePlaceForActiveBlock);
 
             ram.setWord(Utilities.getInstance().hexToDec(new String(getPTR())), (Memory.NUMBER_OF_WORDS - Memory.NUMBER_OF_STACK_BLOCK), activeVMBlock.toCharArray());
@@ -139,18 +139,19 @@ public class RealMachine {
       }
 
       public void initDataSegment() {
-         String findActiveVmBlock = new String( ram.getActiveVMblock( getPTR()) ); 
+         String findActiveVmBlock = new String( ram.getActiveVMblockForSwapping( getPTR(), getDS(), getSS(), getCS() ) ); 
          System.out.println("active data segment = " + findActiveVmBlock);
          int block = Utilities.getInstance().hexToDec(findActiveVmBlock);
-         for(int i = 0; i < ram.NUMBER_OF_WORDS; i++) {
+         for(int i = 0; i < ram.NUMBER_OF_WORDS - 1; i++) {
             ram.setWord(block, i, Utilities.getInstance().decToHex(i).toCharArray());
          }
+         ram.setWord(block, 255, new char[] {'F', 'F', 'F', 'F'});
          int pageTablePlaceForActiveBlock = ram.getPageTablePlaceForActiveBlock(getPTR(), findActiveVmBlock);
          setDS(Utilities.getInstance().decToHex(pageTablePlaceForActiveBlock).toCharArray());
       }
 
       public void initCodeSegment() {
-         String findActiveVmBlock = new String( ram.getActiveVMblock( getPTR()) ); 
+         String findActiveVmBlock = new String( ram.getActiveVMblockForSwapping( getPTR(), getDS(), getSS(), getCS() ) ); 
          int pageTablePlaceForActiveBlock = ram.getPageTablePlaceForActiveBlock(getPTR(), findActiveVmBlock);
          System.out.println(pageTablePlaceForActiveBlock);
          setCS(Utilities.getInstance().decToHex(pageTablePlaceForActiveBlock).toCharArray());
@@ -433,6 +434,10 @@ public class RealMachine {
    	}
       public Memory getRAM() {
          return this.ram;
+      }
+
+      public Swapping getSwapping() {
+         return this.swapping;
       }
    	// ============================================
 
