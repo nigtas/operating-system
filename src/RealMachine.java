@@ -221,7 +221,7 @@ public class RealMachine {
                        System.out.println("Negative value"); //done
                        break;
                case 3: GraphicalUserInterface.getInstance().setOutputText("Wrong address");
-                       System.out.println("Wrong address");
+                       System.out.println("Wrong address"); //done
                        break;
                case 4: GraphicalUserInterface.getInstance().setOutputText("Stack is full");
                        System.out.println("Stack is full"); //done
@@ -230,7 +230,7 @@ public class RealMachine {
                        System.out.println("Stack is empty"); //done
                        break;
                case 6: GraphicalUserInterface.getInstance().setOutputText("Overflow");
-                       System.out.println("Overflow");
+                       System.out.println("Overflow"); //done maybe
                        break;
                case 7: GraphicalUserInterface.getInstance().setOutputText("Wrong operation code");
                        System.out.println("Wrong operation code"); //done
@@ -264,13 +264,13 @@ public class RealMachine {
          }
          if(ioi > 0) {
              switch(ioi) {
-               case 1: GraphicalUserInterface.getInstance().setOutputText("Interrupt in 2nd channel");
+               case 1: GraphicalUserInterface.getInstance().setOutputText("Interrupt in 1st channel");
                        System.out.println("Interrupt in 1st channel");
                        break;
                case 2: GraphicalUserInterface.getInstance().setOutputText("Interrupt in 2nd channel");
                        System.out.println("Interrupt in 2nd channel");
                        break;
-               case 3: GraphicalUserInterface.getInstance().setOutputText("Interrupt in 2nd channel");
+               case 3: GraphicalUserInterface.getInstance().setOutputText("Interrupt in 3rd channel");
                        System.out.println("Interrupt in 3rd channel");
                        break;
             }

@@ -4,6 +4,10 @@ public class CommandsInterpretator {
 	}
 
 	public void executeCommand() {
+		if(Utilities.getInstance().charToInt(RealMachine.getInstance().getSI(), 16) == 3) {
+			return;
+		}
+
 		int executionLine = Utilities.getInstance().charToInt(RealMachine.getInstance().getIP(), 16);
 		GraphicalUserInterface.getInstance().highlightCurrentCodeLine(executionLine);
 		String command = RealMachine.getInstance().getCodeFromMemory(executionLine);
@@ -11,19 +15,14 @@ public class CommandsInterpretator {
 
 		if(executionLine == 0) {
 			if(!executionCode.equals("PR")) {
-				System.out.println("badd");
-				System.out.println("exe l " + executionLine + " comm " + executionCode);
 				RealMachine.getInstance().setPI(new char[] {'0', '7'});
 				GraphicalUserInterface.getInstance().setRegisters(RealMachine.getInstance().collectAllRegisters());
 				RealMachine.getInstance().test();
 				return;
 			}
 		}
-			
-			System.out.println("goood");
-			System.out.println("exe l " + executionLine + " comm " + executionCode);
-			RealMachine.getInstance().setIP(RealMachine.getInstance().incReg(RealMachine.getInstance().getIP()));
-			GraphicalUserInterface.getInstance().setRegisters(RealMachine.getInstance().collectAllRegisters());
+		RealMachine.getInstance().setIP(RealMachine.getInstance().incReg(RealMachine.getInstance().getIP()));
+		GraphicalUserInterface.getInstance().setRegisters(RealMachine.getInstance().collectAllRegisters());
 		
 		switch(executionCode) {
 			case "LD" : ld(command.substring(2, 4));
@@ -69,10 +68,8 @@ public class CommandsInterpretator {
 						break;
 			case "PD" : pd(command.substring(2, 4));
 						break;
-			case "HA" : //TODO stop IP after halt
-					    halt();
+			case "HA" : halt();
 						break;
-						//TODO check, all code start with PROG
 			case "PR" : break;
 			default : RealMachine.getInstance().setPI(new char[] {'0', '7'});
 					  return;
