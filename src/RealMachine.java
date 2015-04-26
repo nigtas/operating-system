@@ -273,6 +273,16 @@ public class RealMachine {
       }
 
    	// =========== SETERS AND GETTERS ===========
+      public boolean getSF() {
+         int value = Utilities.getInstance().charToInt(getFLAGS(), 16);
+         return (value == 1 || value == 3);
+      }
+
+      public boolean getZF() {
+         int value = Utilities.getInstance().charToInt(getFLAGS(), 16);
+         return (value == 2 || value == 3);
+      }
+
    	public void setESP(char[] reg) {
    		this.esp = reg;
    	}

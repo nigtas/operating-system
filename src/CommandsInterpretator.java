@@ -112,9 +112,6 @@ public class CommandsInterpretator {
 	}
 
 	public void add() {
-		// clear flags before adding
-		RealMachine.getInstance().setFLAGS(new char[]{'0', '0'});
-
 		int espValue = Utilities.charToInt(RealMachine.getInstance().getESP(), 16);
 		if(espValue > 253){
 			System.out.println("Not enough elements!");
@@ -129,8 +126,15 @@ public class CommandsInterpretator {
 			char[] secondValueFromStack = RealMachine.getInstance().getRAM().getWord(stackBlock, secondElStackTop);
 			int stackTop = Utilities.charToInt(RealMachine.getInstance().getESP(), 16);
 			if(RealMachine.getInstance().decESP()){
+				int sum;
 				//TODO check if not above 65535
-				int sum = Utilities.charToInt(firstValueFromStack, 16) + Utilities.charToInt(secondValueFromStack, 16);
+				if(RealMachine.getInstance().getSF()){
+					sum = Utilities.charToSignedInt(firstValueFromStack, 16) + Utilities.charToInt(secondValueFromStack, 16);
+				}
+				else {
+					sum = Utilities.charToInt(firstValueFromStack, 16) + Utilities.charToInt(secondValueFromStack, 16);
+				}
+				RealMachine.getInstance().setFLAGS(new char[]{'0', '0'});
 				if (sum > 65535) {
 					RealMachine.getInstance().setPI(new char[] {'0', '6'});
 				}
@@ -155,9 +159,6 @@ public class CommandsInterpretator {
 	}
 
 	public void sub() {
-		// clear flags before substracting
-		RealMachine.getInstance().setFLAGS(new char[]{'0', '0'});
-
 		int espValue = Utilities.charToInt(RealMachine.getInstance().getESP(), 16);
 		if(espValue > 253){
 			System.out.println("Not enough elements!");
@@ -176,8 +177,15 @@ public class CommandsInterpretator {
 			// }
 			int stackTop = Utilities.charToInt(RealMachine.getInstance().getESP(), 16);
 			if(RealMachine.getInstance().decESP()){
+				int sub;
 				//TODO check if not negative
-				int sub = Utilities.getInstance().charToInt(firstValueFromStack, 16) - Utilities.getInstance().charToInt(secondValueFromStack, 16);
+				if(RealMachine.getInstance().getSF()){
+					sub = Utilities.charToSignedInt(firstValueFromStack, 16) - Utilities.charToInt(secondValueFromStack, 16);
+				}
+				else {
+					sub = Utilities.charToInt(firstValueFromStack, 16) - Utilities.charToInt(secondValueFromStack, 16);
+				}
+				RealMachine.getInstance().setFLAGS(new char[]{'0', '0'});	
 				if (sub < 0) {
 					int flags = Utilities.getInstance().charToInt(RealMachine.getInstance().getFLAGS());
 					flags += 1;
@@ -195,8 +203,6 @@ public class CommandsInterpretator {
 	}
 
 	public void mul() {
-		RealMachine.getInstance().setFLAGS(new char[]{'0', '0'});
-
 		int espValue = Utilities.charToInt(RealMachine.getInstance().getESP(), 16);
 		if(espValue > 253){
 			System.out.println("Not enough elements!");
@@ -211,7 +217,14 @@ public class CommandsInterpretator {
 			char[] secondValueFromStack = RealMachine.getInstance().getRAM().getWord(stackBlock, secondElStackTop);
 			int stackTop = Utilities.charToInt(RealMachine.getInstance().getESP(), 16);
 			if(RealMachine.getInstance().decESP()){
-				int mul = Utilities.charToInt(firstValueFromStack, 16) * Utilities.charToInt(secondValueFromStack, 16);
+				int mul;
+				if(RealMachine.getInstance().getSF()){
+					mul = Utilities.charToSignedInt(firstValueFromStack, 16) * Utilities.charToInt(secondValueFromStack, 16);
+				}
+				else {
+					mul = Utilities.charToInt(firstValueFromStack, 16) * Utilities.charToInt(secondValueFromStack, 16);
+				}
+				RealMachine.getInstance().setFLAGS(new char[]{'0', '0'});
 				if (mul == 0) {
 					int flags = Utilities.getInstance().charToInt(RealMachine.getInstance().getFLAGS());
 					flags += 2;
@@ -253,13 +266,20 @@ public class CommandsInterpretator {
 			}
 			int stackTop = Utilities.charToInt(RealMachine.getInstance().getESP(), 16);
 			if (RealMachine.getInstance().decESP()) {
-				int div = Utilities.charToInt(secondValueFromStack, 16) / Utilities.charToInt(firstValueFromStack, 16);
+				int div, mod;
+				if(RealMachine.getInstance().getSF()){
+					div = Utilities.charToInt(secondValueFromStack, 16) / Utilities.charToSignedInt(firstValueFromStack, 16);
+					mod = Utilities.charToInt(secondValueFromStack, 16) % Utilities.charToSignedInt(firstValueFromStack, 16);
+				}
+				else {
+					div = Utilities.charToInt(secondValueFromStack, 16) / Utilities.charToInt(firstValueFromStack, 16);
+					mod = Utilities.charToInt(secondValueFromStack, 16) % Utilities.charToInt(firstValueFromStack, 16);
+				}
 				if (div == 0) {
 					int flags = Utilities.getInstance().charToInt(RealMachine.getInstance().getFLAGS());
 					flags += 2;
 					RealMachine.getInstance().setFLAGS(Utilities.getInstance().decToHex(flags).toCharArray());	
 				}
-				int mod = Utilities.charToInt(secondValueFromStack, 16) % Utilities.charToInt(firstValueFromStack, 16);
 				char[] valueToAddDiv = (Integer.toHexString(div)).toCharArray();
 				char[] valueToAddMod = (Integer.toHexString(mod)).toCharArray();
 				RealMachine.getInstance().getRAM().setWord(stackBlock, stackTop, valueToAddDiv);
