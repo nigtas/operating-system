@@ -58,6 +58,10 @@ class Utilities {
         int value = Integer.parseInt(new String(input), numb);
         return value;
     }
+    static int charToSignedInt(char[] input, int numb) {
+        short value = (short) Integer.parseInt(new String(input), numb);
+        return (int) value;
+    }
 
 }
 
