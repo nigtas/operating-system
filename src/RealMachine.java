@@ -57,7 +57,7 @@ public class RealMachine {
          setPTR(ram.newPageTable());
          initStack();
          setESP(new char[]{'0', '0', 'F', 'F'});
-         // initDataSegment();
+         initDataSegment();
          initCodeSegment();
 
 
@@ -134,6 +134,11 @@ public class RealMachine {
 
       public void initDataSegment() {
          String findActiveVmBlock = new String( ram.getActiveVMblock( getPTR()) ); 
+         System.out.println("active data segment = " + findActiveVmBlock);
+         int block = Utilities.getInstance().hexToDec(findActiveVmBlock);
+         for(int i = 0; i < ram.NUMBER_OF_WORDS; i++) {
+            ram.setWord(block, i, Utilities.getInstance().decToHex(i).toCharArray());
+         }
          int pageTablePlaceForActiveBlock = ram.getPageTablePlaceForActiveBlock(getPTR(), findActiveVmBlock);
          setDS(Utilities.getInstance().decToHex(pageTablePlaceForActiveBlock).toCharArray());
       }
