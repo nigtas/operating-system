@@ -8,9 +8,15 @@ public class CommandsInterpretator {
 		GraphicalUserInterface.getInstance().highlightCurrentCodeLine(executionLine);
 		String command = RealMachine.getInstance().getCodeFromMemory(executionLine);
 		String executionCode = command.substring(0, 2);
-		System.out.println("ip " + executionLine + " command " + command + " code" + executionCode);
-		RealMachine.getInstance().setIP(RealMachine.getInstance().incReg(RealMachine.getInstance().getIP()));
-		GraphicalUserInterface.getInstance().setRegisters(RealMachine.getInstance().collectAllRegisters());
+		if(executionLine == 0 && executionCode == "PR") {
+			RealMachine.getInstance().setIP(RealMachine.getInstance().incReg(RealMachine.getInstance().getIP()));
+			GraphicalUserInterface.getInstance().setRegisters(RealMachine.getInstance().collectAllRegisters());
+		}
+		else {
+			RealMachine.getInstance().setPI(new char[] {'0', '7'});
+			GraphicalUserInterface.getInstance().setRegisters(RealMachine.getInstance().collectAllRegisters());
+			return;
+		}
 		switch(executionCode) {
 			case "LD" : ld(command.substring(2, 4));
 						RealMachine.getInstance().setTM(RealMachine.getInstance().decReg(RealMachine.getInstance().getTM()));

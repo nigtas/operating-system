@@ -190,10 +190,14 @@ public class RealMachine {
       }
 
       public void loadCodeToMemory(int blockNumber, String[] code) {
-         // TODO: check if code is not more than 255
-         for(int i = 0; i < code.length; ++i) {
+         if(code.length > 255) {
+            System.out.println("Too big code!!"); //is it enough??
+         }
+         else {
+            for(int i = 0; i < code.length; ++i) {
             ram.setWord(blockNumber, i, code[i].toCharArray());
             GraphicalUserInterface.getInstance().updateRAMCell(blockNumber * 256 + i, new String(ram.getWord(blockNumber, i)));
+            }
          }
       }
 
@@ -284,7 +288,12 @@ public class RealMachine {
       }
 
    	public void setESP(char[] reg) {
-   		this.esp = reg;
+         if(Utilities.getInstance().charToInt(reg, 16) < 256) {
+            this.esp = reg;   
+         }
+   		else {
+            System.out.println("Too big ESP set");
+         }
    	}
       public boolean incESP(){
          int decValue = Utilities.charToInt(getESP(), 16);
@@ -349,8 +358,12 @@ public class RealMachine {
    		this.ptr = reg;
    	}
    	public void setIP(char[] reg) {
-         // TODO check if possible to set such value!
-   		this.ip = reg;
+         if(Utilities.getInstance().charToInt(reg, 16) < 256) {
+            this.ip = reg;
+         }
+         else {
+            System.out.println("Too big IP set");
+         }
    	}
    	public void setFLAGS(char[] reg) {
    		this.flags = reg;
