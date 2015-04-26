@@ -112,6 +112,9 @@ public class CommandsInterpretator {
 	}
 
 	public void add() {
+		// clear flags before adding
+		RealMachine.getInstance().setFLAGS(new char[]{'0', '0'});
+
 		int espValue = Utilities.charToInt(RealMachine.getInstance().getESP(), 16);
 		if(espValue > 253){
 			System.out.println("Not enough elements!");
@@ -126,8 +129,21 @@ public class CommandsInterpretator {
 			char[] secondValueFromStack = RealMachine.getInstance().getRAM().getWord(stackBlock, secondElStackTop);
 			int stackTop = Utilities.charToInt(RealMachine.getInstance().getESP(), 16);
 			if(RealMachine.getInstance().decESP()){
-				//TODO check if not above 255
+				//TODO check if not above 65535
 				int sum = Utilities.charToInt(firstValueFromStack, 16) + Utilities.charToInt(secondValueFromStack, 16);
+				if (sum > 65535) {
+					RealMachine.getInstance().setPI(new char[] {'0', '6'});
+				}
+				if (sum == 0) {
+					int flags = Utilities.getInstance().charToInt(RealMachine.getInstance().getFLAGS());
+					flags += 2;
+					RealMachine.getInstance().setFLAGS(Utilities.getInstance().decToHex(flags).toCharArray());	
+				}
+				if (sum < 0) {
+					int flags = Utilities.getInstance().charToInt(RealMachine.getInstance().getFLAGS());
+					flags += 1;
+					RealMachine.getInstance().setFLAGS(Utilities.getInstance().decToHex(flags).toCharArray());		
+				}
 				char[] valueToAdd = (Integer.toHexString(sum)).toCharArray();
 				RealMachine.getInstance().getRAM().setWord(stackBlock, stackTop, valueToAdd);
 				GraphicalUserInterface.getInstance().updateRAMCell(stackBlock * 256 + stackTop, new String(RealMachine.getInstance().getRAM().getWord(stackBlock, stackTop)));	
@@ -139,6 +155,9 @@ public class CommandsInterpretator {
 	}
 
 	public void sub() {
+		// clear flags before substracting
+		RealMachine.getInstance().setFLAGS(new char[]{'0', '0'});
+
 		int espValue = Utilities.charToInt(RealMachine.getInstance().getESP(), 16);
 		if(espValue > 253){
 			System.out.println("Not enough elements!");
@@ -151,14 +170,20 @@ public class CommandsInterpretator {
 			char[] firstValueFromStack = RealMachine.getInstance().getRAM().getWord(stackBlock, firstElStackTop);
 			int secondElStackTop = (Utilities.charToInt(RealMachine.getInstance().getESP(), 16)) + 2;
 			char[] secondValueFromStack = RealMachine.getInstance().getRAM().getWord(stackBlock, secondElStackTop);
-			if(Utilities.charToInt(firstValueFromStack) < Utilities.charToInt(secondValueFromStack)) {
-				RealMachine.getInstance().setPI(new char[] {'0', '2'});
-				return;
-			}
+			// if(Utilities.charToInt(firstValueFromStack) < Utilities.charToInt(secondValueFromStack)) {
+				// RealMachine.getInstance().setPI(new char[] {'0', '2'});
+				// return;
+			// }
 			int stackTop = Utilities.charToInt(RealMachine.getInstance().getESP(), 16);
 			if(RealMachine.getInstance().decESP()){
 				//TODO check if not negative
-				int sub = Utilities.charToInt(firstValueFromStack, 16) - Utilities.charToInt(secondValueFromStack, 16);
+				int sub = Utilities.getInstance().charToInt(firstValueFromStack, 16) - Utilities.getInstance().charToInt(secondValueFromStack, 16);
+				if (sub < 0) {
+					int flags = Utilities.getInstance().charToInt(RealMachine.getInstance().getFLAGS());
+					flags += 1;
+					RealMachine.getInstance().setFLAGS(Utilities.getInstance().decToHex(flags).toCharArray());
+				}
+
 				char[] valueToAdd = (Integer.toHexString(sub)).toCharArray();
 				RealMachine.getInstance().getRAM().setWord(stackBlock, stackTop, valueToAdd);
 				GraphicalUserInterface.getInstance().updateRAMCell(stackBlock * 256 + stackTop, new String(RealMachine.getInstance().getRAM().getWord(stackBlock, stackTop)));	
@@ -170,6 +195,8 @@ public class CommandsInterpretator {
 	}
 
 	public void mul() {
+		RealMachine.getInstance().setFLAGS(new char[]{'0', '0'});
+
 		int espValue = Utilities.charToInt(RealMachine.getInstance().getESP(), 16);
 		if(espValue > 253){
 			System.out.println("Not enough elements!");
@@ -185,7 +212,12 @@ public class CommandsInterpretator {
 			int stackTop = Utilities.charToInt(RealMachine.getInstance().getESP(), 16);
 			if(RealMachine.getInstance().decESP()){
 				int mul = Utilities.charToInt(firstValueFromStack, 16) * Utilities.charToInt(secondValueFromStack, 16);
-				if(mul > 255) {
+				if (mul == 0) {
+					int flags = Utilities.getInstance().charToInt(RealMachine.getInstance().getFLAGS());
+					flags += 2;
+					RealMachine.getInstance().setFLAGS(Utilities.getInstance().decToHex(flags).toCharArray());	
+				} 
+				if(mul > 65535) {
 					RealMachine.getInstance().setPI(new char[] {'0', '6'});
 					return;
 				}
@@ -202,6 +234,8 @@ public class CommandsInterpretator {
 	}
 
 	public void div() {
+		RealMachine.getInstance().setFLAGS(new char[]{'0', '0'});
+
 		int espValue = Utilities.charToInt(RealMachine.getInstance().getESP(), 16);
 		if (espValue > 253) {
 			System.out.println("Not enough elements!");
@@ -220,6 +254,11 @@ public class CommandsInterpretator {
 			int stackTop = Utilities.charToInt(RealMachine.getInstance().getESP(), 16);
 			if (RealMachine.getInstance().decESP()) {
 				int div = Utilities.charToInt(secondValueFromStack, 16) / Utilities.charToInt(firstValueFromStack, 16);
+				if (div == 0) {
+					int flags = Utilities.getInstance().charToInt(RealMachine.getInstance().getFLAGS());
+					flags += 2;
+					RealMachine.getInstance().setFLAGS(Utilities.getInstance().decToHex(flags).toCharArray());	
+				}
 				int mod = Utilities.charToInt(secondValueFromStack, 16) % Utilities.charToInt(firstValueFromStack, 16);
 				char[] valueToAddDiv = (Integer.toHexString(div)).toCharArray();
 				char[] valueToAddMod = (Integer.toHexString(mod)).toCharArray();
