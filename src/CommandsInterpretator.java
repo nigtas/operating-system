@@ -310,26 +310,7 @@ public class CommandsInterpretator {
 			char[] block = RealMachine.getInstance().getRAM().getWord(ptr, place);
 			if(new String(block).equals("----")) {
 				// =========   SWAPPING   ==========
-				String activeVMBlockValue = new String( RealMachine.getInstance().getRAM().getActiveVMblockForSwapping(RealMachine.getInstance().getPTR(), RealMachine.getInstance().getDS(), RealMachine.getInstance().getSS(), RealMachine.getInstance().getCS() ) );
-				int activeVMBlockDecValue = Utilities.getInstance().hexToDec(activeVMBlockValue);
-	            int pageTablePlaceForActiveBlock = RealMachine.getInstance().getRAM().getPageTablePlaceForActiveBlock(RealMachine.getInstance().getPTR(), activeVMBlockValue);
-
-	            RealMachine.getInstance().getSwapping().swap(pageTablePlaceForActiveBlock, RealMachine.getInstance().getRAM().getBlock(activeVMBlockDecValue));
-	            // clear block
-	            RealMachine.getInstance().getRAM().nullBlock(activeVMBlockDecValue);
-	            // set block inactive
-	            RealMachine.getInstance().getRAM().setBlockInactive(Utilities.getInstance().charToInt(RealMachine.getInstance().getPTR()), pageTablePlaceForActiveBlock);
-
-	            GraphicalUserInterface.getInstance().updateRAMCell(Utilities.getInstance().charToInt(RealMachine.getInstance().getPTR()) + pageTablePlaceForActiveBlock, "----");
-	            RealMachine.getInstance().getRAM().setWord(Utilities.getInstance().charToInt(RealMachine.getInstance().getPTR()), place, activeVMBlockValue.toCharArray());
-	            GraphicalUserInterface.getInstance().updateRAMCell(Utilities.getInstance().charToInt(RealMachine.getInstance().getPTR()) + place, activeVMBlockValue);
-
-	            // check if file place.txt exists if so, then we need to load data from it to activeVMblockDecValue
-	            String[] blockFromSwap = RealMachine.getInstance().getSwapping().getBlockFromFile(place);
-	            if(blockFromSwap != null) {
-	            	RealMachine.getInstance().getRAM().setBlock(activeVMBlockDecValue, blockFromSwap);	
-	            }
-	            
+				changeSegment(place);
 			} // else there is an active block so data segment points to it
 			RealMachine.getInstance().setPI(new char[] {'0', '8'});
 		}
@@ -341,11 +322,11 @@ public class CommandsInterpretator {
 	public void ccs(String elements) {
 		int place = Integer.parseInt(elements, 16);
 		if(place < 256) {
-			RealMachine.getInstance().setDS(elements.toCharArray());
+			RealMachine.getInstance().setCS(elements.toCharArray());
 			int ptr = Utilities.getInstance().charToInt(RealMachine.getInstance().getPTR(), 16);
 			char[] block = RealMachine.getInstance().getRAM().getWord(ptr, place);
 			if(new String(block).equals("----")) {
-
+				changeSegment(place);
 			}
 			else {
 				
@@ -360,11 +341,11 @@ public class CommandsInterpretator {
 	public void css(String elements) {
 		int place = Integer.parseInt(elements, 16);
 		if(place < 256) {
-			RealMachine.getInstance().setDS(elements.toCharArray());
+			RealMachine.getInstance().setSS(elements.toCharArray());
 			int ptr = Utilities.getInstance().charToInt(RealMachine.getInstance().getPTR(), 16);
 			char[] block = RealMachine.getInstance().getRAM().getWord(ptr, place);
 			if(new String(block).equals("----")) {
-
+				changeSegment(place);
 			}
 			else {
 				
@@ -473,5 +454,28 @@ public class CommandsInterpretator {
 	public void halt() {
 		char[] chars = {'0', '3'};
 		RealMachine.getInstance().setSI(chars);
+	}
+
+
+	public void changeSegment(int place) {
+		String activeVMBlockValue = new String( RealMachine.getInstance().getRAM().getActiveVMblockForSwapping(RealMachine.getInstance().getPTR(), RealMachine.getInstance().getDS(), RealMachine.getInstance().getSS(), RealMachine.getInstance().getCS() ) );
+		int activeVMBlockDecValue = Utilities.getInstance().hexToDec(activeVMBlockValue);
+        int pageTablePlaceForActiveBlock = RealMachine.getInstance().getRAM().getPageTablePlaceForActiveBlock(RealMachine.getInstance().getPTR(), activeVMBlockValue);
+
+        RealMachine.getInstance().getSwapping().swap(pageTablePlaceForActiveBlock, RealMachine.getInstance().getRAM().getBlock(activeVMBlockDecValue));
+        // clear block
+        RealMachine.getInstance().getRAM().nullBlock(activeVMBlockDecValue);
+        // set block inactive
+        RealMachine.getInstance().getRAM().setBlockInactive(Utilities.getInstance().charToInt(RealMachine.getInstance().getPTR()), pageTablePlaceForActiveBlock);
+
+        GraphicalUserInterface.getInstance().updateRAMCell(Utilities.getInstance().charToInt(RealMachine.getInstance().getPTR()) + pageTablePlaceForActiveBlock, "----");
+        RealMachine.getInstance().getRAM().setWord(Utilities.getInstance().charToInt(RealMachine.getInstance().getPTR()), place, activeVMBlockValue.toCharArray());
+        GraphicalUserInterface.getInstance().updateRAMCell(Utilities.getInstance().charToInt(RealMachine.getInstance().getPTR()) + place, activeVMBlockValue);
+
+        // check if file place.txt exists if so, then we need to load data from it to activeVMblockDecValue
+        String[] blockFromSwap = RealMachine.getInstance().getSwapping().getBlockFromFile(place);
+        if(blockFromSwap != null) {
+        	RealMachine.getInstance().getRAM().setBlock(activeVMBlockDecValue, blockFromSwap);	
+        }
 	}
 }
