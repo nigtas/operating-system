@@ -27,6 +27,12 @@ public class RealMachine {
 	private char[] mode = {'0', '1'};               // MODE registas
 	private char[] tm = {'0', '9'};                 // TM registras
 
+   /*
+      FLAGS :
+      0 - Sign flag (value : 01)
+      1 - Zero flag (value : 02)
+   */
+
 	protected RealMachine() {
       try {
          SwingUtilities.invokeAndWait(new Runnable() {
