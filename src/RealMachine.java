@@ -411,6 +411,10 @@ public class RealMachine {
       public Memory getRAM() {
          return this.ram;
       }
+
+      public Swapping getSwapping() {
+         reutrn this.swapping;
+      }
    	// ============================================
 
 }

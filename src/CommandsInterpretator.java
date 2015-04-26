@@ -286,7 +286,7 @@ public class CommandsInterpretator {
 			int ptr = Utilities.getInstance().charToInt(RealMachine.getInstance().getPTR(), 16);
 			char[] block = RealMachine.getInstance().getRAM().getWord(ptr, place);
 			if(block == new char[] {'-', '-', '-', '-'}) {
-
+				
 			}
 			else {
 
