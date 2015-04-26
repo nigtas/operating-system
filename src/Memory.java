@@ -129,6 +129,14 @@ public class Memory {
 			for(int j = 0; j < WORD_SIZE; j++) {
 				memory[place+i][j] = '0';
 			}
+			GraphicalUserInterface.getInstance().updateRAMCell( place+i, new String(memory[block*NUMBER_OF_WORDS + i]) );
+		} 
+	}
+
+	public void setBlock(int block, String[] data) {
+		for(int i = 0; i < NUMBER_OF_WORDS; i++) {
+			memory[block*NUMBER_OF_WORDS + i] = data[i].toCharArray();
+			GraphicalUserInterface.getInstance().updateRAMCell( block*NUMBER_OF_WORDS + i, new String(memory[block*NUMBER_OF_WORDS + i]) );
 		} 
 	}
 
@@ -230,18 +238,15 @@ public class Memory {
 		return realAddress;		
 	}
 
-	public char[] getActiveVMblock(char[] ptr) {
+	public char[] getActiveVMblockForSwapping(char[] ptr, char[] ds, char[] ss, char[] cs) {
 		int ptrAddress = Utilities.getInstance().hexToDec(new String(ptr));
 		int i = 0;
-		int j = 0;
 		for(i = ptrAddress; i < ptrAddress + NUMBER_OF_WORDS; i++) {
 			if(new String(memory[i]).equals("----") ) {
-				j++;
-			} else if(usedAndActiveVMblock[j]) {
-				j++;
+				continue;
+			} else if( (i == Utilities.getInstance().charToInt(ds, 16) ) || (i == Utilities.getInstance().charToInt(ss, 16) ) || (i == Utilities.getInstance().charToInt(cs, 16) ) ) {
 				continue;
 			} else {
-				usedAndActiveVMblock[j] = true;
 				break;
 			}
 		}
@@ -263,14 +268,13 @@ public class Memory {
 		if(block > 0 && place > 0) {
 			memoryPlace = block * place;
 		} else if (block == 0) {
-			memoryPlace = 0;
+			memoryPlace = place;
 		} else if (place == 0) {
 			memoryPlace = block * NUMBER_OF_WORDS;
 		}
 		for (int i = 0; i < WORD_SIZE; i++) {
 			memory[memoryPlace][i] = '-';
 		}
-		usedAndActiveVMblock[place] = false;
 		usedWords[block][place] = false;
 	}
 

@@ -129,7 +129,10 @@ public class CommandsInterpretator {
 				int sum;
 				//TODO check if not above 65535
 				if(RealMachine.getInstance().getSF()){
+					System.out.println("pirmas sumos su zenklu skaicius = " + Utilities.charToSignedInt(firstValueFromStack, 16));
+					System.out.println("pirmas sumos su zenklu skaicius = " + Utilities.charToSignedInt(firstValueFromStack, 16));
 					sum = Utilities.charToSignedInt(firstValueFromStack, 16) + Utilities.charToInt(secondValueFromStack, 16);
+					System.out.println("suma, stack top su zenklu = " + sum);
 				}
 				else {
 					sum = Utilities.charToInt(firstValueFromStack, 16) + Utilities.charToInt(secondValueFromStack, 16);
@@ -305,12 +308,29 @@ public class CommandsInterpretator {
 			RealMachine.getInstance().setDS(elements.toCharArray());
 			int ptr = Utilities.getInstance().charToInt(RealMachine.getInstance().getPTR(), 16);
 			char[] block = RealMachine.getInstance().getRAM().getWord(ptr, place);
-			if(block == new char[] {'-', '-', '-', '-'}) {
-				
-			}
-			else {
+			if(new String(block).equals("----")) {
+				// =========   SWAPPING   ==========
+				String activeVMBlockValue = new String( RealMachine.getInstance().getRAM().getActiveVMblockForSwapping(RealMachine.getInstance().getPTR(), RealMachine.getInstance().getDS(), RealMachine.getInstance().getSS(), RealMachine.getInstance().getCS() ) );
+				int activeVMBlockDecValue = Utilities.getInstance().hexToDec(activeVMBlockValue);
+	            int pageTablePlaceForActiveBlock = RealMachine.getInstance().getRAM().getPageTablePlaceForActiveBlock(RealMachine.getInstance().getPTR(), activeVMBlockValue);
 
-			}
+	            RealMachine.getInstance().getSwapping().swap(pageTablePlaceForActiveBlock, RealMachine.getInstance().getRAM().getBlock(activeVMBlockDecValue));
+	            // clear block
+	            RealMachine.getInstance().getRAM().nullBlock(activeVMBlockDecValue);
+	            // set block inactive
+	            RealMachine.getInstance().getRAM().setBlockInactive(Utilities.getInstance().charToInt(RealMachine.getInstance().getPTR()), pageTablePlaceForActiveBlock);
+
+	            GraphicalUserInterface.getInstance().updateRAMCell(Utilities.getInstance().charToInt(RealMachine.getInstance().getPTR()) + pageTablePlaceForActiveBlock, "----");
+	            RealMachine.getInstance().getRAM().setWord(Utilities.getInstance().charToInt(RealMachine.getInstance().getPTR()), place, activeVMBlockValue.toCharArray());
+	            GraphicalUserInterface.getInstance().updateRAMCell(Utilities.getInstance().charToInt(RealMachine.getInstance().getPTR()) + place, activeVMBlockValue);
+
+	            // check if file place.txt exists if so, then we need to load data from it to activeVMblockDecValue
+	            String[] blockFromSwap = RealMachine.getInstance().getSwapping().getBlockFromFile(place);
+	            if(blockFromSwap != null) {
+	            	RealMachine.getInstance().getRAM().setBlock(activeVMBlockDecValue, blockFromSwap);	
+	            }
+	            
+			} // else there is an active block so data segment points to it
 			RealMachine.getInstance().setPI(new char[] {'0', '8'});
 		}
 		else {
@@ -324,7 +344,7 @@ public class CommandsInterpretator {
 			RealMachine.getInstance().setDS(elements.toCharArray());
 			int ptr = Utilities.getInstance().charToInt(RealMachine.getInstance().getPTR(), 16);
 			char[] block = RealMachine.getInstance().getRAM().getWord(ptr, place);
-			if(block == new char[] {'-', '-', '-', '-'}) {
+			if(new String(block).equals("----")) {
 
 			}
 			else {
@@ -343,7 +363,7 @@ public class CommandsInterpretator {
 			RealMachine.getInstance().setDS(elements.toCharArray());
 			int ptr = Utilities.getInstance().charToInt(RealMachine.getInstance().getPTR(), 16);
 			char[] block = RealMachine.getInstance().getRAM().getWord(ptr, place);
-			if(block == new char[] {'-', '-', '-', '-'}) {
+			if(new String(block).equals("----")) {
 
 			}
 			else {

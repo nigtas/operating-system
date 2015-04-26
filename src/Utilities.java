@@ -60,6 +60,7 @@ class Utilities {
     }
     static int charToSignedInt(char[] input, int numb) {
         short value = (short) Integer.parseInt(new String(input), numb);
+        System.out.println("charToSignedInt(): value = " + value);
         return (int) value;
     }
 
