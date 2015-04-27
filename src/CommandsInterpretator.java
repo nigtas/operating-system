@@ -1,3 +1,10 @@
+import java.io.PrintWriter;
+import java.io.IOException;
+import java.io.File;
+import java.io.BufferedReader;
+import java.io.FileReader;
+
+
 public class CommandsInterpretator {
 
 	CommandsInterpretator() {
@@ -274,7 +281,7 @@ public class CommandsInterpretator {
 			char[] firstValueFromStack = RealMachine.getInstance().getRAM().getWord(stackBlock, firstElStackTop);
 			int secondElStackTop = (Utilities.charToInt(RealMachine.getInstance().getESP(), 16)) + 2;
 			char[] secondValueFromStack = RealMachine.getInstance().getRAM().getWord(stackBlock, secondElStackTop);
-			if(Utilities.charToInt(firstValueFromStack) == 0) {
+			if(Utilities.charToInt(firstValueFromStack, 16) == 0) {
 				RealMachine.getInstance().setPI(new char[] {'0', '1'});
 				return;
 			}
@@ -339,9 +346,6 @@ public class CommandsInterpretator {
 			if(new String(block).equals("----")) {
 				changeSegment(place);
 			}
-			else {
-				
-			}
 			RealMachine.getInstance().setPI(new char[] {'0', '9'});
 		}
 		else {
@@ -357,9 +361,6 @@ public class CommandsInterpretator {
 			char[] block = RealMachine.getInstance().getRAM().getWord(ptr, place);
 			if(new String(block).equals("----")) {
 				changeSegment(place);
-			}
-			else {
-				
 			}
 			RealMachine.getInstance().setPI(new char[] {'0', 'A'});
 		}
@@ -456,15 +457,65 @@ public class CommandsInterpretator {
 	}
 
 	public void gd(String elements) {
+		PrintWriter writer = null;
+		int place = Integer.parseInt(elements, 16);
+		int ptr = Utilities.getInstance().charToInt(RealMachine.getInstance().getPTR(), 16);
+		try {
+			char[] realBlock = RealMachine.getInstance().getRAM().getWord(ptr, place);
+			if(realBlock == new char[] {'-', '-', '-', '-'}) {
+				RealMachine.getInstance().setPI(new char[] {'0', '3'});
+			}
+			else {
+				String[] data = RealMachine.getInstance().getRAM().getBlock(Utilities.getInstance().charToInt(realBlock, 16));
+        		// Open the file for writing.
+        		writer = new PrintWriter("data.txt", "UTF-8");
+        		for(int i=0; i < data.length; ++i) {
+        			writer.println(data[i]);
+				}
+				writer.close();
+			}
+        }
+        catch(IOException ex) {
+            ex.printStackTrace();
+   		}
 	}
 
 	public void pd(String elements) {
-
+		int place = Integer.parseInt(elements, 16);
+		int ptr = Utilities.getInstance().charToInt(RealMachine.getInstance().getPTR(), 16);
+			char[] realBlock = RealMachine.getInstance().getRAM().getWord(ptr, place);
+			if(realBlock == new char[] {'-', '-', '-', '-'}) {
+				RealMachine.getInstance().setPI(new char[] {'0', '3'});
+			}
+			else {
+				String[] data = readData();
+        		RealMachine.getInstance().getRAM().setBlock(Utilities.getInstance().charToInt(realBlock,16), data);
+			}
 	}
 
 	public void halt() {
 		char[] chars = {'0', '3'};
 		RealMachine.getInstance().setSI(chars);
+	}
+
+	public String[] readData() {
+		String filePathString = new String( "data.txt" );
+        String[] arrayToReturn = new String[256];
+        File f = new File(filePathString);   
+        if(f.exists()) {
+            try (BufferedReader br = new BufferedReader(new FileReader(f))) {
+                String line;
+                int i = 0;
+                while ((line = br.readLine()) != null) {
+                   arrayToReturn[i] = line;
+                   i++;
+                }
+                return arrayToReturn;
+            } catch(IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+        return null; 
 	}
 
 

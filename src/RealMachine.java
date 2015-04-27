@@ -203,7 +203,8 @@ public class RealMachine {
       }
 
       public String getCodeFromMemory(int ip) {
-         int blockNumber = Utilities.getInstance().charToInt(ram.getWord(0, Utilities.getInstance().charToInt(getCS())));
+         char[] realBlock = ram.getWord(Utilities.getInstance().charToInt(getPTR(), 16), Utilities.getInstance().charToInt(getCS(), 16));
+         int blockNumber = Utilities.getInstance().charToInt(realBlock, 16);
          return new String(ram.getWord(blockNumber, ip));
       }
 
@@ -216,24 +217,30 @@ public class RealMachine {
             switch(pi) {
                case 1: GraphicalUserInterface.getInstance().setOutputText("Division by 0");
                        System.out.println("Division by 0"); //done
+                       stopExecution();
                        break;
                case 2: GraphicalUserInterface.getInstance().setOutputText("Negative value");
                        System.out.println("Negative value"); //done
                        break;
                case 3: GraphicalUserInterface.getInstance().setOutputText("Wrong address");
                        System.out.println("Wrong address"); //done
+                       stopExecution();
                        break;
                case 4: GraphicalUserInterface.getInstance().setOutputText("Stack is full");
                        System.out.println("Stack is full"); //done
+                       stopExecution();
                        break;
                case 5: GraphicalUserInterface.getInstance().setOutputText("Stack is empty");
                        System.out.println("Stack is empty"); //done
+                       stopExecution();
                        break;
                case 6: GraphicalUserInterface.getInstance().setOutputText("Overflow");
                        System.out.println("Overflow"); //done maybe
+                       stopExecution();
                        break;
                case 7: GraphicalUserInterface.getInstance().setOutputText("Wrong operation code");
                        System.out.println("Wrong operation code"); //done
+                       stopExecution();
                        break;
                case 8: GraphicalUserInterface.getInstance().setOutputText("DS changed");
                        System.out.println("DS changed");  //done (not sure all)
@@ -275,6 +282,10 @@ public class RealMachine {
                        break;
             }
          }
+      }
+
+      public void stopExecution() {
+         setSI(new char[] {'0', '3'});
       }
 
    	// =========== SETERS AND GETTERS ===========

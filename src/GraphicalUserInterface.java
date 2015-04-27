@@ -190,6 +190,7 @@ public class GraphicalUserInterface {
 	}	
 
 	public static void loadCodeToWritingArea(String[] code) {
+		writingArea.setText(null);
 		for(String command : code) {
 			writingArea.append(command + "\n");
 		}
@@ -198,8 +199,11 @@ public class GraphicalUserInterface {
 	public static void highlightCurrentCodeLine(int index) {
 		if(index <= writingArea.getLineCount()-2) {
 			try {
-			if(index > 0) {
-				writingArea.getHighlighter().removeHighlight(writingArea.getHighlighter().getHighlights()[0]);
+			if(index >= 0) {
+				int length = writingArea.getHighlighter().getHighlights().length;
+				for(int i=0; i < length; ++i ) {
+					writingArea.getHighlighter().removeHighlight(writingArea.getHighlighter().getHighlights()[0]);
+				}
 			}
 			int startIndex = writingArea.getLineStartOffset(index);
         	int endIndex = writingArea.getLineEndOffset(index);
