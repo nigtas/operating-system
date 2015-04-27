@@ -255,6 +255,8 @@ public class RealMachine {
          }
          if(ti == 1) {
             System.out.println("Time is out");
+            setTM(new char[] {'0', '9'});
+            setTI(new char[] {'0', '1'});
          }
          if(si > 0) {
             switch(si) {
