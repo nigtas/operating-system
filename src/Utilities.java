@@ -49,10 +49,7 @@ class Utilities {
             input - char input to parse;
             numb - from what type to parse (hex=16, oct=8, etc.);
     */
-    static int charToInt(char[] input) {
-        int value = Integer.parseInt(new String(input));
-        return value;
-    }
+            
     /* method overload */
     static int charToInt(char[] input, int numb) {
         int value = Integer.parseInt(new String(input), numb);
