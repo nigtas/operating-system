@@ -153,12 +153,12 @@ public class CommandsInterpretator {
 					RealMachine.getInstance().setPI(new char[] {'0', '6'});
 				}
 				if (sum == 0) {
-					int flags = Utilities.getInstance().charToInt(RealMachine.getInstance().getFLAGS());
+					int flags = Utilities.getInstance().charToInt(RealMachine.getInstance().getFLAGS(), 16);
 					flags += 2;
 					RealMachine.getInstance().setFLAGS(Utilities.getInstance().decToHex(flags).toCharArray());	
 				}
 				if (sum < 0) {
-					int flags = Utilities.getInstance().charToInt(RealMachine.getInstance().getFLAGS());
+					int flags = Utilities.getInstance().charToInt(RealMachine.getInstance().getFLAGS(), 16);
 					flags += 1;
 					RealMachine.getInstance().setFLAGS(Utilities.getInstance().decToHex(flags).toCharArray());		
 				}
@@ -201,7 +201,7 @@ public class CommandsInterpretator {
 				}
 				RealMachine.getInstance().setFLAGS(new char[]{'0', '0'});	
 				if (sub < 0) {
-					int flags = Utilities.getInstance().charToInt(RealMachine.getInstance().getFLAGS());
+					int flags = Utilities.getInstance().charToInt(RealMachine.getInstance().getFLAGS(), 16);
 					flags += 1;
 					RealMachine.getInstance().setFLAGS(Utilities.getInstance().decToHex(flags).toCharArray());
 				}
@@ -240,7 +240,7 @@ public class CommandsInterpretator {
 				}
 				RealMachine.getInstance().setFLAGS(new char[]{'0', '0'});
 				if (mul == 0) {
-					int flags = Utilities.getInstance().charToInt(RealMachine.getInstance().getFLAGS());
+					int flags = Utilities.getInstance().charToInt(RealMachine.getInstance().getFLAGS(), 16);
 					flags += 2;
 					RealMachine.getInstance().setFLAGS(Utilities.getInstance().decToHex(flags).toCharArray());	
 				} 
@@ -274,7 +274,7 @@ public class CommandsInterpretator {
 			char[] firstValueFromStack = RealMachine.getInstance().getRAM().getWord(stackBlock, firstElStackTop);
 			int secondElStackTop = (Utilities.charToInt(RealMachine.getInstance().getESP(), 16)) + 2;
 			char[] secondValueFromStack = RealMachine.getInstance().getRAM().getWord(stackBlock, secondElStackTop);
-			if(Utilities.charToInt(firstValueFromStack) == 0) {
+			if(Utilities.charToInt(firstValueFromStack, 16) == 0) {
 				RealMachine.getInstance().setPI(new char[] {'0', '1'});
 				return;
 			}
@@ -290,7 +290,7 @@ public class CommandsInterpretator {
 					mod = Utilities.charToInt(secondValueFromStack, 16) % Utilities.charToInt(firstValueFromStack, 16);
 				}
 				if (div == 0) {
-					int flags = Utilities.getInstance().charToInt(RealMachine.getInstance().getFLAGS());
+					int flags = Utilities.getInstance().charToInt(RealMachine.getInstance().getFLAGS(), 16);
 					flags += 2;
 					RealMachine.getInstance().setFLAGS(Utilities.getInstance().decToHex(flags).toCharArray());	
 				}
@@ -477,11 +477,11 @@ public class CommandsInterpretator {
         // clear block
         RealMachine.getInstance().getRAM().nullBlock(activeVMBlockDecValue);
         // set block inactive
-        RealMachine.getInstance().getRAM().setBlockInactive(Utilities.getInstance().charToInt(RealMachine.getInstance().getPTR()), pageTablePlaceForActiveBlock);
+        RealMachine.getInstance().getRAM().setBlockInactive(Utilities.getInstance().charToInt(RealMachine.getInstance().getPTR(), 16), pageTablePlaceForActiveBlock);
 
-        GraphicalUserInterface.getInstance().updateRAMCell(Utilities.getInstance().charToInt(RealMachine.getInstance().getPTR()) + pageTablePlaceForActiveBlock, "----");
-        RealMachine.getInstance().getRAM().setWord(Utilities.getInstance().charToInt(RealMachine.getInstance().getPTR()), place, activeVMBlockValue.toCharArray());
-        GraphicalUserInterface.getInstance().updateRAMCell(Utilities.getInstance().charToInt(RealMachine.getInstance().getPTR()) + place, activeVMBlockValue);
+        GraphicalUserInterface.getInstance().updateRAMCell(Utilities.getInstance().charToInt(RealMachine.getInstance().getPTR(), 16) + pageTablePlaceForActiveBlock, "----");
+        RealMachine.getInstance().getRAM().setWord(Utilities.getInstance().charToInt(RealMachine.getInstance().getPTR(), 16), place, activeVMBlockValue.toCharArray());
+        GraphicalUserInterface.getInstance().updateRAMCell(Utilities.getInstance().charToInt(RealMachine.getInstance().getPTR(), 16) + place, activeVMBlockValue);
 
         // check if file place.txt exists if so, then we need to load data from it to activeVMblockDecValue
         String[] blockFromSwap = RealMachine.getInstance().getSwapping().getBlockFromFile(place);

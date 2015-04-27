@@ -183,7 +183,7 @@ public class RealMachine {
             }
          }
          String[] convertedCode = new String[code.size()];
-         int memoryBlockForCode = Utilities.getInstance().charToInt(ram.getWord(0, Utilities.getInstance().charToInt(getCS())));
+         int memoryBlockForCode = Utilities.getInstance().charToInt(ram.getWord(0, Utilities.getInstance().charToInt(getCS(), 16)), 16);
          convertedCode = code.toArray(convertedCode);
          loadCodeToMemory(memoryBlockForCode, convertedCode);
          ci = new CommandsInterpretator();
@@ -203,7 +203,7 @@ public class RealMachine {
       }
 
       public String getCodeFromMemory(int ip) {
-         int blockNumber = Utilities.getInstance().charToInt(ram.getWord(0, Utilities.getInstance().charToInt(getCS())));
+         int blockNumber = Utilities.getInstance().charToInt(ram.getWord(0, Utilities.getInstance().charToInt(getCS(), 16)), 16);
          return new String(ram.getWord(blockNumber, ip));
       }
 
