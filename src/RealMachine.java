@@ -182,9 +182,17 @@ public class RealMachine {
                ex.printStackTrace();
             }
          }
-         String[] convertedCode = new String[code.size()];
+         String[] convertedCode = new String[code.size()-1];
+         if(!code.get(0).equals("PROG")) {
+             System.out.println("Bad program begining");
+                     return;
+         }
          int memoryBlockForCode = Utilities.getInstance().charToInt(ram.getWord(0, Utilities.getInstance().charToInt(getCS(), 16)), 16);
-         convertedCode = code.toArray(convertedCode);
+         for(int i = 1; i < code.size(); ++i) {
+            convertedCode[i-1] = code.get(i);
+            System.out.println(convertedCode[i-1]);
+         }
+         // convertedCode = code.toArray(convertedCode);
          loadCodeToMemory(memoryBlockForCode, convertedCode);
          ci = new CommandsInterpretator();
          GraphicalUserInterface.getInstance().loadCodeToWritingArea(convertedCode);
@@ -196,8 +204,8 @@ public class RealMachine {
          }
          else {
             for(int i = 0; i < code.length; ++i) {
-            ram.setWord(blockNumber, i, code[i].toCharArray());
-            GraphicalUserInterface.getInstance().updateRAMCell(blockNumber * 256 + i, new String(ram.getWord(blockNumber, i)));
+               ram.setWord(blockNumber, i, code[i].toCharArray());
+               GraphicalUserInterface.getInstance().updateRAMCell(blockNumber * 256 + i, new String(ram.getWord(blockNumber, i)));
             }
          }
       }

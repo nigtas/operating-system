@@ -21,14 +21,14 @@ public class CommandsInterpretator {
 		String command = RealMachine.getInstance().getCodeFromMemory(executionLine);
 		String executionCode = command.substring(0, 2);
 
-		if(executionLine == 0) {
-			if(!executionCode.equals("PR")) {
-				RealMachine.getInstance().setPI(new char[] {'0', '7'});
-				GraphicalUserInterface.getInstance().setRegisters(RealMachine.getInstance().collectAllRegisters());
-				RealMachine.getInstance().test();
-				return;
-			}
-		}
+		// if(executionLine == 0) {
+		// 	if(!executionCode.equals("PR")) {
+		// 		RealMachine.getInstance().setPI(new char[] {'0', '7'});
+		// 		GraphicalUserInterface.getInstance().setRegisters(RealMachine.getInstance().collectAllRegisters());
+		// 		RealMachine.getInstance().test();
+		// 		return;
+		// 	}
+		// }
 		RealMachine.getInstance().setIP(RealMachine.getInstance().incReg(RealMachine.getInstance().getIP()));
 		GraphicalUserInterface.getInstance().setRegisters(RealMachine.getInstance().collectAllRegisters());
 		
@@ -82,7 +82,7 @@ public class CommandsInterpretator {
 						break;
 			case "HA" : halt();
 						break;
-			case "PR" : break;
+			// case "PR" : break;
 			default : RealMachine.getInstance().setPI(new char[] {'0', '7'});
 					  return;
 		}
