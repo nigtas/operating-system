@@ -3,6 +3,7 @@ import java.io.IOException;
 import java.io.File;
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.util.Arrays;
 
 
 public class CommandsInterpretator {
@@ -71,9 +72,13 @@ public class CommandsInterpretator {
 			case "JE" : je(command.substring(2, 4));
 						RealMachine.getInstance().setTM(RealMachine.getInstance().decReg(RealMachine.getInstance().getTM()));
 						break;
-			case "GD" : gd(command.substring(2, 4));
+			case "GD" : if(RealMachine.getInstance().decThreeTM()) {
+							gd(command.substring(2, 4));
+						}
 						break;
-			case "PD" : pd(command.substring(2, 4));
+			case "PD" : if(RealMachine.getInstance().decThreeTM()) {
+						pd(command.substring(2, 4));
+						}
 						break;
 			case "HA" : halt();
 						break;
@@ -462,7 +467,7 @@ public class CommandsInterpretator {
 		int ptr = Utilities.getInstance().charToInt(RealMachine.getInstance().getPTR(), 16);
 		try {
 			char[] realBlock = RealMachine.getInstance().getRAM().getWord(ptr, place);
-			if(realBlock == new char[] {'-', '-', '-', '-'}) {
+			if(Arrays.equals(realBlock, new char[] {'-', '-', '-', '-'})) {
 				RealMachine.getInstance().setPI(new char[] {'0', '3'});
 			}
 			else {
@@ -484,7 +489,7 @@ public class CommandsInterpretator {
 		int place = Integer.parseInt(elements, 16);
 		int ptr = Utilities.getInstance().charToInt(RealMachine.getInstance().getPTR(), 16);
 			char[] realBlock = RealMachine.getInstance().getRAM().getWord(ptr, place);
-			if(realBlock == new char[] {'-', '-', '-', '-'}) {
+			if(Arrays.equals(realBlock, new char[] {'-', '-', '-', '-'})) {
 				RealMachine.getInstance().setPI(new char[] {'0', '3'});
 			}
 			else {

@@ -256,7 +256,7 @@ public class RealMachine {
          if(ti == 1) {
             System.out.println("Time is out");
             setTM(new char[] {'0', '9'});
-            setTI(new char[] {'0', '1'});
+            setTI(new char[] {'0', '0'});
          }
          if(si > 0) {
             switch(si) {
@@ -359,6 +359,19 @@ public class RealMachine {
             return hex;
          }
       }
+
+      public boolean decThreeTM() {
+         int decValue = Utilities.getInstance().charToInt(RealMachine.getInstance().getTM(), 16);
+         if(decValue > 2) {
+            decValue = decValue - 3;
+            RealMachine.getInstance().setTM(Integer.toHexString(decValue).toCharArray());
+            return true;
+         }
+         else {
+            return false;
+         }
+      }
+
    	public void setDS(char[] reg) {
    		this.ds = reg;
    	}
