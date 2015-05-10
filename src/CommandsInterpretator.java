@@ -72,12 +72,38 @@ public class CommandsInterpretator {
 			case "JE" : je(command.substring(2, 4));
 						RealMachine.getInstance().setTM(RealMachine.getInstance().decReg(RealMachine.getInstance().getTM()));
 						break;
-			case "GD" : if(RealMachine.getInstance().decThreeTM()) {
-							gd(command.substring(2, 4));
+			case "GD" : gd(command.substring(2, 4));
+						if(!RealMachine.getInstance().decThreeTM()) {
+							int sk = Utilities.getInstance().charToInt(RealMachine.getInstance().getTM(), 16);
+							switch(sk) {
+								case 1 :
+									RealMachine.getInstance().setTM(RealMachine.getInstance().decReg(RealMachine.getInstance().getTM()));
+									break;
+								case 2 :
+									RealMachine.getInstance().setTM(RealMachine.getInstance().decReg(RealMachine.getInstance().getTM()));
+									RealMachine.getInstance().setTM(RealMachine.getInstance().decReg(RealMachine.getInstance().getTM()));
+									break;
+								default :
+							}
+						} else {
+
 						}
 						break;
-			case "PD" : if(RealMachine.getInstance().decThreeTM()) {
-						pd(command.substring(2, 4));
+			case "PD" : pd(command.substring(2, 4));
+						if(!RealMachine.getInstance().decThreeTM()) {
+							int sk = Utilities.getInstance().charToInt(RealMachine.getInstance().getTM(), 16);
+							switch(sk) {
+								case 1 :
+									RealMachine.getInstance().setTM(RealMachine.getInstance().decReg(RealMachine.getInstance().getTM()));
+									break;
+								case 2 :
+									RealMachine.getInstance().setTM(RealMachine.getInstance().decReg(RealMachine.getInstance().getTM()));
+									RealMachine.getInstance().setTM(RealMachine.getInstance().decReg(RealMachine.getInstance().getTM()));
+									break;
+								default :
+							}
+						} else {
+
 						}
 						break;
 			case "HA" : halt();
@@ -125,6 +151,7 @@ public class CommandsInterpretator {
 		if(RealMachine.getInstance().incESP()){
 			int stackTop = Utilities.charToInt(RealMachine.getInstance().getESP(), 16);
 			char[] valueFromStack = RealMachine.getInstance().getRAM().getWord(stackBlock, stackTop);
+			GraphicalUserInterface.getInstance().updateRAMCell(block * 256 + place, new String(RealMachine.getInstance().getRAM().getWord(stackBlock, stackTop)));
 			RealMachine.getInstance().getRAM().nullWord(stackBlock, stackTop);
 			RealMachine.getInstance().getRAM().setWord(block, place, valueFromStack);
 			GraphicalUserInterface.getInstance().updateRAMCell(stackBlock * 256 + stackTop, new String(RealMachine.getInstance().getRAM().getWord(stackBlock, stackTop)));		
@@ -399,10 +426,10 @@ public class CommandsInterpretator {
 				int stackBlock = Utilities.charToInt(RealMachine.getInstance().getRAM().getWord(ptr, ss), 16);
 				int firstElStackTop = (Utilities.charToInt(RealMachine.getInstance().getESP(), 16)) + 1;
 				char[] firstValueFromStack = RealMachine.getInstance().getRAM().getWord(stackBlock, firstElStackTop);
-				if(Utilities.getInstance().charToInt(firstValueFromStack, 16) == 0) {
+				if(Utilities.getInstance().charToSignedInt(firstValueFromStack, 16) < 0) {
 					RealMachine.getInstance().setIP(elements.toCharArray());
 				}
-				else System.out.println("Top element not 0!");
+				else System.out.println("Top element not <0!");
 			}
 			else {
 				RealMachine.getInstance().setPI(new char[] {'0', '3'});
@@ -424,10 +451,10 @@ public class CommandsInterpretator {
 				int stackBlock = Utilities.charToInt(RealMachine.getInstance().getRAM().getWord(ptr, ss), 16);
 				int firstElStackTop = (Utilities.charToInt(RealMachine.getInstance().getESP(), 16)) + 1;
 				char[] firstValueFromStack = RealMachine.getInstance().getRAM().getWord(stackBlock, firstElStackTop);
-				if(Utilities.getInstance().charToInt(firstValueFromStack, 16) == 2) {
+				if(Utilities.getInstance().charToSignedInt(firstValueFromStack, 16) > 0) {
 					RealMachine.getInstance().setIP(elements.toCharArray());
 				}
-				else System.out.println("Top element not 2!");
+				else System.out.println("Top element not >0!");
 			}
 			else {
 				RealMachine.getInstance().setPI(new char[] {'0', '3'});
@@ -450,7 +477,7 @@ public class CommandsInterpretator {
 				int firstElStackTop = (Utilities.charToInt(RealMachine.getInstance().getESP(), 16)) + 1;
 				char[] firstValueFromStack = RealMachine.getInstance().getRAM().getWord(stackBlock, firstElStackTop);
 				System.out.println("value " + new String(firstValueFromStack) + "block " + stackBlock + "");
-				if(Utilities.getInstance().charToInt(firstValueFromStack, 16) == 1) {
+				if(Utilities.getInstance().charToSignedInt(firstValueFromStack, 16) == 0) {
 					RealMachine.getInstance().setIP(elements.toCharArray());
 				}
 				else System.out.println("Top element not 0!");
@@ -460,7 +487,7 @@ public class CommandsInterpretator {
 			}
 		}
 	}
-
+	
 	public void gd(String elements) {
 		PrintWriter writer = null;
 		int place = Integer.parseInt(elements, 16);
@@ -489,6 +516,7 @@ public class CommandsInterpretator {
 		int place = Integer.parseInt(elements, 16);
 		int ptr = Utilities.getInstance().charToInt(RealMachine.getInstance().getPTR(), 16);
 			char[] realBlock = RealMachine.getInstance().getRAM().getWord(ptr, place);
+			
 			if(Arrays.equals(realBlock, new char[] {'-', '-', '-', '-'})) {
 				RealMachine.getInstance().setPI(new char[] {'0', '3'});
 			}
