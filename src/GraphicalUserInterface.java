@@ -65,7 +65,8 @@ public class GraphicalUserInterface {
 		 new JTextField("TI: "),
 		 new JTextField("TM: "),
 		 new JTextField("IP: "),
-		 new JTextField("C: ")
+		 new JTextField("C: "),
+		 new JTextField("CX: ")
 	};
 
 	// constructor
@@ -261,8 +262,8 @@ public class GraphicalUserInterface {
 	// sets new register parameters
 	// array has to be of size 14
 	public static void setRegisters(String[] array) {
-		String[] reg = {"ESP:", "DS:", "CS:", "SS:", "PTR:", "MODE:", "FLAGS:", "IOI:", "PI:", "SI:", "TI:", "TM:", "IP:", "C:"};
-		for(int i = 0; i < 14; i++) {
+		String[] reg = {"ESP:", "DS:", "CS:", "SS:", "PTR:", "MODE:", "FLAGS:", "IOI:", "PI:", "SI:", "TI:", "TM:", "IP:", "C:", "CX:"};
+		for(int i = 0; i < 15; i++) {
 			fields[i].setText(reg[i] + " " + array[i]);
 		}
 	}

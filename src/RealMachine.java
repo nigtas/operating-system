@@ -26,6 +26,7 @@ public class RealMachine {
    	private char[] ioi = {'0', '0'};                // I/O registas 
    	private char[] mode = {'0', '1'};               // MODE registas
    	private char[] tm = {'0', '9'};                 // TM registras
+      private char[] cx = {'0', '0'};                 // cx register for loop
 
       /*
          FLAGS :
@@ -103,7 +104,7 @@ public class RealMachine {
 	   */
 
    	public String[] collectAllRegisters() {
-   		String[] array = new String[14];
+   		String[] array = new String[15];
    		array[0] = new String(esp);
    		array[1] = new String(ds);
    		array[2] = new String(cs);
@@ -118,6 +119,7 @@ public class RealMachine {
    		array[11] = String.valueOf(tm);
    		array[12] = new String(ip);
    		array[13] = new String(c);
+         array[14] = new String(cx);
    		return array;
    	}
 
@@ -380,6 +382,10 @@ public class RealMachine {
          }
       }
 
+      public void setCX(char[] reg) {
+         this.cx = reg;
+      }
+
    	public void setDS(char[] reg) {
    		this.ds = reg;
    	}
@@ -424,6 +430,9 @@ public class RealMachine {
    	public void setTM(char[] reg) {
    		this.tm = reg;
    	}
+      public char[] getCX() {
+         return this.cx;
+      }
    	public char[] getESP() {
    		return this.esp;
    	}

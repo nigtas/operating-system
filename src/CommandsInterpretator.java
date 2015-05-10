@@ -108,6 +108,12 @@ public class CommandsInterpretator {
 						break;
 			case "HA" : halt();
 						break;
+			case "LO" : loop(command.substring(2, 4));
+						RealMachine.getInstance().setTM(RealMachine.getInstance().decReg(RealMachine.getInstance().getTM()));
+						break;
+			case "CX" : ccx(command.substring(2, 4));
+						RealMachine.getInstance().setTM(RealMachine.getInstance().decReg(RealMachine.getInstance().getTM()));
+						break;
 			// case "PR" : break;
 			default : RealMachine.getInstance().setPI(new char[] {'0', '7'});
 					  return;
@@ -529,6 +535,31 @@ public class CommandsInterpretator {
 	public void halt() {
 		char[] chars = {'0', '3'};
 		RealMachine.getInstance().setSI(chars);
+	}
+
+	public void loop(String elements) {
+		int place = Integer.parseInt(elements, 16);
+		System.out.println("loop " + place);
+		if(place < 256) {
+			int cx = Utilities.getInstance().charToInt(RealMachine.getInstance().getCX(), 16);
+			if(cx > 0) {
+				RealMachine.getInstance().setIP(elements.toCharArray());
+				RealMachine.getInstance().setCX(RealMachine.getInstance().decReg(RealMachine.getInstance().getCX()));
+			}
+		}
+		else {
+			RealMachine.getInstance().setPI(new char[] {'0', '3'});
+		}
+	}
+
+	public void ccx(String elements) {
+		int value = Integer.parseInt(elements, 16);
+		if(value < 256) {
+			RealMachine.getInstance().setCX(elements.toCharArray());
+		}
+		else {
+			RealMachine.getInstance().setPI(new char[] {'0', '3'});
+		}
 	}
 
 	public String[] readData() {
