@@ -62,6 +62,7 @@ public class RealMachine {
 
          // setting PTR register
          setPTR(ram.newPageTable());
+         countMaxPages();
          initStack();
          setESP(new char[]{'0', '0', 'F', 'F'});
          initDataSegment();
@@ -124,39 +125,49 @@ public class RealMachine {
    	}
 
       public void initStack() {
-         int ssAddress = Utilities.getInstance().hexToDec(new String(getPTR())) + (Memory.NUMBER_OF_WORDS - Memory.NUMBER_OF_STACK_BLOCK);         
+         int ssAddress = Utilities.getInstance().hexToDec(new String(getHalfPTR())) + (Memory.NUMBER_OF_WORDS - Memory.NUMBER_OF_STACK_BLOCK);         
 
          String ssValue = new String(ram.getWord(ssAddress - (Memory.NUMBER_OF_WORDS - Memory.NUMBER_OF_STACK_BLOCK), ssAddress));
          if(ssValue.equals("----")) {
-            String activeVMBlock = new String( ram.getActiveVMblockForSwapping(getPTR(), getDS(), getSS(), getCS() ) );
-            int pageTablePlaceForActiveBlock = ram.getPageTablePlaceForActiveBlock(getPTR(), activeVMBlock);
+            String activeVMBlock = new String( ram.getActiveVMblockForSwapping(getHalfPTR(), getDS(), getSS(), getCS() ) );
+            int pageTablePlaceForActiveBlock = ram.getPageTablePlaceForActiveBlock(getHalfPTR(), activeVMBlock);
             int activeBlockNr = Utilities.getInstance().hexToDec(activeVMBlock);
             
             swapping.swap(pageTablePlaceForActiveBlock, ram.getBlock(activeBlockNr / Memory.NUMBER_OF_WORDS));
-            ram.setBlockInactive(Utilities.getInstance().hexToDec(new String(getPTR())), pageTablePlaceForActiveBlock);
+            ram.setBlockInactive(Utilities.getInstance().hexToDec(new String(getHalfPTR())), pageTablePlaceForActiveBlock);
 
-            ram.setWord(Utilities.getInstance().hexToDec(new String(getPTR())), (Memory.NUMBER_OF_WORDS - Memory.NUMBER_OF_STACK_BLOCK), activeVMBlock.toCharArray());
+            ram.setWord(Utilities.getInstance().hexToDec(new String(getHalfPTR())), (Memory.NUMBER_OF_WORDS - Memory.NUMBER_OF_STACK_BLOCK), activeVMBlock.toCharArray());
             setSS(Utilities.getInstance().decToHex(ssAddress).toCharArray());            
          } 
       }
 
       public void initDataSegment() {
-         String findActiveVmBlock = new String( ram.getActiveVMblockForSwapping( getPTR(), getDS(), getSS(), getCS() ) ); 
+         String findActiveVmBlock = new String( ram.getActiveVMblockForSwapping( getHalfPTR(), getDS(), getSS(), getCS() ) ); 
          System.out.println("active data segment = " + findActiveVmBlock);
          int block = Utilities.getInstance().hexToDec(findActiveVmBlock);
          for(int i = 0; i < ram.NUMBER_OF_WORDS - 1; i++) {
             ram.setWord(block, i, Utilities.getInstance().decToHex(i).toCharArray());
          }
          ram.setWord(block, 255, new char[] {'F', 'F', 'F', 'F'});
-         int pageTablePlaceForActiveBlock = ram.getPageTablePlaceForActiveBlock(getPTR(), findActiveVmBlock);
+         int pageTablePlaceForActiveBlock = ram.getPageTablePlaceForActiveBlock(getHalfPTR(), findActiveVmBlock);
          setDS(Utilities.getInstance().decToHex(pageTablePlaceForActiveBlock).toCharArray());
       }
 
       public void initCodeSegment() {
-         String findActiveVmBlock = new String( ram.getActiveVMblockForSwapping( getPTR(), getDS(), getSS(), getCS() ) ); 
-         int pageTablePlaceForActiveBlock = ram.getPageTablePlaceForActiveBlock(getPTR(), findActiveVmBlock);
+         String findActiveVmBlock = new String( ram.getActiveVMblockForSwapping( getHalfPTR(), getDS(), getSS(), getCS() ) ); 
+         int pageTablePlaceForActiveBlock = ram.getPageTablePlaceForActiveBlock(getHalfPTR(), findActiveVmBlock);
          System.out.println(pageTablePlaceForActiveBlock);
          setCS(Utilities.getInstance().decToHex(pageTablePlaceForActiveBlock).toCharArray());
+      }
+
+      public void countMaxPages() {
+         int counter = 0;
+         for(int i = 0; i < ram.NUMBER_OF_WORDS; ++i) {
+            if(ram.usedWords[Utilities.charToInt(getHalfPTR(), 16)][i]) {
+               ++counter;
+            }
+         }
+         ptr[1] = Utilities.decToHex(counter).charAt(3);
       }
 
       public void execute() {
@@ -194,26 +205,34 @@ public class RealMachine {
             convertedCode[i-1] = code.get(i);
             System.out.println(convertedCode[i-1]);
          }
+
+         //change first PTR bytes for new info
+         char[] currentPTR = getPTR();
+         currentPTR[0] = Utilities.decToHex(convertedCode.length).charAt(3);
+
          // convertedCode = code.toArray(convertedCode);
          loadCodeToMemory(memoryBlockForCode, convertedCode);
-         ci = new CommandsInterpretator();
+         // ci = new CommandsInterpretator();
          GraphicalUserInterface.getInstance().loadCodeToWritingArea(convertedCode);
-      }
+         GraphicalUserInterface.getInstance().setRegisters(collectAllRegisters());      }
 
       public void loadCodeToMemory(int blockNumber, String[] code) {
-         if(code.length > 255) {
-            System.out.println("Too big code!!"); //is it enough??
+         int firstFreePlace = ram.getFreeWord(blockNumber);
+         if(code.length + firstFreePlace > 255) {
+            System.out.println("Too big code! No free space left in memory"); //is it enough??
+            GraphicalUserInterface.getInstance().setOutputText("Too big code! No free space left in memory");
          }
          else {
-            for(int i = 0; i < code.length; ++i) {
-               ram.setWord(blockNumber, i, code[i].toCharArray());
+            for(int i = firstFreePlace; i < code.length + firstFreePlace; ++i) {
+               ram.setWord(blockNumber, i, code[i-firstFreePlace].toCharArray());
                GraphicalUserInterface.getInstance().updateRAMCell(blockNumber * 256 + i, new String(ram.getWord(blockNumber, i)));
             }
+            setIP(Utilities.decToHex(firstFreePlace).toCharArray());
          }
       }
 
       public String getCodeFromMemory(int ip) {
-         char[] realBlock = ram.getWord(Utilities.getInstance().charToInt(getPTR(), 16), Utilities.getInstance().charToInt(getCS(), 16));
+         char[] realBlock = ram.getWord(Utilities.getInstance().charToInt(getHalfPTR(), 16), Utilities.getInstance().charToInt(getCS(), 16));
          int blockNumber = Utilities.getInstance().charToInt(realBlock, 16);
          return new String(ram.getWord(blockNumber, ip));
       }
@@ -448,6 +467,9 @@ public class RealMachine {
    	public char[] getPTR() {
    		return this.ptr;
    	}
+      public char[] getHalfPTR() {
+         return new char[] {'0', '0', getPTR()[2], getPTR()[3]};
+      }
    	public char[] getIP() {
    		return this.ip;
    	}

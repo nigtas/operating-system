@@ -6,6 +6,8 @@ import javax.swing.text.LayeredHighlighter.LayerPainter;
 import javax.swing.text.DefaultHighlighter.*;
 import javax.swing.text.BadLocationException;
 import java.util.Random;
+import java.awt.Toolkit;
+
 
 /* ARRAY OF REGISTERS 
 	0 - ESP
@@ -69,6 +71,8 @@ public class GraphicalUserInterface {
 		 new JTextField("CX: ")
 	};
 
+
+
 	// constructor
 	protected GraphicalUserInterface() {
 
@@ -76,6 +80,7 @@ public class GraphicalUserInterface {
 
 		initPanels();
 		initLabels();
+		// initLightButtons();
 		initWritingArea();
 		initOutputArea();
 		initRAMlist();
@@ -116,6 +121,46 @@ public class GraphicalUserInterface {
 			tf.setHorizontalAlignment(JTextField.CENTER);
 			left.add(tf);
 		}
+	}
+
+	private void initLightButtons() {
+		JButton turnOn = new JButton("Turn on lights!");
+		JButton turnOff = new JButton("Turn off lights!");
+		left.add(turnOn);
+		left.add(turnOff);
+
+
+		turnOn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+					Toolkit toolkit = Toolkit.getDefaultToolkit();
+
+				// if(!Toolkit.getDefaultToolkit().getLockingKeyState(KeyEvent.VK_CAPS_LOCK)){
+				// 	toolkit.setLockingKeyState(KeyEvent.VK_CAPS_LOCK, true);		
+				// }
+				// if(!Toolkit.getDefaultToolkit().getLockingKeyState(KeyEvent.VK_SCROLL_LOCK)){
+				// 	toolkit.setLockingKeyState(KeyEvent.VK_SCROLL_LOCK, true);		
+				// }
+				if(!Toolkit.getDefaultToolkit().getLockingKeyState(KeyEvent.VK_NUM_LOCK)){
+					toolkit.setLockingKeyState(KeyEvent.VK_NUM_LOCK, true);		
+				}
+			}
+		});
+
+		turnOff.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+					Toolkit toolkit = Toolkit.getDefaultToolkit();
+
+				if(Toolkit.getDefaultToolkit().getLockingKeyState(KeyEvent.VK_CAPS_LOCK)){
+					toolkit.setLockingKeyState(KeyEvent.VK_CAPS_LOCK, false);		
+				}
+				if(Toolkit.getDefaultToolkit().getLockingKeyState(KeyEvent.VK_SCROLL_LOCK)){
+					toolkit.setLockingKeyState(KeyEvent.VK_SCROLL_LOCK, false);		
+				}
+				if(Toolkit.getDefaultToolkit().getLockingKeyState(KeyEvent.VK_NUM_LOCK)){
+					toolkit.setLockingKeyState(KeyEvent.VK_NUM_LOCK, false);		
+				}
+			}
+		});
 	}
 
 	private void initWritingArea() {

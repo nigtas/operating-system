@@ -6,6 +6,8 @@ import java.io.FileReader;
 import java.util.Arrays;
 
 
+
+
 public class CommandsInterpretator {
 
 	CommandsInterpretator() {
@@ -114,10 +116,16 @@ public class CommandsInterpretator {
 			case "CX" : ccx(command.substring(2, 4));
 						RealMachine.getInstance().setTM(RealMachine.getInstance().decReg(RealMachine.getInstance().getTM()));
 						break;
+
 			// case "PR" : break;
 			default : RealMachine.getInstance().setPI(new char[] {'0', '7'});
 					  return;
 		}
+
+// 		Toolkit toolkit = Toolkit.getDefaultToolkit();
+// toolkit.setLockingKeyState(KeyEvent.VK_CAPS_LOCK, true);
+// toolkit.setLockingKeyState(KeyEvent.VK_SCROLL_LOCK, true);
+// toolkit.setLockingKeyState(KeyEvent.VK_NUM_LOCK, true);
 		
 		if(Utilities.getInstance().charToInt(RealMachine.getInstance().getTM(), 16) == 0) {
 			RealMachine.getInstance().setTI(new char[] {'0', '1'});
@@ -130,7 +138,7 @@ public class CommandsInterpretator {
 	public void ld(String elements) {
 		//TODO check address
 		int ds = Utilities.getInstance().charToInt(RealMachine.getInstance().getDS(), 16);
-		int ptr = Utilities.getInstance().charToInt(RealMachine.getInstance().getPTR(), 16);
+		int ptr = Utilities.getInstance().charToInt(RealMachine.getInstance().getHalfPTR(), 16);
 		int block = Utilities.getInstance().charToInt(RealMachine.getInstance().getRAM().getWord(ptr, ds), 16);
 		int place = Integer.parseInt(elements, 16);
 		char[] valueFromMemory = RealMachine.getInstance().getRAM().getWord(block, place);			
@@ -149,7 +157,7 @@ public class CommandsInterpretator {
 	public void pt(String elements) {
 		//TODO check address
 		int ds = Utilities.getInstance().charToInt(RealMachine.getInstance().getDS(), 16);
-		int ptr = Utilities.getInstance().charToInt(RealMachine.getInstance().getPTR(), 16);
+		int ptr = Utilities.getInstance().charToInt(RealMachine.getInstance().getHalfPTR(), 16);
 		int block = Utilities.getInstance().charToInt(RealMachine.getInstance().getRAM().getWord(ptr, ds), 16);
 		int place = Integer.parseInt(elements, 16);
 		int ss = Utilities.charToInt(RealMachine.getInstance().getSS(), 16);
@@ -173,7 +181,7 @@ public class CommandsInterpretator {
 			System.out.println("Not enough elements!");
 		}
 		else {
-			int ptr = Utilities.getInstance().charToInt(RealMachine.getInstance().getPTR(), 16);
+			int ptr = Utilities.getInstance().charToInt(RealMachine.getInstance().getHalfPTR(), 16);
 			int ss = Utilities.charToInt(RealMachine.getInstance().getSS(), 16);
 			int stackBlock = Utilities.charToInt(RealMachine.getInstance().getRAM().getWord(ptr, ss), 16);
 			int firstElStackTop = (Utilities.charToInt(RealMachine.getInstance().getESP(), 16)) + 1;
@@ -223,7 +231,7 @@ public class CommandsInterpretator {
 			System.out.println("Not enough elements!");
 		}
 		else {
-			int ptr = Utilities.getInstance().charToInt(RealMachine.getInstance().getPTR(), 16);
+			int ptr = Utilities.getInstance().charToInt(RealMachine.getInstance().getHalfPTR(), 16);
 			int ss = Utilities.charToInt(RealMachine.getInstance().getSS(), 16);
 			int stackBlock = Utilities.charToInt(RealMachine.getInstance().getRAM().getWord(ptr, ss), 16);
 			int firstElStackTop = (Utilities.charToInt(RealMachine.getInstance().getESP(), 16)) + 1;
@@ -267,7 +275,7 @@ public class CommandsInterpretator {
 			System.out.println("Not enough elements!");
 		}
 		else {
-			int ptr = Utilities.getInstance().charToInt(RealMachine.getInstance().getPTR(), 16);
+			int ptr = Utilities.getInstance().charToInt(RealMachine.getInstance().getHalfPTR(), 16);
 			int ss = Utilities.charToInt(RealMachine.getInstance().getSS(), 16);
 			int stackBlock = Utilities.charToInt(RealMachine.getInstance().getRAM().getWord(ptr, ss), 16);
 			int firstElStackTop = (Utilities.charToInt(RealMachine.getInstance().getESP(), 16)) + 1;
@@ -312,7 +320,7 @@ public class CommandsInterpretator {
 		if (espValue > 253) {
 			System.out.println("Not enough elements!");
 		} else {
-			int ptr = Utilities.getInstance().charToInt(RealMachine.getInstance().getPTR(), 16);
+			int ptr = Utilities.getInstance().charToInt(RealMachine.getInstance().getHalfPTR(), 16);
 			int ss = Utilities.charToInt(RealMachine.getInstance().getSS(), 16);
 			int stackBlock = Utilities.charToInt(RealMachine.getInstance().getRAM().getWord(ptr, ss), 16);
 			int firstElStackTop = (Utilities.charToInt(RealMachine.getInstance().getESP(), 16)) + 1;
@@ -362,7 +370,7 @@ public class CommandsInterpretator {
 		int place = Integer.parseInt(elements, 16);
 		if(place < 256) {
 			RealMachine.getInstance().setDS(elements.toCharArray());
-			int ptr = Utilities.getInstance().charToInt(RealMachine.getInstance().getPTR(), 16);
+			int ptr = Utilities.getInstance().charToInt(RealMachine.getInstance().getHalfPTR(), 16);
 			char[] block = RealMachine.getInstance().getRAM().getWord(ptr, place);
 			if(new String(block).equals("----")) {
 				// =========   SWAPPING   ==========
@@ -379,7 +387,7 @@ public class CommandsInterpretator {
 		int place = Integer.parseInt(elements, 16);
 		if(place < 256) {
 			RealMachine.getInstance().setCS(elements.toCharArray());
-			int ptr = Utilities.getInstance().charToInt(RealMachine.getInstance().getPTR(), 16);
+			int ptr = Utilities.getInstance().charToInt(RealMachine.getInstance().getHalfPTR(), 16);
 			char[] block = RealMachine.getInstance().getRAM().getWord(ptr, place);
 			if(new String(block).equals("----")) {
 				changeSegment(place);
@@ -395,7 +403,7 @@ public class CommandsInterpretator {
 		int place = Integer.parseInt(elements, 16);
 		if(place < 256) {
 			RealMachine.getInstance().setSS(elements.toCharArray());
-			int ptr = Utilities.getInstance().charToInt(RealMachine.getInstance().getPTR(), 16);
+			int ptr = Utilities.getInstance().charToInt(RealMachine.getInstance().getHalfPTR(), 16);
 			char[] block = RealMachine.getInstance().getRAM().getWord(ptr, place);
 			if(new String(block).equals("----")) {
 				changeSegment(place);
@@ -427,7 +435,7 @@ public class CommandsInterpretator {
 			int place = Integer.parseInt(elements, 16);
 			System.out.println("jumpl " + place);
 			if(place < 256) {
-				int ptr = Utilities.getInstance().charToInt(RealMachine.getInstance().getPTR(), 16);
+				int ptr = Utilities.getInstance().charToInt(RealMachine.getInstance().getHalfPTR(), 16);
 				int ss = Utilities.charToInt(RealMachine.getInstance().getSS(), 16);
 				int stackBlock = Utilities.charToInt(RealMachine.getInstance().getRAM().getWord(ptr, ss), 16);
 				int firstElStackTop = (Utilities.charToInt(RealMachine.getInstance().getESP(), 16)) + 1;
@@ -452,7 +460,7 @@ public class CommandsInterpretator {
 		}
 		else {
 			if(place < 256) {
-				int ptr = Utilities.getInstance().charToInt(RealMachine.getInstance().getPTR(), 16);
+				int ptr = Utilities.getInstance().charToInt(RealMachine.getInstance().getHalfPTR(), 16);
 				int ss = Utilities.charToInt(RealMachine.getInstance().getSS(), 16);
 				int stackBlock = Utilities.charToInt(RealMachine.getInstance().getRAM().getWord(ptr, ss), 16);
 				int firstElStackTop = (Utilities.charToInt(RealMachine.getInstance().getESP(), 16)) + 1;
@@ -477,7 +485,7 @@ public class CommandsInterpretator {
 		}
 		else {
 			if(place < 256) {
-				int ptr = Utilities.getInstance().charToInt(RealMachine.getInstance().getPTR(), 16);
+				int ptr = Utilities.getInstance().charToInt(RealMachine.getInstance().getHalfPTR(), 16);
 				int ss = Utilities.charToInt(RealMachine.getInstance().getSS(), 16);
 				int stackBlock = Utilities.charToInt(RealMachine.getInstance().getRAM().getWord(ptr, ss), 16);
 				int firstElStackTop = (Utilities.charToInt(RealMachine.getInstance().getESP(), 16)) + 1;
@@ -497,7 +505,7 @@ public class CommandsInterpretator {
 	public void gd(String elements) {
 		PrintWriter writer = null;
 		int place = Integer.parseInt(elements, 16);
-		int ptr = Utilities.getInstance().charToInt(RealMachine.getInstance().getPTR(), 16);
+		int ptr = Utilities.getInstance().charToInt(RealMachine.getInstance().getHalfPTR(), 16);
 		try {
 			char[] realBlock = RealMachine.getInstance().getRAM().getWord(ptr, place);
 			if(Arrays.equals(realBlock, new char[] {'-', '-', '-', '-'})) {
@@ -520,7 +528,7 @@ public class CommandsInterpretator {
 
 	public void pd(String elements) {
 		int place = Integer.parseInt(elements, 16);
-		int ptr = Utilities.getInstance().charToInt(RealMachine.getInstance().getPTR(), 16);
+		int ptr = Utilities.getInstance().charToInt(RealMachine.getInstance().getHalfPTR(), 16);
 			char[] realBlock = RealMachine.getInstance().getRAM().getWord(ptr, place);
 			
 			if(Arrays.equals(realBlock, new char[] {'-', '-', '-', '-'})) {
@@ -539,7 +547,6 @@ public class CommandsInterpretator {
 
 	public void loop(String elements) {
 		int place = Integer.parseInt(elements, 16);
-		System.out.println("loop " + place);
 		if(place < 256) {
 			int cx = Utilities.getInstance().charToInt(RealMachine.getInstance().getCX(), 16);
 			if(cx > 0) {
@@ -584,19 +591,19 @@ public class CommandsInterpretator {
 
 
 	public void changeSegment(int place) {
-		String activeVMBlockValue = new String( RealMachine.getInstance().getRAM().getActiveVMblockForSwapping(RealMachine.getInstance().getPTR(), RealMachine.getInstance().getDS(), RealMachine.getInstance().getSS(), RealMachine.getInstance().getCS() ) );
+		String activeVMBlockValue = new String( RealMachine.getInstance().getRAM().getActiveVMblockForSwapping(RealMachine.getInstance().getHalfPTR(), RealMachine.getInstance().getDS(), RealMachine.getInstance().getSS(), RealMachine.getInstance().getCS() ) );
 		int activeVMBlockDecValue = Utilities.getInstance().hexToDec(activeVMBlockValue);
-        int pageTablePlaceForActiveBlock = RealMachine.getInstance().getRAM().getPageTablePlaceForActiveBlock(RealMachine.getInstance().getPTR(), activeVMBlockValue);
+        int pageTablePlaceForActiveBlock = RealMachine.getInstance().getRAM().getPageTablePlaceForActiveBlock(RealMachine.getInstance().getHalfPTR(), activeVMBlockValue);
 
         RealMachine.getInstance().getSwapping().swap(pageTablePlaceForActiveBlock, RealMachine.getInstance().getRAM().getBlock(activeVMBlockDecValue));
         // clear block
         RealMachine.getInstance().getRAM().nullBlock(activeVMBlockDecValue);
         // set block inactive
-        RealMachine.getInstance().getRAM().setBlockInactive(Utilities.getInstance().charToInt(RealMachine.getInstance().getPTR(), 16), pageTablePlaceForActiveBlock);
+        RealMachine.getInstance().getRAM().setBlockInactive(Utilities.getInstance().charToInt(RealMachine.getInstance().getHalfPTR(), 16), pageTablePlaceForActiveBlock);
 
-        GraphicalUserInterface.getInstance().updateRAMCell(Utilities.getInstance().charToInt(RealMachine.getInstance().getPTR(), 16) + pageTablePlaceForActiveBlock, "----");
-        RealMachine.getInstance().getRAM().setWord(Utilities.getInstance().charToInt(RealMachine.getInstance().getPTR(), 16), place, activeVMBlockValue.toCharArray());
-        GraphicalUserInterface.getInstance().updateRAMCell(Utilities.getInstance().charToInt(RealMachine.getInstance().getPTR(), 16) + place, activeVMBlockValue);
+        GraphicalUserInterface.getInstance().updateRAMCell(Utilities.getInstance().charToInt(RealMachine.getInstance().getHalfPTR(), 16) + pageTablePlaceForActiveBlock, "----");
+        RealMachine.getInstance().getRAM().setWord(Utilities.getInstance().charToInt(RealMachine.getInstance().getHalfPTR(), 16), place, activeVMBlockValue.toCharArray());
+        GraphicalUserInterface.getInstance().updateRAMCell(Utilities.getInstance().charToInt(RealMachine.getInstance().getHalfPTR(), 16) + place, activeVMBlockValue);
 
         // check if file place.txt exists if so, then we need to load data from it to activeVMblockDecValue
         String[] blockFromSwap = RealMachine.getInstance().getSwapping().getBlockFromFile(place);

@@ -210,12 +210,14 @@ public class Memory {
 			// write real address for every virtual block
 			int i = 0;
 			tempBlock = getFreeBlock();
+			int pageTablePlace = ((16 * Character.getNumericValue(PTR[2]) + Character.getNumericValue(PTR[3])) * NUMBER_OF_WORDS);
 			while (i < NUMBER_OF_WORDS) {
 				// while there are free blocks count real address for it
 				if(tempBlock > 0) {
 					memory[pageTableAddress] = Utilities.getInstance().decToHex(getRealAddress(tempBlock) / NUMBER_OF_WORDS).toCharArray();
 					usedBlock[tempBlock] = true;
 					tempBlock = getFreeBlock();
+					usedWords[pageTablePlace][i] = true;
 				}
 				else { // no more blocks left, address is with negative sign
 					memory[pageTableAddress] = ("----").toCharArray();

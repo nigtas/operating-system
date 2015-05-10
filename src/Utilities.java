@@ -58,6 +58,6 @@ class Utilities {
         System.out.println("charToSignedInt(): value = " + value);
         return (int) value;
     }
-
+    
 }
 
