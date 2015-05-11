@@ -6,7 +6,7 @@ import javax.swing.text.LayeredHighlighter.LayerPainter;
 import javax.swing.text.DefaultHighlighter.*;
 import javax.swing.text.BadLocationException;
 import java.util.Random;
-import java.awt.Toolkit;
+import java.io.*;
 
 
 /* ARRAY OF REGISTERS 
@@ -80,7 +80,7 @@ public class GraphicalUserInterface {
 
 		initPanels();
 		initLabels();
-		// initLightButtons();
+		initLightButtons();
 		initWritingArea();
 		initOutputArea();
 		initRAMlist();
@@ -132,7 +132,7 @@ public class GraphicalUserInterface {
 
 		turnOn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-					Toolkit toolkit = Toolkit.getDefaultToolkit();
+					// Toolkit toolkit = Toolkit.getDefaultToolkit();
 
 				// if(!Toolkit.getDefaultToolkit().getLockingKeyState(KeyEvent.VK_CAPS_LOCK)){
 				// 	toolkit.setLockingKeyState(KeyEvent.VK_CAPS_LOCK, true);		
@@ -140,10 +140,25 @@ public class GraphicalUserInterface {
 				// if(!Toolkit.getDefaultToolkit().getLockingKeyState(KeyEvent.VK_SCROLL_LOCK)){
 				// 	toolkit.setLockingKeyState(KeyEvent.VK_SCROLL_LOCK, true);		
 				// }
-				if(!Toolkit.getDefaultToolkit().getLockingKeyState(KeyEvent.VK_NUM_LOCK)){
-					toolkit.setLockingKeyState(KeyEvent.VK_NUM_LOCK, true);		
+				// if(!Toolkit.getDefaultToolkit().getLockingKeyState(KeyEvent.VK_NUM_LOCK)){
+				// 	toolkit.setLockingKeyState(KeyEvent.VK_NUM_LOCK, true);		
+				// }
+				System.out.println(OsUtils.getOsName());
+				try {
+					if(OsUtils.isUnix()) {
+						Process p = Runtime.getRuntime().exec("cat /sys/class/power_supply/BAT1/capacity");
+						getBatteryStatus(p);
+					}
+					if(OsUtils.isMac()) {
+						rocess p = Runtime.getRuntime().exec("ioreg -l | grep -i capacity | tr '\n' ' | ' | awk '{printf("%.2f%%", $10/$5 * 100)}'");
+						getBatteryStatus(p);
+					}
 				}
-			}
+				catch(Exception ex) {
+					System.out.println("Command execution for battery");
+				}
+				
+			}	
 		});
 
 		turnOff.addActionListener(new ActionListener() {
@@ -161,6 +176,26 @@ public class GraphicalUserInterface {
 				}
 			}
 		});
+	}
+
+	private void getBatteryStatus(Process p) {
+		try {
+			p.waitFor();
+			BufferedReader buf = new BufferedReader(new InputStreamReader(
+			p.getInputStream()));
+			String line = "";
+			String output = "";
+
+			while ((line = buf.readLine()) != null) {
+				output += line;
+			}
+			setOutputText("Battery: " + output + "%");
+			System.out.println(output);
+		}
+		catch(Exception e) {
+			System.out.println("Battery read exception");
+		}
+		
 	}
 
 	private void initWritingArea() {
