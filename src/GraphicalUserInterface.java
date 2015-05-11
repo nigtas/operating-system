@@ -29,6 +29,8 @@ import java.io.*;
 public class GraphicalUserInterface {
 	private static GraphicalUserInterface instance = null;
 
+	private boolean lightTurnedOn = false;
+
 	private final JFrame frame = new JFrame("Virtual Machine");
 	
 	// data of rams
@@ -103,7 +105,7 @@ public class GraphicalUserInterface {
 		pane = frame.getContentPane();
 		pane.setLayout(new GridLayout(1, 0));
 		
-		left.setLayout(new GridLayout(7, 1)); 
+		left.setLayout(new GridLayout(6, 1)); 
 		centerLeftMost.setLayout(new BorderLayout());
 		centerLeft.setLayout(new BorderLayout()); 
 		right.setLayout(new BorderLayout()); 
@@ -124,33 +126,24 @@ public class GraphicalUserInterface {
 	}
 
 	private void initLightButtons() {
-		JButton turnOn = new JButton("Turn on lights!");
-		JButton turnOff = new JButton("Turn off lights!");
+		JButton status = new JButton("Status");
+		JButton turnOn = new JButton("ON");
+		JButton turnOff = new JButton("OFF");
+		left.add(status);
 		left.add(turnOn);
 		left.add(turnOff);
 
 
-		turnOn.addActionListener(new ActionListener() {
+		status.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-					// Toolkit toolkit = Toolkit.getDefaultToolkit();
-
-				// if(!Toolkit.getDefaultToolkit().getLockingKeyState(KeyEvent.VK_CAPS_LOCK)){
-				// 	toolkit.setLockingKeyState(KeyEvent.VK_CAPS_LOCK, true);		
-				// }
-				// if(!Toolkit.getDefaultToolkit().getLockingKeyState(KeyEvent.VK_SCROLL_LOCK)){
-				// 	toolkit.setLockingKeyState(KeyEvent.VK_SCROLL_LOCK, true);		
-				// }
-				// if(!Toolkit.getDefaultToolkit().getLockingKeyState(KeyEvent.VK_NUM_LOCK)){
-				// 	toolkit.setLockingKeyState(KeyEvent.VK_NUM_LOCK, true);		
-				// }
-				System.out.println(OsUtils.getOsName());
+				// m.out.println(OsUtils.getOsName());
 				try {
 					if(OsUtils.isUnix()) {
 						Process p = Runtime.getRuntime().exec("cat /sys/class/power_supply/BAT1/capacity");
 						getBatteryStatus(p);
 					}
 					if(OsUtils.isMac()) {
-						rocess p = Runtime.getRuntime().exec("ioreg -l | grep -i capacity | tr '\n' ' | ' | awk '{printf("%.2f%%", $10/$5 * 100)}'");
+						Process p = Runtime.getRuntime().exec("pmset -g batt | egrep \"([0-9]+\\%).*\" -o --colour=auto | cut -f1 -d';'");
 						getBatteryStatus(p);
 					}
 				}
@@ -161,18 +154,26 @@ public class GraphicalUserInterface {
 			}	
 		});
 
+		turnOn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(!lightTurnedOn) {
+					lightTurnedOn = true;
+					setOutputText("Light turned on!");
+				}
+				else {
+					setOutputText("Light is already turned on");
+				}
+			}	
+		});
+
 		turnOff.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-					Toolkit toolkit = Toolkit.getDefaultToolkit();
-
-				if(Toolkit.getDefaultToolkit().getLockingKeyState(KeyEvent.VK_CAPS_LOCK)){
-					toolkit.setLockingKeyState(KeyEvent.VK_CAPS_LOCK, false);		
+				if(lightTurnedOn) {
+					lightTurnedOn = false;
+					setOutputText("Light turned off!");
 				}
-				if(Toolkit.getDefaultToolkit().getLockingKeyState(KeyEvent.VK_SCROLL_LOCK)){
-					toolkit.setLockingKeyState(KeyEvent.VK_SCROLL_LOCK, false);		
-				}
-				if(Toolkit.getDefaultToolkit().getLockingKeyState(KeyEvent.VK_NUM_LOCK)){
-					toolkit.setLockingKeyState(KeyEvent.VK_NUM_LOCK, false);		
+				else {
+					setOutputText("Light is already turned off");
 				}
 			}
 		});
@@ -180,7 +181,7 @@ public class GraphicalUserInterface {
 
 	private void getBatteryStatus(Process p) {
 		try {
-			p.waitFor();
+			// p.waitFor();
 			BufferedReader buf = new BufferedReader(new InputStreamReader(
 			p.getInputStream()));
 			String line = "";

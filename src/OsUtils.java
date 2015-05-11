@@ -16,6 +16,6 @@ public class OsUtils {
    }
 
    public static boolean isMac() {
-      return getOsName().startsWith("MacOS");
+      return getOsName().startsWith("Mac OS");
    }
 }
