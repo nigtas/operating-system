@@ -18,7 +18,7 @@ public class RealMachine {
    	private char[] ss = {'9', '9', '9', '9'};       // Steko segmentas
    	private char[] ptr = {'0', '0', '0', '0'};      // Puslapiu lenteles registras
    	private char[] ip = {'0', '0'}; 				      // VM programos skaitiklias
-   	private char[] flags = {'0', '0'}; 				   // Pozymiu registras
+   	private char[] flags = {'0','0','0', '0'}; 		// Pozymiu registras
    	private char[] c = {'1', '1'};					   // Kanalo registas
    	private char[] ti = {'0', '0'};                 // Taimerio pertraukimo registras
    	private char[] pi = {'0', '0'};                 // Programiniu pertraukimu registras  
@@ -30,8 +30,11 @@ public class RealMachine {
 
       /*
          FLAGS :
-         0 - Sign flag (value : 01)
-         1 - Zero flag (value : 02)
+         0 - 
+         1 - >0
+         2 - Zero flag 
+         3 - <0
+
       */
 
    	protected RealMachine() {
@@ -321,13 +324,13 @@ public class RealMachine {
 
    	// =========== SETERS AND GETTERS ===========
       public boolean getSF() {
-         int value = Utilities.getInstance().charToInt(getFLAGS(), 16);
-         return (value == 1 || value == 3);
+         char[] value = getFLAGS();
+         return (value[3] == '1');
       }
 
       public boolean getZF() {
-         int value = Utilities.getInstance().charToInt(getFLAGS(), 16);
-         return (value == 2 || value == 3);
+         char[] value = getFLAGS();
+         return (value[2] == '1');
       }
 
    	public void setESP(char[] reg) {

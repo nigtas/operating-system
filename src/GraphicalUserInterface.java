@@ -6,8 +6,6 @@ import javax.swing.text.LayeredHighlighter.LayerPainter;
 import javax.swing.text.DefaultHighlighter.*;
 import javax.swing.text.BadLocationException;
 import java.util.Random;
-import java.io.*;
-
 
 /* ARRAY OF REGISTERS 
 	0 - ESP
@@ -28,8 +26,6 @@ import java.io.*;
 
 public class GraphicalUserInterface {
 	private static GraphicalUserInterface instance = null;
-
-	private boolean lightTurnedOn = false;
 
 	private final JFrame frame = new JFrame("Virtual Machine");
 	
@@ -82,7 +78,6 @@ public class GraphicalUserInterface {
 
 		initPanels();
 		initLabels();
-		initLightButtons();
 		initWritingArea();
 		initOutputArea();
 		initRAMlist();
@@ -123,80 +118,6 @@ public class GraphicalUserInterface {
 			tf.setHorizontalAlignment(JTextField.CENTER);
 			left.add(tf);
 		}
-	}
-
-	private void initLightButtons() {
-		JButton status = new JButton("Status");
-		JButton turnOn = new JButton("ON");
-		JButton turnOff = new JButton("OFF");
-		left.add(status);
-		left.add(turnOn);
-		left.add(turnOff);
-
-
-		status.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				// m.out.println(OsUtils.getOsName());
-				try {
-					if(OsUtils.isUnix()) {
-						Process p = Runtime.getRuntime().exec("cat /sys/class/power_supply/BAT1/capacity");
-						getBatteryStatus(p);
-					}
-					if(OsUtils.isMac()) {
-						Process p = Runtime.getRuntime().exec("pmset -g batt | egrep \"([0-9]+\\%).*\" -o --colour=auto | cut -f1 -d';'");
-						getBatteryStatus(p);
-					}
-				}
-				catch(Exception ex) {
-					System.out.println("Command execution for battery");
-				}
-				
-			}	
-		});
-
-		turnOn.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if(!lightTurnedOn) {
-					lightTurnedOn = true;
-					setOutputText("Light turned on!");
-				}
-				else {
-					setOutputText("Light is already turned on");
-				}
-			}	
-		});
-
-		turnOff.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if(lightTurnedOn) {
-					lightTurnedOn = false;
-					setOutputText("Light turned off!");
-				}
-				else {
-					setOutputText("Light is already turned off");
-				}
-			}
-		});
-	}
-
-	private void getBatteryStatus(Process p) {
-		try {
-			// p.waitFor();
-			BufferedReader buf = new BufferedReader(new InputStreamReader(
-			p.getInputStream()));
-			String line = "";
-			String output = "";
-
-			while ((line = buf.readLine()) != null) {
-				output += line;
-			}
-			setOutputText("Battery: " + output + "%");
-			System.out.println(output);
-		}
-		catch(Exception e) {
-			System.out.println("Battery read exception");
-		}
-		
 	}
 
 	private void initWritingArea() {

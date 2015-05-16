@@ -1,9 +1,5 @@
-import java.io.PrintWriter;
-import java.io.IOException;
-import java.io.File;
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.util.Arrays;
+import java.io.*;
 
 
 
@@ -116,7 +112,15 @@ public class CommandsInterpretator {
 			case "CX" : ccx(command.substring(2, 4));
 						RealMachine.getInstance().setTM(RealMachine.getInstance().decReg(RealMachine.getInstance().getTM()));
 						break;
-
+			case "TN" : switch(command.substring(2, 4)) {
+							case "ON": turnOn();	
+									   break;
+							case "OF": turnOff();
+									   break;
+						}
+						break;
+			case "CH": checkStatus();
+					   break;
 			// case "PR" : break;
 			default : RealMachine.getInstance().setPI(new char[] {'0', '7'});
 					  return;
@@ -201,20 +205,22 @@ public class CommandsInterpretator {
 				else {
 					sum = Utilities.charToInt(firstValueFromStack, 16) + Utilities.charToInt(secondValueFromStack, 16);
 				}
-				RealMachine.getInstance().setFLAGS(new char[]{'0', '0'});
+				// RealMachine.getInstance().setFLAGS(new char[]{'0', '0'});
 				if (sum > 65535) {
 					RealMachine.getInstance().setPI(new char[] {'0', '6'});
 				}
+				RealMachine.getInstance().setFLAGS(new char[]{'0', '0', '0', '0'});
+				char[] flags = RealMachine.getInstance().getFLAGS();
+				if(sum < 65535 && sum > 0) {
+					flags[1] = '1';
+				}
 				if (sum == 0) {
-					int flags = Utilities.getInstance().charToInt(RealMachine.getInstance().getFLAGS(), 16);
-					flags += 2;
-					RealMachine.getInstance().setFLAGS(Utilities.getInstance().decToHex(flags).toCharArray());	
+					flags[2] = '1';
 				}
 				if (sum < 0) {
-					int flags = Utilities.getInstance().charToInt(RealMachine.getInstance().getFLAGS(), 16);
-					flags += 1;
-					RealMachine.getInstance().setFLAGS(Utilities.getInstance().decToHex(flags).toCharArray());		
+					flags[3] = '1';
 				}
+				RealMachine.getInstance().setFLAGS(flags);		
 				char[] valueToAdd = (Integer.toHexString(sum)).toCharArray();
 				RealMachine.getInstance().getRAM().setWord(stackBlock, stackTop, valueToAdd);
 				GraphicalUserInterface.getInstance().updateRAMCell(stackBlock * 256 + stackTop, new String(RealMachine.getInstance().getRAM().getWord(stackBlock, stackTop)));	
@@ -252,13 +258,18 @@ public class CommandsInterpretator {
 				else {
 					sub = Utilities.charToInt(firstValueFromStack, 16) - Utilities.charToInt(secondValueFromStack, 16);
 				}
-				RealMachine.getInstance().setFLAGS(new char[]{'0', '0'});	
-				if (sub < 0) {
-					int flags = Utilities.getInstance().charToInt(RealMachine.getInstance().getFLAGS(), 16);
-					flags += 1;
-					RealMachine.getInstance().setFLAGS(Utilities.getInstance().decToHex(flags).toCharArray());
+				RealMachine.getInstance().setFLAGS(new char[]{'0', '0', '0', '0'});
+				char[] flags = RealMachine.getInstance().getFLAGS();
+				if(sub > 0) {
+					flags[1] = '1';
 				}
-
+				if (sub == 0) {
+					flags[2] = '1';
+				}
+				if (sub < 0) {
+					flags[3] = '1';
+				}
+				RealMachine.getInstance().setFLAGS(flags);
 				char[] valueToAdd = (Integer.toHexString(sub)).toCharArray();
 				RealMachine.getInstance().getRAM().setWord(stackBlock, stackTop, valueToAdd);
 				GraphicalUserInterface.getInstance().updateRAMCell(stackBlock * 256 + stackTop, new String(RealMachine.getInstance().getRAM().getWord(stackBlock, stackTop)));	
@@ -291,12 +302,18 @@ public class CommandsInterpretator {
 				else {
 					mul = Utilities.charToInt(firstValueFromStack, 16) * Utilities.charToInt(secondValueFromStack, 16);
 				}
-				RealMachine.getInstance().setFLAGS(new char[]{'0', '0'});
+				RealMachine.getInstance().setFLAGS(new char[]{'0', '0', '0', '0'});
+				char[] flags = RealMachine.getInstance().getFLAGS();
+				if(mul < 65535 && mul > 0) {
+					flags[1] = '1';
+				}
 				if (mul == 0) {
-					int flags = Utilities.getInstance().charToInt(RealMachine.getInstance().getFLAGS(), 16);
-					flags += 2;
-					RealMachine.getInstance().setFLAGS(Utilities.getInstance().decToHex(flags).toCharArray());	
+					flags[2] = '1';
+				}
+				if (mul < 0) {
+					flags[3] = '1';
 				} 
+				RealMachine.getInstance().setFLAGS(flags);	
 				if(mul > 65535) {
 					RealMachine.getInstance().setPI(new char[] {'0', '6'});
 					return;
@@ -314,8 +331,6 @@ public class CommandsInterpretator {
 	}
 
 	public void div() {
-		RealMachine.getInstance().setFLAGS(new char[]{'0', '0'});
-
 		int espValue = Utilities.charToInt(RealMachine.getInstance().getESP(), 16);
 		if (espValue > 253) {
 			System.out.println("Not enough elements!");
@@ -342,11 +357,18 @@ public class CommandsInterpretator {
 					div = Utilities.charToInt(secondValueFromStack, 16) / Utilities.charToInt(firstValueFromStack, 16);
 					mod = Utilities.charToInt(secondValueFromStack, 16) % Utilities.charToInt(firstValueFromStack, 16);
 				}
-				if (div == 0) {
-					int flags = Utilities.getInstance().charToInt(RealMachine.getInstance().getFLAGS(), 16);
-					flags += 2;
-					RealMachine.getInstance().setFLAGS(Utilities.getInstance().decToHex(flags).toCharArray());	
+				RealMachine.getInstance().setFLAGS(new char[]{'0', '0', '0', '0'});
+				char[] flags = RealMachine.getInstance().getFLAGS();
+				if(div > 0) {
+					flags[1] = '1';
 				}
+				if(div == 0) {
+					flags[2] = '1';
+				}
+				if(div < 0) {
+					flags[3] = '1';
+				}
+				RealMachine.getInstance().setFLAGS(flags);
 				char[] valueToAddDiv = (Integer.toHexString(div)).toCharArray();
 				char[] valueToAddMod = (Integer.toHexString(mod)).toCharArray();
 				RealMachine.getInstance().getRAM().setWord(stackBlock, stackTop, valueToAddDiv);
@@ -435,15 +457,15 @@ public class CommandsInterpretator {
 			int place = Integer.parseInt(elements, 16);
 			System.out.println("jumpl " + place);
 			if(place < 256) {
-				int ptr = Utilities.getInstance().charToInt(RealMachine.getInstance().getHalfPTR(), 16);
-				int ss = Utilities.charToInt(RealMachine.getInstance().getSS(), 16);
-				int stackBlock = Utilities.charToInt(RealMachine.getInstance().getRAM().getWord(ptr, ss), 16);
-				int firstElStackTop = (Utilities.charToInt(RealMachine.getInstance().getESP(), 16)) + 1;
-				char[] firstValueFromStack = RealMachine.getInstance().getRAM().getWord(stackBlock, firstElStackTop);
-				if(Utilities.getInstance().charToSignedInt(firstValueFromStack, 16) < 0) {
+				// int ptr = Utilities.getInstance().charToInt(RealMachine.getInstance().getHalfPTR(), 16);
+				// int ss = Utilities.charToInt(RealMachine.getInstance().getSS(), 16);
+				// int stackBlock = Utilities.charToInt(RealMachine.getInstance().getRAM().getWord(ptr, ss), 16);
+				// int firstElStackTop = (Utilities.charToInt(RealMachine.getInstance().getESP(), 16)) + 1;
+				// char[] firstValueFromStack = RealMachine.getInstance().getRAM().getWord(stackBlock, firstElStackTop);
+				if(RealMachine.getInstance().getFLAGS()[3] == '1') {
 					RealMachine.getInstance().setIP(elements.toCharArray());
 				}
-				else System.out.println("Top element not <0!");
+				else System.out.println("FLAG neg value not 1");
 			}
 			else {
 				RealMachine.getInstance().setPI(new char[] {'0', '3'});
@@ -460,15 +482,15 @@ public class CommandsInterpretator {
 		}
 		else {
 			if(place < 256) {
-				int ptr = Utilities.getInstance().charToInt(RealMachine.getInstance().getHalfPTR(), 16);
-				int ss = Utilities.charToInt(RealMachine.getInstance().getSS(), 16);
-				int stackBlock = Utilities.charToInt(RealMachine.getInstance().getRAM().getWord(ptr, ss), 16);
-				int firstElStackTop = (Utilities.charToInt(RealMachine.getInstance().getESP(), 16)) + 1;
-				char[] firstValueFromStack = RealMachine.getInstance().getRAM().getWord(stackBlock, firstElStackTop);
-				if(Utilities.getInstance().charToSignedInt(firstValueFromStack, 16) > 0) {
+				// int ptr = Utilities.getInstance().charToInt(RealMachine.getInstance().getHalfPTR(), 16);
+				// int ss = Utilities.charToInt(RealMachine.getInstance().getSS(), 16);
+				// int stackBlock = Utilities.charToInt(RealMachine.getInstance().getRAM().getWord(ptr, ss), 16);
+				// int firstElStackTop = (Utilities.charToInt(RealMachine.getInstance().getESP(), 16)) + 1;
+				// char[] firstValueFromStack = RealMachine.getInstance().getRAM().getWord(stackBlock, firstElStackTop);
+				if(RealMachine.getInstance().getFLAGS()[1] == '1') {
 					RealMachine.getInstance().setIP(elements.toCharArray());
 				}
-				else System.out.println("Top element not >0!");
+				else System.out.println("FLAG positive value not 1");
 			}
 			else {
 				RealMachine.getInstance().setPI(new char[] {'0', '3'});
@@ -569,6 +591,49 @@ public class CommandsInterpretator {
 		}
 	}
 
+	public void turnOn() {
+		Light.getInstance().turnOn();
+	}
+
+	public void turnOff() {
+		Light.getInstance().turnOff();
+	} 
+
+	public void checkStatus() {
+		try {
+			if(OsUtils.isUnix()) {
+				Process p = Runtime.getRuntime().exec("cat /sys/class/power_supply/BAT1/capacity");
+				getBatteryStatus(p, Light.getInstance().isTurnedOn());
+			}
+			if(OsUtils.isMac()) {
+				Process p = Runtime.getRuntime().exec("pmset -g batt | egrep \"([0-9]+\\%).*\" -o --colour=auto | cut -f1 -d';'");
+				getBatteryStatus(p, Light.getInstance().isTurnedOn());
+			}
+		}
+		catch(Exception ex) {
+			System.out.println("Command execution for battery");
+		}
+	}
+
+	private void getBatteryStatus(Process p, boolean lightStatus) {
+		try {
+			// p.waitFor();
+			BufferedReader buf = new BufferedReader(new InputStreamReader(
+			p.getInputStream()));
+			String line = "";
+			String output = "";
+
+			while ((line = buf.readLine()) != null) {
+				output += line;
+			}
+			GraphicalUserInterface.getInstance().setOutputText("Battery: " + output + "%\n" + (lightStatus ? "Light is turned on" : "Light is turned off"));
+			System.out.println(output);
+		}
+		catch(Exception e) {
+			System.out.println("Battery read exception");
+		}
+		
+	}
 	public String[] readData() {
 		String filePathString = new String( "data.txt" );
         String[] arrayToReturn = new String[256];
