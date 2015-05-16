@@ -507,16 +507,16 @@ public class CommandsInterpretator {
 		}
 		else {
 			if(place < 256) {
-				int ptr = Utilities.getInstance().charToInt(RealMachine.getInstance().getHalfPTR(), 16);
-				int ss = Utilities.charToInt(RealMachine.getInstance().getSS(), 16);
-				int stackBlock = Utilities.charToInt(RealMachine.getInstance().getRAM().getWord(ptr, ss), 16);
-				int firstElStackTop = (Utilities.charToInt(RealMachine.getInstance().getESP(), 16)) + 1;
-				char[] firstValueFromStack = RealMachine.getInstance().getRAM().getWord(stackBlock, firstElStackTop);
-				System.out.println("value " + new String(firstValueFromStack) + "block " + stackBlock + "");
-				if(Utilities.getInstance().charToSignedInt(firstValueFromStack, 16) == 0) {
+				// int ptr = Utilities.getInstance().charToInt(RealMachine.getInstance().getHalfPTR(), 16);
+				// int ss = Utilities.charToInt(RealMachine.getInstance().getSS(), 16);
+				// int stackBlock = Utilities.charToInt(RealMachine.getInstance().getRAM().getWord(ptr, ss), 16);
+				// int firstElStackTop = (Utilities.charToInt(RealMachine.getInstance().getESP(), 16)) + 1;
+				// char[] firstValueFromStack = RealMachine.getInstance().getRAM().getWord(stackBlock, firstElStackTop);
+				// System.out.println("value " + new String(firstValueFromStack) + "block " + stackBlock + "");
+				if(RealMachine.getInstance().getFLAGS()[2] == '1') {
 					RealMachine.getInstance().setIP(elements.toCharArray());
 				}
-				else System.out.println("Top element not 0!");
+				else System.out.println("FLAG zero value not 1");
 			}
 			else {
 				RealMachine.getInstance().setPI(new char[] {'0', '1'});

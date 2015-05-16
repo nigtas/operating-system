@@ -170,7 +170,7 @@ public class RealMachine {
                ++counter;
             }
          }
-         ptr[1] = Utilities.decToHex(counter).charAt(3);
+         ptr[1] = Utilities.decToHex(counter/15).charAt(3);
       }
 
       public void execute() {
