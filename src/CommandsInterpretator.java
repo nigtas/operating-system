@@ -19,14 +19,6 @@ public class CommandsInterpretator {
 		String command = RealMachine.getInstance().getCodeFromMemory(executionLine);
 		String executionCode = command.substring(0, 2);
 
-		// if(executionLine == 0) {
-		// 	if(!executionCode.equals("PR")) {
-		// 		RealMachine.getInstance().setPI(new char[] {'0', '7'});
-		// 		GraphicalUserInterface.getInstance().setRegisters(RealMachine.getInstance().collectAllRegisters());
-		// 		RealMachine.getInstance().test();
-		// 		return;
-		// 	}
-		// }
 		RealMachine.getInstance().setIP(RealMachine.getInstance().incReg(RealMachine.getInstance().getIP()));
 		GraphicalUserInterface.getInstance().setRegisters(RealMachine.getInstance().collectAllRegisters());
 		
@@ -119,17 +111,14 @@ public class CommandsInterpretator {
 									   break;
 						}
 						break;
-			case "CH": checkStatus();
-					   break;
+			case "CH" : checkStatus();
+					    break;
+			case "XO" : xor();
+						break;
 			// case "PR" : break;
 			default : RealMachine.getInstance().setPI(new char[] {'0', '7'});
 					  return;
 		}
-
-// 		Toolkit toolkit = Toolkit.getDefaultToolkit();
-// toolkit.setLockingKeyState(KeyEvent.VK_CAPS_LOCK, true);
-// toolkit.setLockingKeyState(KeyEvent.VK_SCROLL_LOCK, true);
-// toolkit.setLockingKeyState(KeyEvent.VK_NUM_LOCK, true);
 		
 		if(Utilities.getInstance().charToInt(RealMachine.getInstance().getTM(), 16) == 0) {
 			RealMachine.getInstance().setTI(new char[] {'0', '1'});
@@ -603,6 +592,7 @@ public class CommandsInterpretator {
 		try {
 			if(OsUtils.isUnix()) {
 				Process p = Runtime.getRuntime().exec("cat /sys/class/power_supply/BAT1/capacity");
+				System.out.println(p);
 				getBatteryStatus(p, Light.getInstance().isTurnedOn());
 			}
 			if(OsUtils.isMac()) {
@@ -612,6 +602,31 @@ public class CommandsInterpretator {
 		}
 		catch(Exception ex) {
 			System.out.println("Command execution for battery");
+		}
+	}
+
+	public void xor() {
+		int espValue = Utilities.charToInt(RealMachine.getInstance().getESP(), 16);
+		if (espValue > 253) {
+			System.out.println("Not enough elements!");
+		} else {
+			int ptr = Utilities.getInstance().charToInt(RealMachine.getInstance().getHalfPTR(), 16);
+			int ss = Utilities.charToInt(RealMachine.getInstance().getSS(), 16);
+			int stackBlock = Utilities.charToInt(RealMachine.getInstance().getRAM().getWord(ptr, ss), 16);
+			int firstElStackTop = (Utilities.charToInt(RealMachine.getInstance().getESP(), 16)) + 1;
+			char[] firstValueFromStack = RealMachine.getInstance().getRAM().getWord(stackBlock, firstElStackTop);
+			int secondElStackTop = (Utilities.charToInt(RealMachine.getInstance().getESP(), 16)) + 2;
+			char[] secondValueFromStack = RealMachine.getInstance().getRAM().getWord(stackBlock, secondElStackTop);
+			int stackTop = Utilities.charToInt(RealMachine.getInstance().getESP(), 16);
+			if (RealMachine.getInstance().decESP()) {
+				int xor = Utilities.charToInt(secondValueFromStack, 16)^Utilities.charToInt(firstValueFromStack, 16);
+				char[] valueToAdd = (Integer.toHexString(xor)).toCharArray();
+				RealMachine.getInstance().getRAM().setWord(stackBlock, stackTop, valueToAdd);
+				GraphicalUserInterface.getInstance().updateRAMCell(stackBlock * 256 + stackTop, new String(RealMachine.getInstance().getRAM().getWord(stackBlock, stackTop)));	
+				stackTop = Utilities.charToInt(RealMachine.getInstance().getESP(), 16);
+			} else {
+				RealMachine.getInstance().setPI(new char[] {'0', '4'});
+			}
 		}
 	}
 
