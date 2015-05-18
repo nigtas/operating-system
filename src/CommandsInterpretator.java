@@ -113,7 +113,7 @@ public class CommandsInterpretator {
 						break;
 			case "CH" : checkStatus();
 					    break;
-			case "XO" : xor();
+			case "0X" : xor();
 						break;
 			// case "PR" : break;
 			default : RealMachine.getInstance().setPI(new char[] {'0', '7'});
@@ -620,6 +620,18 @@ public class CommandsInterpretator {
 			int stackTop = Utilities.charToInt(RealMachine.getInstance().getESP(), 16);
 			if (RealMachine.getInstance().decESP()) {
 				int xor = Utilities.charToInt(secondValueFromStack, 16)^Utilities.charToInt(firstValueFromStack, 16);
+				RealMachine.getInstance().setFLAGS(new char[]{'0', '0', '0', '0'});
+				char[] flags = RealMachine.getInstance().getFLAGS();
+				if(xor > 0) {
+					flags[1] = '1';
+				}
+				if (xor == 0) {
+					flags[2] = '1';
+				}
+				if (xor < 0) {
+					flags[3] = '1';
+				}
+				RealMachine.getInstance().setFLAGS(flags);
 				char[] valueToAdd = (Integer.toHexString(xor)).toCharArray();
 				RealMachine.getInstance().getRAM().setWord(stackBlock, stackTop, valueToAdd);
 				GraphicalUserInterface.getInstance().updateRAMCell(stackBlock * 256 + stackTop, new String(RealMachine.getInstance().getRAM().getWord(stackBlock, stackTop)));	
