@@ -66,7 +66,8 @@ public class GraphicalUserInterface {
 		 new JTextField("TM: "),
 		 new JTextField("IP: "),
 		 new JTextField("C: "),
-		 new JTextField("CX: ")
+		 new JTextField("CX: "),
+		 new JTextField("LI: ")
 	};
 
 
@@ -230,9 +231,9 @@ public class GraphicalUserInterface {
 		    @Override
 		    public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
 		        JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-		        int block = index / 256;
+		        int block = index / Memory.NUMBER_OF_WORDS;
+		        // System.out.println("block: " + block);
 		        label.setBackground(colors[block]); 
-		        
 		        return label;
 		    }
 		});
@@ -264,8 +265,8 @@ public class GraphicalUserInterface {
 	// sets new register parameters
 	// array has to be of size 14
 	public static void setRegisters(String[] array) {
-		String[] reg = {"ESP:", "DS:", "CS:", "SS:", "PTR:", "MODE:", "FLAGS:", "IOI:", "PI:", "SI:", "TI:", "TM:", "IP:", "C:", "CX:"};
-		for(int i = 0; i < 15; i++) {
+		String[] reg = {"ESP:", "DS:", "CS:", "SS:", "PTR:", "MODE:", "FLAGS:", "IOI:", "PI:", "SI:", "TI:", "TM:", "IP:", "C:", "CX:", "LI:"};
+		for(int i = 0; i < 16; i++) {
 			fields[i].setText(reg[i] + " " + array[i]);
 		}
 	}

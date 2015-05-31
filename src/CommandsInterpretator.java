@@ -398,6 +398,7 @@ public class CommandsInterpretator {
 		int place = Integer.parseInt(elements, 16);
 		if(place < 256) {
 			RealMachine.getInstance().setCS(elements.toCharArray());
+			RealMachine.changedCS = true;
 			int ptr = Utilities.getInstance().charToInt(RealMachine.getInstance().getHalfPTR(), 16);
 			char[] block = RealMachine.getInstance().getRAM().getWord(ptr, place);
 			if(new String(block).equals("----")) {

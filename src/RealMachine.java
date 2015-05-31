@@ -4,6 +4,8 @@ import java.io.*;
 import java.util.*;
 
 public class RealMachine {
+      public boolean changedCS = false;
+
    	private static RealMachine instance = null;
    	private VirtualMachine vm = null;
    	private Memory ram = null;
@@ -13,9 +15,9 @@ public class RealMachine {
 
    	// Registers
    	private char[] esp = {'0', '0', '0', '0'};      // Steko rodykles registras
-   	private char[] ds = {'9', '9', '9', '9'};       // Data segmentas
-   	private char[] cs = {'9', '9', '9', '9'};       // Kodo segmentas
-   	private char[] ss = {'9', '9', '9', '9'};       // Steko segmentas
+   	private char[] ds = {'0', '0', '0', '0'};       // Data segmentas
+   	private char[] cs = {'0', '0', '0', '0'};       // Kodo segmentas
+   	private char[] ss = {'0', '0', '0', '0'};       // Steko segmentas
    	private char[] ptr = {'0', '0', '0', '0'};      // Puslapiu lenteles registras
    	private char[] ip = {'0', '0'}; 				      // VM programos skaitiklias
    	private char[] flags = {'0','0','0', '0'}; 		// Pozymiu registras
@@ -27,6 +29,7 @@ public class RealMachine {
    	private char[] mode = {'0', '1'};               // MODE registas
    	private char[] tm = {'0', '9'};                 // TM registras
       private char[] cx = {'0', '0'};                 // cx register for loop
+      private char[] li = {'0', '0'};
 
       /*
          FLAGS :
@@ -63,13 +66,13 @@ public class RealMachine {
          swapping = new Swapping();
          ci = new CommandsInterpretator();
 
-         // setting PTR register
-         setPTR(ram.newPageTable());
-         countMaxPages();
-         initStack();
-         setESP(new char[]{'0', '0', 'F', 'F'});
-         initDataSegment();
-         initCodeSegment();
+     //     // setting PTR register
+     //     setPTR(ram.newPageTable());
+     //     countMaxPages();
+     //     initStack();
+     //     setESP(new char[]{'0', '0', 'F', 'F'});
+     //     initDataSegment();
+     //     initCodeSegment();
 
 
    		char[][] memory = ram.getMemory();
@@ -86,7 +89,7 @@ public class RealMachine {
 
    		GraphicalUserInterface.getInstance().getRAMJList().setModel(GraphicalUserInterface.getInstance().getRAMModel());
    		GraphicalUserInterface.getInstance().setRegisters(collectAllRegisters());
-		   GraphicalUserInterface.getInstance().appendOutputText("...READY!\n");
+		   GraphicalUserInterface.getInstance().appendOutputText("REAL MACHINE READY!\n");
    	}
 
 
@@ -108,7 +111,7 @@ public class RealMachine {
 	   */
 
    	public String[] collectAllRegisters() {
-   		String[] array = new String[15];
+   		String[] array = new String[16];
    		array[0] = new String(esp);
    		array[1] = new String(ds);
    		array[2] = new String(cs);
@@ -124,15 +127,18 @@ public class RealMachine {
    		array[12] = new String(ip);
    		array[13] = new String(c);
          array[14] = new String(cx);
+         array[15] = new String(li);
    		return array;
    	}
 
       public void initStack() {
-         int ssAddress = Utilities.getInstance().hexToDec(new String(getHalfPTR())) + (Memory.NUMBER_OF_WORDS - Memory.NUMBER_OF_STACK_BLOCK);         
 
+         int ssAddress = Memory.NUMBER_OF_WORDS - Memory.NUMBER_OF_STACK_BLOCK;         
+         System.out.println("STACK address " + ssAddress);
          String ssValue = new String(ram.getWord(ssAddress - (Memory.NUMBER_OF_WORDS - Memory.NUMBER_OF_STACK_BLOCK), ssAddress));
          if(ssValue.equals("----")) {
             String activeVMBlock = new String( ram.getActiveVMblockForSwapping(getHalfPTR(), getDS(), getSS(), getCS() ) );
+            System.out.println("init stack: " + activeVMBlock);
             int pageTablePlaceForActiveBlock = ram.getPageTablePlaceForActiveBlock(getHalfPTR(), activeVMBlock);
             int activeBlockNr = Utilities.getInstance().hexToDec(activeVMBlock);
             
@@ -145,19 +151,23 @@ public class RealMachine {
       }
 
       public void initDataSegment() {
+         System.out.println("INIT DATA SEGMEN: " + new String(getHalfPTR()));
          String findActiveVmBlock = new String( ram.getActiveVMblockForSwapping( getHalfPTR(), getDS(), getSS(), getCS() ) ); 
          System.out.println("active data segment = " + findActiveVmBlock);
          int block = Utilities.getInstance().hexToDec(findActiveVmBlock);
+         System.out.println("INIT DATA SEGME BLOCK: " + block);
          for(int i = 0; i < ram.NUMBER_OF_WORDS - 1; i++) {
             ram.setWord(block, i, Utilities.getInstance().decToHex(i).toCharArray());
          }
          ram.setWord(block, 255, new char[] {'F', 'F', 'F', 'F'});
          int pageTablePlaceForActiveBlock = ram.getPageTablePlaceForActiveBlock(getHalfPTR(), findActiveVmBlock);
+         System.out.println("init data segm paget table: " + pageTablePlaceForActiveBlock);
          setDS(Utilities.getInstance().decToHex(pageTablePlaceForActiveBlock).toCharArray());
       }
 
       public void initCodeSegment() {
          String findActiveVmBlock = new String( ram.getActiveVMblockForSwapping( getHalfPTR(), getDS(), getSS(), getCS() ) ); 
+         System.out.println("active code segment = " + findActiveVmBlock + " ds " + new String(getDS()));
          int pageTablePlaceForActiveBlock = ram.getPageTablePlaceForActiveBlock(getHalfPTR(), findActiveVmBlock);
          System.out.println(pageTablePlaceForActiveBlock);
          setCS(Utilities.getInstance().decToHex(pageTablePlaceForActiveBlock).toCharArray());
@@ -178,6 +188,12 @@ public class RealMachine {
       }
 
       public void loadCode() {
+         vm = new VirtualMachine();
+         System.out.println("as dasd fasd gfad gasd gasdg " + new String(getHalfPTR()));
+         if(new String(getHalfPTR()).equals("00OR")) {
+            System.out.println("asldkhafjks dkgfsa d");
+            return;
+         }
          List<String> code = new ArrayList<String>();
          BufferedReader br = null;
          try {
@@ -203,7 +219,7 @@ public class RealMachine {
              System.out.println("Bad program begining");
                      return;
          }
-         int memoryBlockForCode = Utilities.getInstance().charToInt(ram.getWord(0, Utilities.getInstance().charToInt(getCS(), 16)), 16);
+         int memoryBlockForCode = Utilities.getInstance().charToInt(ram.getWord(Utilities.getInstance().charToInt(getHalfPTR(), 16), Utilities.getInstance().charToInt(getCS(), 16)), 16);
          for(int i = 1; i < code.size(); ++i) {
             convertedCode[i-1] = code.get(i);
             System.out.println(convertedCode[i-1]);
@@ -211,26 +227,33 @@ public class RealMachine {
 
          //change first PTR bytes for new info
          char[] currentPTR = getPTR();
-         currentPTR[0] = Utilities.decToHex(convertedCode.length).charAt(3);
-
+         if(!changedCS) {
+            currentPTR[0] = '1';
+         }
+         else {
+            currentPTR[0] = (char)(Character.getNumericValue(getPTR()[0]) + 1);
+            changedCS = false;
+         }
+         System.out.println("PTR::: " + new String(getPTR()) + " da " + new String(currentPTR));
          // convertedCode = code.toArray(convertedCode);
          loadCodeToMemory(memoryBlockForCode, convertedCode);
          // ci = new CommandsInterpretator();
          GraphicalUserInterface.getInstance().loadCodeToWritingArea(convertedCode);
-         GraphicalUserInterface.getInstance().setRegisters(collectAllRegisters());      }
+         GraphicalUserInterface.getInstance().setRegisters(collectAllRegisters());      
+      }
 
       public void loadCodeToMemory(int blockNumber, String[] code) {
          int firstFreePlace = ram.getFreeWord(blockNumber);
-         if(code.length + firstFreePlace > 255) {
+         if(code.length > 255) {
             System.out.println("Too big code! No free space left in memory"); //is it enough??
             GraphicalUserInterface.getInstance().setOutputText("Too big code! No free space left in memory");
          }
          else {
-            for(int i = firstFreePlace; i < code.length + firstFreePlace; ++i) {
-               ram.setWord(blockNumber, i, code[i-firstFreePlace].toCharArray());
+            for(int i = 0; i < code.length ; ++i) {
+               ram.setWord(blockNumber, i, code[i].toCharArray());
                GraphicalUserInterface.getInstance().updateRAMCell(blockNumber * 256 + i, new String(ram.getWord(blockNumber, i)));
             }
-            setIP(Utilities.decToHex(firstFreePlace).toCharArray());
+            setIP(Utilities.decToHex(0).toCharArray());
          }
       }
 
@@ -245,6 +268,7 @@ public class RealMachine {
          int ti = Utilities.getInstance().charToInt(getTI(), 16);
          int si = Utilities.getInstance().charToInt(getSI(), 16);
          int ioi = Utilities.getInstance().charToInt(getIOI(), 16);
+         int li = Utilities.getInstance().charToInt(getLI(), 16);
          if(pi > 0) {
             switch(pi) {
                case 1: GraphicalUserInterface.getInstance().setOutputText("Division by 0");
@@ -315,6 +339,9 @@ public class RealMachine {
                        System.out.println("Interrupt in 3rd channel");
                        break;
             }
+         }
+         if(li > 0) {
+
          }
       }
 
@@ -452,6 +479,9 @@ public class RealMachine {
    	public void setTM(char[] reg) {
    		this.tm = reg;
    	}
+      public void setLI(char[] reg) {
+         this.li = reg;
+      }
       public char[] getCX() {
          return this.cx;
       }
@@ -502,6 +532,10 @@ public class RealMachine {
    	}
       public Memory getRAM() {
          return this.ram;
+      }
+
+      public char[] getLI() {
+         return this.li;
       }
 
       public Swapping getSwapping() {

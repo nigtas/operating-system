@@ -13,7 +13,9 @@ public class Memory {
 	// number of words in a block
 	public static int NUMBER_OF_WORDS = 256;
 	// number of blocks
-	public static int NUMBER_OF_BLOCKS = 16;
+	public static int NUMBER_OF_BLOCKS = 20;
+	//VM number of blocks
+	public static int VM_NUMBER_OF_BLOCKS = 4;
 	// ram memory
 	public char memory[][] = new char[NUMBER_OF_BLOCKS * NUMBER_OF_WORDS][WORD_SIZE];
 	// used blocks
@@ -24,7 +26,7 @@ public class Memory {
 	public Memory() {
 		for (int i = 0; i < memory.length; i++) {
 		    for(int j = 0; j < WORD_SIZE; j++) {
-			    memory[i][j] = '0';
+			    memory[i][j] = '-';
 			}   
 		}
 		for (int i = 0; i < NUMBER_OF_BLOCKS; i++) {
@@ -154,9 +156,11 @@ public class Memory {
 
 	// returns index of unused block
 	public int getFreeBlock() {
-		for (int i = 0; i < NUMBER_OF_BLOCKS; i++) {
-			if (!usedBlock[i]) {
-				return i;
+		Random rand = new Random();
+		for (int i = 0; i < 100; i++) {
+			int randomNum = rand.nextInt(NUMBER_OF_BLOCKS);
+			if (!usedBlock[randomNum]) {
+				return randomNum;
 			}
 		}
 		return -1;
@@ -191,33 +195,55 @@ public class Memory {
 			}
 		}
 
-		// less than 256 blocks ~ SPECIFIC CASE NEEDS SWAPING
-		if (freeBlocks <= NUMBER_OF_BLOCKS) {
-			blockNumber = getFreeBlock();
-			if(blockNumber < 0) {
-				GraphicalUserInterface.getInstance().appendOutputText("#~PAGE TABLE NOT SET!\n#~NO FREE BLOCKS IN MEMORY!\n");
-				char[][] nullWord = new char[1][4];
-				nullWord[0][0] = nullWord[0][1] = nullWord[0][2] = nullWord[0][3] = '0';
-				return nullWord[0];
-			}
-			usedBlock[blockNumber] = true;
+
+		int ptrBlock = getFreeBlock();
+		System.out.println("FREE BLOCKS: " + ptrBlock);
+
+		if(ptrBlock > -1){
+			PTR[2] = Character.forDigit((ptrBlock / 16), 16);
+			PTR[3] = Character.forDigit((ptrBlock % 16), 16);	
 			pageTableAddress = getRealAddress(blockNumber);
-			PTR[2] = Character.forDigit((blockNumber / 16), 16);
-			PTR[3] = Character.forDigit((blockNumber % 16), 16);
 			pageTableAddress = ((16 * Character.getNumericValue(PTR[2]) + Character.getNumericValue(PTR[3])) * NUMBER_OF_WORDS);
+			usedBlock[ptrBlock] = true;
+			freeBlocks--;
+		}
+		else {
+			System.out.println("Cannot create new page table!!");
+			GraphicalUserInterface.getInstance().appendOutputText("Cannot create new page table!!");
+			return new char[] {'E', 'R', 'O', 'R'};
+		}
+
+		System.out.println("FREE BLOCKS coming: " + freeBlocks);
+		// less than 256 blocks ~ SPECIFIC CASE NEEDS SWAPING
+		if (freeBlocks >= VM_NUMBER_OF_BLOCKS) {
+			// blockNumber = getFreeBlock();
+			// if(blockNumber < 0) {
+			// 	GraphicalUserInterface.getInstance().appendOutputText("#~PAGE TABLE NOT SET!\n#~NO FREE BLOCKS IN MEMORY!\n");
+			// 	char[][] nullWord = new char[1][4];
+			// 	nullWord[0][0] = nullWord[0][1] = nullWord[0][2] = nullWord[0][3] = '0';
+			// 	return nullWord[0];
+			// }
+			// usedBlock[blockNumber] = true;
+			// pageTableAddress = getRealAddress(blockNumber);
+			// PTR[2] = Character.forDigit((blockNumber / 16), 16);
+			// PTR[3] = Character.forDigit((blockNumber % 16), 16);
+			// pageTableAddress = ((16 * Character.getNumericValue(PTR[2]) + Character.getNumericValue(PTR[3])) * NUMBER_OF_WORDS);
 			// System.out.println("memory " + pageTableAddress);
 			
 			// write real address for every virtual block
 			int i = 0;
 			tempBlock = getFreeBlock();
+			System.out.println("temp block: " + tempBlock);
 			int pageTablePlace = ((16 * Character.getNumericValue(PTR[2]) + Character.getNumericValue(PTR[3])) * NUMBER_OF_WORDS);
-			while (i < NUMBER_OF_WORDS) {
+			while (i < VM_NUMBER_OF_BLOCKS) {
 				// while there are free blocks count real address for it
 				if(tempBlock > 0) {
 					memory[pageTableAddress] = Utilities.getInstance().decToHex(getRealAddress(tempBlock) / NUMBER_OF_WORDS).toCharArray();
+					System.out.println("PAGE TABLE CREATING address: " + pageTableAddress + " value: " + new String(memory[pageTableAddress]));
 					usedBlock[tempBlock] = true;
 					tempBlock = getFreeBlock();
-					usedWords[pageTablePlace][i] = true;
+					System.out.println("page tbable place: " + pageTablePlace + " i " + i);
+					usedWords[pageTablePlace/NUMBER_OF_WORDS][i] = true;
 				}
 				else { // no more blocks left, address is with negative sign
 					memory[pageTableAddress] = ("----").toCharArray();
@@ -226,6 +252,7 @@ public class Memory {
 				i++;
 			}
 		} // more than 256 block ~ NO SWAPING NEEDED
+		System.out.println("?PTR: " + new String(PTR));
 		return PTR;
 	}
 
@@ -243,8 +270,11 @@ public class Memory {
 	public char[] getActiveVMblockForSwapping(char[] ptr, char[] ds, char[] ss, char[] cs) {
 		int ptrAddress = Utilities.getInstance().hexToDec(new String(ptr));
 		int i = 0;
-		for(i = ptrAddress; i < ptrAddress + NUMBER_OF_WORDS; i++) {
-			if(new String(memory[i]).equals("----") ) {
+		System.out.println("get active vm block: " + ptrAddress + " ds " + new String(ds) + " ss " + new String(ss) + " cs " + new String(cs));
+		for(i = 0;  i < NUMBER_OF_WORDS; i++) {
+			if(!new String(memory[i+ptrAddress*NUMBER_OF_WORDS]).equals("----"))
+				System.out.println("hahahaha" + new String(memory[i+ptrAddress*NUMBER_OF_WORDS]) + " i " + i);
+			if(new String(memory[i+ptrAddress*NUMBER_OF_WORDS]).equals("----") ) {
 				continue;
 			} else if( (i == Utilities.getInstance().charToInt(ds, 16) ) || (i == Utilities.getInstance().charToInt(ss, 16) ) || (i == Utilities.getInstance().charToInt(cs, 16) ) ) {
 				continue;
@@ -252,13 +282,14 @@ public class Memory {
 				break;
 			}
 		}
-		return memory[i];
+		System.out.println("VM BLOCK: " + i);
+		return memory[i+ptrAddress*NUMBER_OF_WORDS];
 	}
 
 	public int getPageTablePlaceForActiveBlock(char[] ptr, String active) {
 		int ptrAddress = Utilities.getInstance().hexToDec(new String(ptr));
 		for(int i = 0; i < NUMBER_OF_WORDS; i++) {
-			if(active.equals(new String(memory[ptrAddress + i]))) {
+			if(active.equals(new String(memory[ptrAddress*NUMBER_OF_WORDS + i]))) {
 				return i;
 			}
 		}
@@ -277,6 +308,7 @@ public class Memory {
 		for (int i = 0; i < WORD_SIZE; i++) {
 			memory[memoryPlace][i] = '-';
 		}
+		System.out.println("inactive: " + block + place);
 		usedWords[block][place] = false;
 	}
 
