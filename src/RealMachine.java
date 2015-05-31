@@ -2,6 +2,9 @@ import java.lang.*;
 import javax.swing.*;
 import java.io.*;
 import java.util.*;
+import java.awt.event.*;
+import java.awt.Dimension;
+import java.awt.BorderLayout;
 
 public class RealMachine {
    	private static RealMachine instance = null;
@@ -217,7 +220,167 @@ public class RealMachine {
          loadCodeToMemory(memoryBlockForCode, convertedCode);
          // ci = new CommandsInterpretator();
          GraphicalUserInterface.getInstance().loadCodeToWritingArea(convertedCode);
-         GraphicalUserInterface.getInstance().setRegisters(collectAllRegisters());      }
+         GraphicalUserInterface.getInstance().setRegisters(collectAllRegisters());      
+      }
+
+    public void changeValue() {
+        System.out.println("Changing value!");
+        String[] reg = {"ESP", "DS", "CS", "SS", "PTR", "MODE", "FLAGS", "IOI", "PI", "SI", "TI", "TM", "IP", "C", "CX"};
+
+        JPanel panel = new JPanel();
+        panel.add(new JLabel("Which register's value do you want to change:"));
+        DefaultComboBoxModel model = new DefaultComboBoxModel();
+
+        for (int i = 0; i < 15; i++) {
+            model.addElement(reg[i]); 
+        }
+
+        JComboBox comboBox = new JComboBox(model);
+        panel.add(comboBox);
+
+        int result = JOptionPane.showConfirmDialog(null, panel, "Edit value", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+        switch (result) {
+            case JOptionPane.OK_OPTION:
+                String selectedItem = (String) comboBox.getSelectedItem();
+                String inputValue = new String();
+                // after selecting what to change, direct to each case
+                switch (selectedItem) {
+                    case "ESP":
+                        System.out.println("Changing ESP");
+                        inputValue = JOptionPane.showInputDialog("Please input a value");
+                        setESP(inputValue.toCharArray());
+                        System.out.println("New ESP value: " + new String(getESP()));
+                        break;
+                    case "DS":
+                        System.out.println("Changing DS");
+                        inputValue = JOptionPane.showInputDialog("Please input a value");
+                        setDS(inputValue.toCharArray());
+                        System.out.println("New DS value: " + new String(getDS()));               
+                        break;
+                    case "CS":
+                        System.out.println("Changing CS");
+                        inputValue = JOptionPane.showInputDialog("Please input a value");
+                        setCS(inputValue.toCharArray());
+                        System.out.println("New CS value: " + new String(getCS()));
+                        break;
+                    case "SS":
+                        System.out.println("Changing SS");
+                        inputValue = JOptionPane.showInputDialog("Please input a value");
+                        setSS(inputValue.toCharArray());
+                        System.out.println("New SS value: " + new String(getSS()));
+                    break;
+                    case "PTR":
+                        System.out.println("Changing PTR");
+                        inputValue = JOptionPane.showInputDialog("Please input a value");
+                        setPTR(inputValue.toCharArray());
+                        System.out.println("New PTR value: " + new String(getPTR()));
+                    break;
+                    case "MODE":
+                        System.out.println("Changing MODE");
+                        inputValue = JOptionPane.showInputDialog("Please input a value");
+                        setMODE(inputValue.toCharArray());
+                        System.out.println("New MODE value: " + new String(getMODE()));
+                    break;
+                    case "FLAGS":
+                        System.out.println("Changing FLAGS");
+                        inputValue = JOptionPane.showInputDialog("Please input a value");
+                        setFLAGS(inputValue.toCharArray());
+                        System.out.println("New FLAGS value: " + new String(getFLAGS()));
+                    break;
+                    case "IOI":
+                        System.out.println("Changing IOI");
+                        inputValue = JOptionPane.showInputDialog("Please input a value");
+                        setIOI(inputValue.toCharArray());
+                        System.out.println("New IOI value: " + new String(getIOI()));
+                    break;
+                    case "PI":
+                        System.out.println("Changing PI");
+                        inputValue = JOptionPane.showInputDialog("Please input a value");
+                        setPI(inputValue.toCharArray());
+                        System.out.println("New PI value: " + new String(getPI()));
+                    break;
+                    case "SI":
+                        System.out.println("Changing SI");
+                        inputValue = JOptionPane.showInputDialog("Please input a value");
+                        setSI(inputValue.toCharArray());
+                        System.out.println("New SI value: " + new String(getSI()));
+                    break;
+                    case "TI":
+                        System.out.println("Changing TI");
+                        inputValue = JOptionPane.showInputDialog("Please input a value");
+                        setTI(inputValue.toCharArray());
+                        System.out.println("New TI value: " + new String(getTI()));
+                    break;
+                    case "TM":
+                        System.out.println("Changing TM");
+                        inputValue = JOptionPane.showInputDialog("Please input a value");
+                        setTM(inputValue.toCharArray());
+                        System.out.println("New TM value: " + new String(getTM()));
+                    break;
+                    case "IP":
+                        System.out.println("Changing IP");
+                        inputValue = JOptionPane.showInputDialog("Please input a value");
+                        setIP(inputValue.toCharArray());
+                        System.out.println("New IP value: " + new String(getIP()));
+                    break;
+                    case "C":
+                        System.out.println("Changing C");
+                        inputValue = JOptionPane.showInputDialog("Please input a value");
+                        setC(inputValue.toCharArray());
+                        System.out.println("New C value: " + new String(getC()));
+                    break;
+                    case "CX":
+                        System.out.println("Changing CX");
+                        inputValue = JOptionPane.showInputDialog("Please input a value");
+                        setCX(inputValue.toCharArray());
+                        System.out.println("New CX value: " + new String(getCX()));
+                    break;
+                }
+                break;
+        }
+        GraphicalUserInterface.getInstance().setRegisters(collectAllRegisters());
+    }
+
+    public void changeMemValue() {
+        System.out.println("Changing memory value!");
+
+        JTextField block = new JTextField(5);
+        JTextField place = new JTextField(5);
+        JTextField newValue = new JTextField(5);
+
+        JPanel myPanel = new JPanel();
+        myPanel.add(new JLabel("block:"));
+        myPanel.add(block);
+        myPanel.add(Box.createHorizontalStrut(15));
+        myPanel.add(new JLabel("place:"));
+        myPanel.add(place);
+        myPanel.add(Box.createHorizontalStrut(15));
+        myPanel.add(new JLabel("newValue:"));
+        myPanel.add(newValue);
+
+        int result = JOptionPane.showConfirmDialog(null, myPanel, "Please enter block, place and new value", JOptionPane.OK_CANCEL_OPTION);
+        
+        switch (result) {
+            case JOptionPane.OK_OPTION:
+                String blockSval = block.getText();
+                String placeSval = place.getText();
+                String newValueSval = newValue.getText();
+
+                // System.out.println("block value: " + blockSval);
+                // System.out.println("place value: " + placeSval);
+                // System.out.println("newValue value: " + newValueSval); 
+
+                int newBlock = Integer.parseInt(blockSval, 16);
+                int newPlace = Integer.parseInt(placeSval, 16);
+
+                // System.out.println("place integer value: " + newPlace);
+
+                ram.setWord(newBlock, newPlace, newValueSval.toCharArray());   
+                GraphicalUserInterface.getInstance().updateRAMCell(newPlace, newValueSval);
+            break;
+        }
+    }
+
 
       public void loadCodeToMemory(int blockNumber, String[] code) {
          int firstFreePlace = ram.getFreeWord(blockNumber);
@@ -334,11 +497,11 @@ public class RealMachine {
       }
 
    	public void setESP(char[] reg) {
-         if(Utilities.getInstance().charToInt(reg, 16) < 256) {
+         if((Utilities.getInstance().charToInt(reg, 16) < 256) & ((Utilities.getInstance().charToInt(reg, 16) >= 192))) {
             this.esp = reg;   
          }
    		else {
-            System.out.println("Too big ESP set");
+            System.out.println("Too big or too small ESP set");
          }
    	}
       public boolean incESP(){
@@ -409,13 +572,25 @@ public class RealMachine {
       }
 
    	public void setDS(char[] reg) {
-   		this.ds = reg;
+        if (Utilities.getInstance().charToInt(reg, 16) < 256) {
+            this.ds = reg; 
+        } else {
+            System.out.println("Too big DS set");
+        }
    	}
    	public void setCS(char[] reg) {
-   		this.cs = reg;
+   		if (Utilities.getInstance().charToInt(reg, 16) < 256) {
+            this.cs = reg; 
+        } else {
+            System.out.println("Too big CS set");
+        }
    	}
    	public void setSS(char[] reg) {
-   		this.ss = reg;
+   		if (Utilities.getInstance().charToInt(reg, 16) < 256) {
+            this.ss = reg; 
+        } else {
+            System.out.println("Too big SS set");
+        }
    	}
    	public void setPTR(char[] reg) {
    		this.ptr = reg;
@@ -447,7 +622,11 @@ public class RealMachine {
    		this.ioi = reg;
    	}
    	public void setMODE(char[] reg) {
-   		this.mode = reg;
+   		if (Utilities.getInstance().charToInt(reg, 16) < 3) {
+            this.mode = reg; 
+        } else {
+            System.out.println("Too big MODE set");
+        }
    	}
    	public void setTM(char[] reg) {
    		this.tm = reg;
