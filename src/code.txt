@@ -1,4 +1,5 @@
 PROG
+CX05
 TNON
 MUL
 DIV

@@ -6,28 +6,28 @@ import java.util.*;
 public class RealMachine {
       public boolean changedCS = false;
 
-   	private static RealMachine instance = null;
-   	private VirtualMachine vm = null;
-   	private Memory ram = null;
+    private static RealMachine instance = null;
+    private VirtualMachine vm = null;
+    private Memory ram = null;
       private Swapping swapping = null;
       //commands interpretator
       private CommandsInterpretator ci = null;
 
-   	// Registers
-   	private char[] esp = {'0', '0', '0', '0'};      // Steko rodykles registras
-   	private char[] ds = {'0', '0', '0', '0'};       // Data segmentas
-   	private char[] cs = {'0', '0', '0', '0'};       // Kodo segmentas
-   	private char[] ss = {'0', '0', '0', '0'};       // Steko segmentas
-   	private char[] ptr = {'0', '0', '0', '0'};      // Puslapiu lenteles registras
-   	private char[] ip = {'0', '0'}; 				      // VM programos skaitiklias
-   	private char[] flags = {'0','0','0', '0'}; 		// Pozymiu registras
-   	private char[] c = {'1', '1'};					   // Kanalo registas
-   	private char[] ti = {'0', '0'};                 // Taimerio pertraukimo registras
-   	private char[] pi = {'0', '0'};                 // Programiniu pertraukimu registras  
-   	private char[] si = {'0', '0'};                 // Supervizoriniu pertraukimu registras 
-   	private char[] ioi = {'0', '0'};                // I/O registas 
-   	private char[] mode = {'0', '1'};               // MODE registas
-   	private char[] tm = {'0', '9'};                 // TM registras
+    // Registers
+    private char[] esp = {'0', '0', '0', '0'};      // Steko rodykles registras
+    private char[] ds = {'0', '0', '0', '0'};       // Data segmentas
+    private char[] cs = {'0', '0', '0', '0'};       // Kodo segmentas
+    private char[] ss = {'0', '0', '0', '0'};       // Steko segmentas
+    private char[] ptr = {'0', '0', '0', '0'};      // Puslapiu lenteles registras
+    private char[] ip = {'0', '0'};               // VM programos skaitiklias
+    private char[] flags = {'0','0','0', '0'};    // Pozymiu registras
+    private char[] c = {'1', '1'};             // Kanalo registas
+    private char[] ti = {'0', '0'};                 // Taimerio pertraukimo registras
+    private char[] pi = {'0', '0'};                 // Programiniu pertraukimu registras  
+    private char[] si = {'0', '0'};                 // Supervizoriniu pertraukimu registras 
+    private char[] ioi = {'0', '0'};                // I/O registas 
+    private char[] mode = {'0', '1'};               // MODE registas
+    private char[] tm = {'0', '9'};                 // TM registras
       private char[] cx = {'0', '0'};                 // cx register for loop
       private char[] li = {'0', '0'};
 
@@ -40,7 +40,7 @@ public class RealMachine {
 
       */
 
-   	protected RealMachine() {
+    protected RealMachine() {
          try {
             SwingUtilities.invokeAndWait(new Runnable() {
                public void run() {
@@ -50,19 +50,19 @@ public class RealMachine {
          } catch (Exception e) {
 
          }
-   		
-   		initRM();
-   	}
+      
+      initRM();
+    }
 
-   	public static RealMachine getInstance() {
-   		if(instance == null) {
-   			instance = new RealMachine();
-   		}
-   		return instance;
-      }	
+    public static RealMachine getInstance() {
+      if(instance == null) {
+        instance = new RealMachine();
+      }
+      return instance;
+      } 
 
-   	private void initRM() {
-   		ram = new Memory();
+    private void initRM() {
+      ram = new Memory();
          swapping = new Swapping();
          ci = new CommandsInterpretator();
 
@@ -75,121 +75,61 @@ public class RealMachine {
      //     initCodeSegment();
 
 
-   		char[][] memory = ram.getMemory();
-   		String word = "";
-   		for(int i = 0; i < ram.NUMBER_OF_BLOCKS * ram.NUMBER_OF_WORDS; i++) {
-   			word = "";
-   			for(int j = 0; j < ram.WORD_SIZE; j++) {
-   				word += memory[i][j];
-   			}
-   			GraphicalUserInterface.getInstance().printDataToRAMCell(i, word);
-   		}
-
-
-
-   		GraphicalUserInterface.getInstance().getRAMJList().setModel(GraphicalUserInterface.getInstance().getRAMModel());
-   		GraphicalUserInterface.getInstance().setRegisters(collectAllRegisters());
-		   GraphicalUserInterface.getInstance().appendOutputText("REAL MACHINE READY!\n");
-   	}
-
-      public static void distribute() {
-      collectFreeResources();
-    processes.Process [] arr = ProcessManager.getInstance().getProcesses().toArray (new processes.Process [ProcessManager.getInstance().getProcesses().size ()]);
-    Arrays.sort (arr);
-    for (processes.Process process : arr) {
-      // if there is all available resources for this process
-      if(process.requireResources(freeResources)) {
-        System.out.println(process.toString());
-        if(process.getState() == 2) {
-          ProcessManager.getInstance().activateProcess(process.getId()); 
-          System.out.println("MSG: Process taking control: " + process.toString());
-          switch(process.getId()) {
-            case 1: // StartStop
-              StartStop startStop = (StartStop) process;
-              if(!startStop.hasRun()) {
-                startStop.run();
-                startStop.setHasRun(true);
-              } else {
-                System.out.println("MSG: System is shuting down.");
-                startStop.destroyResources();
-                startStop.destroyProcesses();
-                System.exit(0);
-              }
-              break;
-            case 2:  // ReadFromInterface
-              ReadFromInterface readFromInterface = (ReadFromInterface) process;
-              if(!readFromInterface.hasRun()) {
-                System.out.println("go to run");
-                readFromInterface.run();
-                readFromInterface.setHasRun(true);
-              }
-              else {
-                System.out.println("Copying...");
-                readFromInterface.copyToSupervisorMemory();
-                readFromInterface.setHasRun(false);
-                ResourceManager.getInstance().askResource(5).setFreeStatus(false);
-              } 
-              break;
-            case 3: // Swapping
-              break;
-            case 4: // Loader
-              break;
-            case 5: // PrintLine
-              break;
-            case 6: // JCL
-              break;
-            case 7: // MainProc
-              System.out.println("DEBUG: MainProc logic goes here..");
-              break;
-            case 8: // JobGovernor
-              break;
-            case 9: // VirtualMachine
-              break;  
-          }
+      char[][] memory = ram.getMemory();
+      String word = "";
+      for(int i = 0; i < ram.NUMBER_OF_BLOCKS * ram.NUMBER_OF_WORDS; i++) {
+        word = "";
+        for(int j = 0; j < ram.WORD_SIZE; j++) {
+          word += memory[i][j];
         }
-        break;
+        GraphicalUserInterface.getInstance().printDataToRAMCell(i, word);
       }
+
+
+
+      GraphicalUserInterface.getInstance().getRAMJList().setModel(GraphicalUserInterface.getInstance().getRAMModel());
+      GraphicalUserInterface.getInstance().setRegisters(collectAllRegisters());
+       GraphicalUserInterface.getInstance().appendOutputText("REAL MACHINE READY!\n");
     }
-    }
 
 
-   	/* ARRAY OF REGISTERS 
-   		0 - ESP
-   		1 - DS
-   		2 - CS
-   		3 - SS
-   		4 - PTR
-   		5 - MODE
-   		6 - FLAGS
-   		7 - IOI
-   		8 - PI
-   		9 - SI
-   		10 - TI
-   		11 - TM
-   		12 - IP
-   		13 - C
-	   */
+    /* ARRAY OF REGISTERS 
+      0 - ESP
+      1 - DS
+      2 - CS
+      3 - SS
+      4 - PTR
+      5 - MODE
+      6 - FLAGS
+      7 - IOI
+      8 - PI
+      9 - SI
+      10 - TI
+      11 - TM
+      12 - IP
+      13 - C
+     */
 
-   	public String[] collectAllRegisters() {
-   		String[] array = new String[16];
-   		array[0] = new String(esp);
-   		array[1] = new String(ds);
-   		array[2] = new String(cs);
-   		array[3] = new String(ss);
-   		array[4] = new String(ptr);
-   		array[5] = String.valueOf(mode);
-   		array[6] = new String(flags);
-   		array[7] = String.valueOf(ioi);
-   		array[8] = String.valueOf(pi);
-   		array[9] = String.valueOf(si);
-   		array[10] = String.valueOf(ti);
-   		array[11] = String.valueOf(tm);
-   		array[12] = new String(ip);
-   		array[13] = new String(c);
+    public String[] collectAllRegisters() {
+      String[] array = new String[16];
+      array[0] = new String(esp);
+      array[1] = new String(ds);
+      array[2] = new String(cs);
+      array[3] = new String(ss);
+      array[4] = new String(ptr);
+      array[5] = String.valueOf(mode);
+      array[6] = new String(flags);
+      array[7] = String.valueOf(ioi);
+      array[8] = String.valueOf(pi);
+      array[9] = String.valueOf(si);
+      array[10] = String.valueOf(ti);
+      array[11] = String.valueOf(tm);
+      array[12] = new String(ip);
+      array[13] = new String(c);
          array[14] = new String(cx);
          array[15] = new String(li);
-   		return array;
-   	}
+      return array;
+    }
 
       public void initStack() {
 
@@ -302,6 +242,174 @@ public class RealMachine {
          GraphicalUserInterface.getInstance().setRegisters(collectAllRegisters());      
       }
 
+      public void changeValue() {
+        System.out.println("--Changing value!");
+        String[] reg = {"ESP", "DS", "CS", "SS", "PTR", "MODE", "FLAGS", "IOI", "PI", "SI", "TI", "TM", "IP", "C", "CX", "LI"};
+
+        JPanel panel = new JPanel();
+        panel.add(new JLabel("Which register's value do you want to change:"));
+        DefaultComboBoxModel model = new DefaultComboBoxModel();
+
+        for (int i = 0; i < 16; i++) {
+            model.addElement(reg[i]); 
+        }
+
+        JComboBox comboBox = new JComboBox(model);
+        panel.add(comboBox);
+
+        int result = JOptionPane.showConfirmDialog(null, panel, "Edit value", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+        switch (result) {
+            case JOptionPane.OK_OPTION:
+                String selectedItem = (String) comboBox.getSelectedItem();
+                String inputValue = new String();
+                // after selecting what to change, direct to each case
+                switch (selectedItem) {
+                    case "ESP":
+                        System.out.println("Changing ESP");
+                        inputValue = JOptionPane.showInputDialog("Please input a value");
+                        setESP(inputValue.toCharArray());
+                        System.out.println("New ESP value: " + new String(getESP()));
+                        break;
+                    case "DS":
+                        System.out.println("Changing DS");
+                        inputValue = JOptionPane.showInputDialog("Please input a value");
+                        setDS(inputValue.toCharArray());
+                        System.out.println("New DS value: " + new String(getDS()));               
+                        break;
+                    case "CS":
+                        System.out.println("Changing CS");
+                        inputValue = JOptionPane.showInputDialog("Please input a value");
+                        setCS(inputValue.toCharArray());
+                        System.out.println("New CS value: " + new String(getCS()));
+                        break;
+                    case "SS":
+                        System.out.println("Changing SS");
+                        inputValue = JOptionPane.showInputDialog("Please input a value");
+                        setSS(inputValue.toCharArray());
+                        System.out.println("New SS value: " + new String(getSS()));
+                    break;
+                    case "PTR":
+                        System.out.println("Changing PTR");
+                        inputValue = JOptionPane.showInputDialog("Please input a value");
+                        setPTR(inputValue.toCharArray());
+                        System.out.println("New PTR value: " + new String(getPTR()));
+                    break;
+                    case "MODE":
+                        System.out.println("Changing MODE");
+                        inputValue = JOptionPane.showInputDialog("Please input a value");
+                        setMODE(inputValue.toCharArray());
+                        System.out.println("New MODE value: " + new String(getMODE()));
+                    break;
+                    case "FLAGS":
+                        System.out.println("Changing FLAGS");
+                        inputValue = JOptionPane.showInputDialog("Please input a value");
+                        setFLAGS(inputValue.toCharArray());
+                        System.out.println("New FLAGS value: " + new String(getFLAGS()));
+                    break;
+                    case "IOI":
+                        System.out.println("Changing IOI");
+                        inputValue = JOptionPane.showInputDialog("Please input a value");
+                        setIOI(inputValue.toCharArray());
+                        System.out.println("New IOI value: " + new String(getIOI()));
+                    break;
+                    case "PI":
+                        System.out.println("Changing PI");
+                        inputValue = JOptionPane.showInputDialog("Please input a value");
+                        setPI(inputValue.toCharArray());
+                        System.out.println("New PI value: " + new String(getPI()));
+                    break;
+                    case "SI":
+                        System.out.println("Changing SI");
+                        inputValue = JOptionPane.showInputDialog("Please input a value");
+                        setSI(inputValue.toCharArray());
+                        System.out.println("New SI value: " + new String(getSI()));
+                    break;
+                    case "TI":
+                        System.out.println("Changing TI");
+                        inputValue = JOptionPane.showInputDialog("Please input a value");
+                        setTI(inputValue.toCharArray());
+                        System.out.println("New TI value: " + new String(getTI()));
+                    break;
+                    case "TM":
+                        System.out.println("Changing TM");
+                        inputValue = JOptionPane.showInputDialog("Please input a value");
+                        setTM(inputValue.toCharArray());
+                        System.out.println("New TM value: " + new String(getTM()));
+                    break;
+                    case "IP":
+                        System.out.println("Changing IP");
+                        inputValue = JOptionPane.showInputDialog("Please input a value");
+                        setIP(inputValue.toCharArray());
+                        System.out.println("New IP value: " + new String(getIP()));
+                    break;
+                    case "C":
+                        System.out.println("Changing C");
+                        inputValue = JOptionPane.showInputDialog("Please input a value");
+                        setC(inputValue.toCharArray());
+                        System.out.println("New C value: " + new String(getC()));
+                    break;
+                    case "CX":
+                        System.out.println("Changing CX");
+                        inputValue = JOptionPane.showInputDialog("Please input a value");
+                        setCX(inputValue.toCharArray());
+                        System.out.println("New CX value: " + new String(getCX()));
+                    break;
+                    case "LI":
+                        System.out.println("Changing LI");
+                        inputValue = JOptionPane.showInputDialog("Please input a value");
+                        setLI(inputValue.toCharArray());
+                        System.out.println("New LI value: " + new String(getLI()));
+                    break;
+                }
+                break;
+        }
+        GraphicalUserInterface.getInstance().setRegisters(collectAllRegisters());
+      }
+
+      public void changeMemValue() {
+        System.out.println("--Changing memory value!");
+
+        JTextField block = new JTextField(5);
+        JTextField place = new JTextField(5);
+        JTextField newValue = new JTextField(5);
+
+        JPanel myPanel = new JPanel();
+        myPanel.add(new JLabel("block:"));
+        myPanel.add(block);
+        myPanel.add(Box.createHorizontalStrut(15));
+        myPanel.add(new JLabel("place:"));
+        myPanel.add(place);
+        myPanel.add(Box.createHorizontalStrut(15));
+        myPanel.add(new JLabel("newValue:"));
+        myPanel.add(newValue);
+
+        int result = JOptionPane.showConfirmDialog(null, myPanel, "Please enter block, place and new value", JOptionPane.OK_CANCEL_OPTION);
+        
+        switch (result) {
+            case JOptionPane.OK_OPTION:
+                String blockSval = block.getText();
+                String placeSval = place.getText();
+                String newValueSval = newValue.getText();
+
+                System.out.println("block value: " + blockSval);
+                System.out.println("place value: " + placeSval);
+                System.out.println("newValue value: " + newValueSval); 
+
+                int whichBlock = Integer.parseInt(blockSval, 16);
+                int whichPlace = Integer.parseInt(placeSval, 16);
+
+                System.out.println("block integer value: " + whichBlock);
+                System.out.println("place integer value: " + whichPlace);
+
+
+                ram.setWord(whichBlock, whichPlace, newValueSval.toCharArray());   
+                // GraphicalUserInterface.getInstance().updateRAMCell(whichPlace, newValueSval);
+                GraphicalUserInterface.getInstance().updateRAMCell(Memory.NUMBER_OF_WORDS * whichBlock + whichPlace, newValueSval);
+                // GraphicalUserInterface.getInstance().updateRAMCell(stackBlock * 256 + stackTop, new String(RealMachine.getInstance().getRAM().getWord(stackBlock, stackTop)));
+            break;
+        }
+      }
+
       public void loadCodeToMemory(int blockNumber, String[] code) {
          int firstFreePlace = ram.getFreeWord(blockNumber);
          if(code.length > 255) {
@@ -409,7 +517,7 @@ public class RealMachine {
          setSI(new char[] {'0', '3'});
       }
 
-   	// =========== SETERS AND GETTERS ===========
+    // =========== SETERS AND GETTERS ===========
       public boolean getSF() {
          char[] value = getFLAGS();
          return (value[3] == '1');
@@ -420,14 +528,14 @@ public class RealMachine {
          return (value[2] == '1');
       }
 
-   	public void setESP(char[] reg) {
-         if(Utilities.getInstance().charToInt(reg, 16) < 256) {
+    public void setESP(char[] reg) {
+         if((Utilities.getInstance().charToInt(reg, 16) < 256) & ((Utilities.getInstance().charToInt(reg, 16) >= 192))) {
             this.esp = reg;   
          }
-   		else {
-            System.out.println("Too big ESP set");
+      else {
+            System.out.println("Too big or too small ESP set");
          }
-   	}
+    }
       public boolean incESP(){
          int decValue = Utilities.charToInt(getESP(), 16);
          int decValueSS = Utilities.charToInt(getSS(), 16);
@@ -495,101 +603,117 @@ public class RealMachine {
          this.cx = reg;
       }
 
-   	public void setDS(char[] reg) {
-   		this.ds = reg;
-   	}
-   	public void setCS(char[] reg) {
-   		this.cs = reg;
-   	}
-   	public void setSS(char[] reg) {
-   		this.ss = reg;
-   	}
-   	public void setPTR(char[] reg) {
-   		this.ptr = reg;
-   	}
-   	public void setIP(char[] reg) {
+    public void setDS(char[] reg) {
+      if (Utilities.getInstance().charToInt(reg, 16) < 256) {
+            this.ds = reg; 
+        } else {
+            System.out.println("Too big DS set");
+        }
+    }
+    public void setCS(char[] reg) {
+      if (Utilities.getInstance().charToInt(reg, 16) < 256) {
+            this.cs = reg; 
+        } else {
+            System.out.println("Too big CS set");
+        }
+    }
+    public void setSS(char[] reg) {
+      if (Utilities.getInstance().charToInt(reg, 16) < 256) {
+            this.ss = reg; 
+        } else {
+            System.out.println("Too big SS set");
+        }
+    }
+    public void setPTR(char[] reg) {
+      this.ptr = reg;
+    }
+    public void setIP(char[] reg) {
          if(Utilities.getInstance().charToInt(reg, 16) < 256) {
             this.ip = reg;
          }
          else {
             System.out.println("Too big IP set");
          }
-   	}
-   	public void setFLAGS(char[] reg) {
-   		this.flags = reg;
-   	}
-   	public void setC(char[] reg) {
-   		this.c = reg;
-   	}
-   	public void setTI(char[] reg) {
-   		this.ti = reg;
-   	}
-   	public void setPI(char[] reg) {
-   		this.pi = reg;
-   	}
-   	public void setSI(char[] reg) {
-   		this.si = reg;
-   	}
-   	public void setIOI(char[] reg) {
-   		this.ioi = reg;
-   	}
-   	public void setMODE(char[] reg) {
-   		this.mode = reg;
-   	}
-   	public void setTM(char[] reg) {
-   		this.tm = reg;
-   	}
+    }
+    public void setFLAGS(char[] reg) {
+      this.flags = reg;
+    }
+    public void setC(char[] reg) {
+      this.c = reg;
+    }
+    public void setTI(char[] reg) {
+      this.ti = reg;
+    }
+    public void setPI(char[] reg) {
+      this.pi = reg;
+    }
+    public void setSI(char[] reg) {
+      this.si = reg;
+    }
+    public void setIOI(char[] reg) {
+      this.ioi = reg;
+    }
+    public void setMODE(char[] reg) {
+      if (Utilities.getInstance().charToInt(reg, 16) < 3) {
+            this.mode = reg; 
+        } else {
+            System.out.println("Too big MODE set");
+        }
+    }
+    public void setTM(char[] reg) {
+      this.tm = reg;
+    }
       public void setLI(char[] reg) {
          this.li = reg;
       }
       public char[] getCX() {
          return this.cx;
       }
-   	public char[] getESP() {
-   		return this.esp;
-   	}
-   	public char[] getDS() {
-   		return this.ds;
-   	}
-   	public char[] getCS() {
-   		return this.cs;
-   	}
-   	public char[] getSS() {
-   		return this.ss;
-   	}
-   	public char[] getPTR() {
-   		return this.ptr;
-   	}
+    public char[] getESP() {
+      return this.esp;
+    }
+    public char[] getDS() {
+      return this.ds;
+    }
+    public char[] getCS() {
+      return this.cs;
+    }
+    public char[] getSS() {
+      return this.ss;
+    }
+    public char[] getPTR() {
+      return this.ptr;
+    }
       public char[] getHalfPTR() {
          return new char[] {'0', '0', getPTR()[2], getPTR()[3]};
       }
-   	public char[] getIP() {
-   		return this.ip;
-   	}
-   	public char[] getFLAGS() {
-   		return this.flags;
-   	}
-   	public char[] getC() {
-   		return this.c;
-   	}
-   	public char[] getTI() {
-   		return this.ti;
-   	}
-   	public char[] getPI() {
-   		return this.pi;
-   	}
-   	public char[] getSI() {
-   		return this.si;
-   	}
-   	public char[] getIOI() {
-   		return this.ioi;
-   	}
-   	public char[] getMODE() {
-   		return this.mode;
-   	}
-   	public char[] getTM() {
-   		return this.tm;
-   	}
+    public char[] getIP() {
+      return this.ip;
+    }
+    public char[] getFLAGS() {
+      return this.flags;
+    }
+    public char[] getC() {
+      return this.c;
+    }
+    public char[] getTI() {
+      return this.ti;
+    }
+    public char[] getPI() {
+      return this.pi;
+    }
+    public char[] getSI() {
+      return this.si;
+    }
+    public char[] getIOI() {
+      return this.ioi;
+    }
+    public char[] getMODE() {
+      return this.mode;
+    }
+    public char[] getTM() {
+      return this.tm;
+    }
       public Memory getRAM() {
          return this.ram;
       }
@@ -601,6 +725,6 @@ public class RealMachine {
       public Swapping getSwapping() {
          return this.swapping;
       }
-   	// ============================================
+    // ============================================
 
 }

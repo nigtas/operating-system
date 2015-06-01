@@ -125,6 +125,7 @@ public class GraphicalUserInterface {
 		JPanel subPanel = new JPanel();
 		JButton executeBtn = new JButton("Execute");
 		JButton loadBtn = new JButton("Load");
+		JButton changeBtn = new JButton("CHNG");
  		writingArea = new JTextArea();
 		writingArea.setEditable(false);
 		JScrollPane listScroller = new JScrollPane(writingArea);
@@ -133,13 +134,13 @@ public class GraphicalUserInterface {
 		centerLeftMost.add(listScroller, BorderLayout.CENTER);
 		subPanel.add(executeBtn);
 		subPanel.add(loadBtn);
+		subPanel.add(changeBtn);
 		centerLeftMost.add(subPanel, BorderLayout.SOUTH);
 
 
 		// execute button listener
 		executeBtn.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-            {
+            public void actionPerformed(ActionEvent e) {
                 //Execute when button is pressed
 				RealMachine.getInstance().execute();
             }
@@ -149,6 +150,13 @@ public class GraphicalUserInterface {
         loadBtn.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
         		RealMachine.getInstance().loadCode();
+        	}
+        });
+
+		// change button listener
+        changeBtn.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+        		RealMachine.getInstance().changeValue();
         	}
         });
 	}
@@ -179,12 +187,24 @@ public class GraphicalUserInterface {
 	}
 
 	private void initRAMlist() {	
+		JPanel subPanel = new JPanel();
+		JButton changeMemBtn = new JButton("CHNG");
+
 		ram = new JList<String>();
 		ram.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
 		JScrollPane listScroller = new JScrollPane(ram);
 		listScroller.setPreferredSize(new Dimension(150, 600));
 		right.add(initTextField("RAM"), BorderLayout.NORTH);
 		right.add(listScroller, BorderLayout.CENTER);
+		subPanel.add(changeMemBtn);
+		right.add(subPanel, BorderLayout.SOUTH);
+
+		// changeMem button listener
+        changeMemBtn.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+        		RealMachine.getInstance().changeMemValue();
+        	}
+        });
 	}
 
 	private JLabel initTextField(String text) {
