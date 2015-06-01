@@ -2,34 +2,34 @@ import java.lang.*;
 import javax.swing.*;
 import java.io.*;
 import java.util.*;
-import java.awt.event.*;
-import java.awt.Dimension;
-import java.awt.BorderLayout;
 
 public class RealMachine {
-   	private static RealMachine instance = null;
-   	private VirtualMachine vm = null;
-   	private Memory ram = null;
+      public boolean changedCS = false;
+
+    private static RealMachine instance = null;
+    private VirtualMachine vm = null;
+    private Memory ram = null;
       private Swapping swapping = null;
       //commands interpretator
       private CommandsInterpretator ci = null;
 
-   	// Registers
-   	private char[] esp = {'0', '0', '0', '0'};      // Steko rodykles registras
-   	private char[] ds = {'9', '9', '9', '9'};       // Data segmentas
-   	private char[] cs = {'9', '9', '9', '9'};       // Kodo segmentas
-   	private char[] ss = {'9', '9', '9', '9'};       // Steko segmentas
-   	private char[] ptr = {'0', '0', '0', '0'};      // Puslapiu lenteles registras
-   	private char[] ip = {'0', '0'}; 				      // VM programos skaitiklias
-   	private char[] flags = {'0','0','0', '0'}; 		// Pozymiu registras
-   	private char[] c = {'1', '1'};					   // Kanalo registas
-   	private char[] ti = {'0', '0'};                 // Taimerio pertraukimo registras
-   	private char[] pi = {'0', '0'};                 // Programiniu pertraukimu registras  
-   	private char[] si = {'0', '0'};                 // Supervizoriniu pertraukimu registras 
-   	private char[] ioi = {'0', '0'};                // I/O registas 
-   	private char[] mode = {'0', '1'};               // MODE registas
-   	private char[] tm = {'0', '9'};                 // TM registras
+    // Registers
+    private char[] esp = {'0', '0', '0', '0'};      // Steko rodykles registras
+    private char[] ds = {'0', '0', '0', '0'};       // Data segmentas
+    private char[] cs = {'0', '0', '0', '0'};       // Kodo segmentas
+    private char[] ss = {'0', '0', '0', '0'};       // Steko segmentas
+    private char[] ptr = {'0', '0', '0', '0'};      // Puslapiu lenteles registras
+    private char[] ip = {'0', '0'};               // VM programos skaitiklias
+    private char[] flags = {'0','0','0', '0'};    // Pozymiu registras
+    private char[] c = {'1', '1'};             // Kanalo registas
+    private char[] ti = {'0', '0'};                 // Taimerio pertraukimo registras
+    private char[] pi = {'0', '0'};                 // Programiniu pertraukimu registras  
+    private char[] si = {'0', '0'};                 // Supervizoriniu pertraukimu registras 
+    private char[] ioi = {'0', '0'};                // I/O registas 
+    private char[] mode = {'0', '1'};               // MODE registas
+    private char[] tm = {'0', '9'};                 // TM registras
       private char[] cx = {'0', '0'};                 // cx register for loop
+      private char[] li = {'0', '0'};
 
       /*
          FLAGS :
@@ -40,7 +40,7 @@ public class RealMachine {
 
       */
 
-   	protected RealMachine() {
+    protected RealMachine() {
          try {
             SwingUtilities.invokeAndWait(new Runnable() {
                public void run() {
@@ -50,92 +50,95 @@ public class RealMachine {
          } catch (Exception e) {
 
          }
-   		
-   		initRM();
-   	}
+      
+      initRM();
+    }
 
-   	public static RealMachine getInstance() {
-   		if(instance == null) {
-   			instance = new RealMachine();
-   		}
-   		return instance;
-      }	
+    public static RealMachine getInstance() {
+      if(instance == null) {
+        instance = new RealMachine();
+      }
+      return instance;
+      } 
 
-   	private void initRM() {
-   		ram = new Memory();
+    private void initRM() {
+      ram = new Memory();
          swapping = new Swapping();
          ci = new CommandsInterpretator();
 
-         // setting PTR register
-         setPTR(ram.newPageTable());
-         countMaxPages();
-         initStack();
-         setESP(new char[]{'0', '0', 'F', 'F'});
-         initDataSegment();
-         initCodeSegment();
+     //     // setting PTR register
+     //     setPTR(ram.newPageTable());
+     //     countMaxPages();
+     //     initStack();
+     //     setESP(new char[]{'0', '0', 'F', 'F'});
+     //     initDataSegment();
+     //     initCodeSegment();
 
 
-   		char[][] memory = ram.getMemory();
-   		String word = "";
-   		for(int i = 0; i < ram.NUMBER_OF_BLOCKS * ram.NUMBER_OF_WORDS; i++) {
-   			word = "";
-   			for(int j = 0; j < ram.WORD_SIZE; j++) {
-   				word += memory[i][j];
-   			}
-   			GraphicalUserInterface.getInstance().printDataToRAMCell(i, word);
-   		}
+      char[][] memory = ram.getMemory();
+      String word = "";
+      for(int i = 0; i < ram.NUMBER_OF_BLOCKS * ram.NUMBER_OF_WORDS; i++) {
+        word = "";
+        for(int j = 0; j < ram.WORD_SIZE; j++) {
+          word += memory[i][j];
+        }
+        GraphicalUserInterface.getInstance().printDataToRAMCell(i, word);
+      }
 
 
 
-   		GraphicalUserInterface.getInstance().getRAMJList().setModel(GraphicalUserInterface.getInstance().getRAMModel());
-   		GraphicalUserInterface.getInstance().setRegisters(collectAllRegisters());
-		   GraphicalUserInterface.getInstance().appendOutputText("...READY!\n");
-   	}
+      GraphicalUserInterface.getInstance().getRAMJList().setModel(GraphicalUserInterface.getInstance().getRAMModel());
+      GraphicalUserInterface.getInstance().setRegisters(collectAllRegisters());
+       GraphicalUserInterface.getInstance().appendOutputText("REAL MACHINE READY!\n");
+    }
 
 
-   	/* ARRAY OF REGISTERS 
-   		0 - ESP
-   		1 - DS
-   		2 - CS
-   		3 - SS
-   		4 - PTR
-   		5 - MODE
-   		6 - FLAGS
-   		7 - IOI
-   		8 - PI
-   		9 - SI
-   		10 - TI
-   		11 - TM
-   		12 - IP
-   		13 - C
-	   */
+    /* ARRAY OF REGISTERS 
+      0 - ESP
+      1 - DS
+      2 - CS
+      3 - SS
+      4 - PTR
+      5 - MODE
+      6 - FLAGS
+      7 - IOI
+      8 - PI
+      9 - SI
+      10 - TI
+      11 - TM
+      12 - IP
+      13 - C
+     */
 
-   	public String[] collectAllRegisters() {
-   		String[] array = new String[15];
-   		array[0] = new String(esp);
-   		array[1] = new String(ds);
-   		array[2] = new String(cs);
-   		array[3] = new String(ss);
-   		array[4] = new String(ptr);
-   		array[5] = String.valueOf(mode);
-   		array[6] = new String(flags);
-   		array[7] = String.valueOf(ioi);
-   		array[8] = String.valueOf(pi);
-   		array[9] = String.valueOf(si);
-   		array[10] = String.valueOf(ti);
-   		array[11] = String.valueOf(tm);
-   		array[12] = new String(ip);
-   		array[13] = new String(c);
+    public String[] collectAllRegisters() {
+      String[] array = new String[16];
+      array[0] = new String(esp);
+      array[1] = new String(ds);
+      array[2] = new String(cs);
+      array[3] = new String(ss);
+      array[4] = new String(ptr);
+      array[5] = String.valueOf(mode);
+      array[6] = new String(flags);
+      array[7] = String.valueOf(ioi);
+      array[8] = String.valueOf(pi);
+      array[9] = String.valueOf(si);
+      array[10] = String.valueOf(ti);
+      array[11] = String.valueOf(tm);
+      array[12] = new String(ip);
+      array[13] = new String(c);
          array[14] = new String(cx);
-   		return array;
-   	}
+         array[15] = new String(li);
+      return array;
+    }
 
       public void initStack() {
-         int ssAddress = Utilities.getInstance().hexToDec(new String(getHalfPTR())) + (Memory.NUMBER_OF_WORDS - Memory.NUMBER_OF_STACK_BLOCK);         
 
+         int ssAddress = Memory.NUMBER_OF_WORDS - Memory.NUMBER_OF_STACK_BLOCK;         
+         System.out.println("STACK address " + ssAddress);
          String ssValue = new String(ram.getWord(ssAddress - (Memory.NUMBER_OF_WORDS - Memory.NUMBER_OF_STACK_BLOCK), ssAddress));
          if(ssValue.equals("----")) {
             String activeVMBlock = new String( ram.getActiveVMblockForSwapping(getHalfPTR(), getDS(), getSS(), getCS() ) );
+            System.out.println("init stack: " + activeVMBlock);
             int pageTablePlaceForActiveBlock = ram.getPageTablePlaceForActiveBlock(getHalfPTR(), activeVMBlock);
             int activeBlockNr = Utilities.getInstance().hexToDec(activeVMBlock);
             
@@ -148,19 +151,23 @@ public class RealMachine {
       }
 
       public void initDataSegment() {
+         System.out.println("INIT DATA SEGMEN: " + new String(getHalfPTR()));
          String findActiveVmBlock = new String( ram.getActiveVMblockForSwapping( getHalfPTR(), getDS(), getSS(), getCS() ) ); 
          System.out.println("active data segment = " + findActiveVmBlock);
          int block = Utilities.getInstance().hexToDec(findActiveVmBlock);
+         System.out.println("INIT DATA SEGME BLOCK: " + block);
          for(int i = 0; i < ram.NUMBER_OF_WORDS - 1; i++) {
             ram.setWord(block, i, Utilities.getInstance().decToHex(i).toCharArray());
          }
          ram.setWord(block, 255, new char[] {'F', 'F', 'F', 'F'});
          int pageTablePlaceForActiveBlock = ram.getPageTablePlaceForActiveBlock(getHalfPTR(), findActiveVmBlock);
+         System.out.println("init data segm paget table: " + pageTablePlaceForActiveBlock);
          setDS(Utilities.getInstance().decToHex(pageTablePlaceForActiveBlock).toCharArray());
       }
 
       public void initCodeSegment() {
          String findActiveVmBlock = new String( ram.getActiveVMblockForSwapping( getHalfPTR(), getDS(), getSS(), getCS() ) ); 
+         System.out.println("active code segment = " + findActiveVmBlock + " ds " + new String(getDS()));
          int pageTablePlaceForActiveBlock = ram.getPageTablePlaceForActiveBlock(getHalfPTR(), findActiveVmBlock);
          System.out.println(pageTablePlaceForActiveBlock);
          setCS(Utilities.getInstance().decToHex(pageTablePlaceForActiveBlock).toCharArray());
@@ -181,6 +188,12 @@ public class RealMachine {
       }
 
       public void loadCode() {
+         vm = new VirtualMachine();
+         System.out.println("as dasd fasd gfad gasd gasdg " + new String(getHalfPTR()));
+         if(new String(getHalfPTR()).equals("00OR")) {
+            System.out.println("asldkhafjks dkgfsa d");
+            return;
+         }
          List<String> code = new ArrayList<String>();
          BufferedReader br = null;
          try {
@@ -206,7 +219,7 @@ public class RealMachine {
              System.out.println("Bad program begining");
                      return;
          }
-         int memoryBlockForCode = Utilities.getInstance().charToInt(ram.getWord(0, Utilities.getInstance().charToInt(getCS(), 16)), 16);
+         int memoryBlockForCode = Utilities.getInstance().charToInt(ram.getWord(Utilities.getInstance().charToInt(getHalfPTR(), 16), Utilities.getInstance().charToInt(getCS(), 16)), 16);
          for(int i = 1; i < code.size(); ++i) {
             convertedCode[i-1] = code.get(i);
             System.out.println(convertedCode[i-1]);
@@ -214,8 +227,14 @@ public class RealMachine {
 
          //change first PTR bytes for new info
          char[] currentPTR = getPTR();
-         currentPTR[0] = Utilities.decToHex(convertedCode.length).charAt(3);
-
+         if(!changedCS) {
+            currentPTR[0] = '1';
+         }
+         else {
+            currentPTR[0] = (char)(Character.getNumericValue(getPTR()[0]) + 1);
+            changedCS = false;
+         }
+         System.out.println("PTR::: " + new String(getPTR()) + " da " + new String(currentPTR));
          // convertedCode = code.toArray(convertedCode);
          loadCodeToMemory(memoryBlockForCode, convertedCode);
          // ci = new CommandsInterpretator();
@@ -223,15 +242,15 @@ public class RealMachine {
          GraphicalUserInterface.getInstance().setRegisters(collectAllRegisters());      
       }
 
-    public void changeValue() {
-        System.out.println("Changing value!");
-        String[] reg = {"ESP", "DS", "CS", "SS", "PTR", "MODE", "FLAGS", "IOI", "PI", "SI", "TI", "TM", "IP", "C", "CX"};
+      public void changeValue() {
+        System.out.println("--Changing value!");
+        String[] reg = {"ESP", "DS", "CS", "SS", "PTR", "MODE", "FLAGS", "IOI", "PI", "SI", "TI", "TM", "IP", "C", "CX", "LI"};
 
         JPanel panel = new JPanel();
         panel.add(new JLabel("Which register's value do you want to change:"));
         DefaultComboBoxModel model = new DefaultComboBoxModel();
 
-        for (int i = 0; i < 15; i++) {
+        for (int i = 0; i < 16; i++) {
             model.addElement(reg[i]); 
         }
 
@@ -335,14 +354,20 @@ public class RealMachine {
                         setCX(inputValue.toCharArray());
                         System.out.println("New CX value: " + new String(getCX()));
                     break;
+                    case "LI":
+                        System.out.println("Changing LI");
+                        inputValue = JOptionPane.showInputDialog("Please input a value");
+                        setLI(inputValue.toCharArray());
+                        System.out.println("New LI value: " + new String(getLI()));
+                    break;
                 }
                 break;
         }
         GraphicalUserInterface.getInstance().setRegisters(collectAllRegisters());
-    }
+      }
 
-    public void changeMemValue() {
-        System.out.println("Changing memory value!");
+      public void changeMemValue() {
+        System.out.println("--Changing memory value!");
 
         JTextField block = new JTextField(5);
         JTextField place = new JTextField(5);
@@ -366,34 +391,37 @@ public class RealMachine {
                 String placeSval = place.getText();
                 String newValueSval = newValue.getText();
 
-                // System.out.println("block value: " + blockSval);
-                // System.out.println("place value: " + placeSval);
-                // System.out.println("newValue value: " + newValueSval); 
+                System.out.println("block value: " + blockSval);
+                System.out.println("place value: " + placeSval);
+                System.out.println("newValue value: " + newValueSval); 
 
-                int newBlock = Integer.parseInt(blockSval, 16);
-                int newPlace = Integer.parseInt(placeSval, 16);
+                int whichBlock = Integer.parseInt(blockSval, 16);
+                int whichPlace = Integer.parseInt(placeSval, 16);
 
-                // System.out.println("place integer value: " + newPlace);
+                System.out.println("block integer value: " + whichBlock);
+                System.out.println("place integer value: " + whichPlace);
 
-                ram.setWord(newBlock, newPlace, newValueSval.toCharArray());   
-                GraphicalUserInterface.getInstance().updateRAMCell(newPlace, newValueSval);
+
+                ram.setWord(whichBlock, whichPlace, newValueSval.toCharArray());   
+                // GraphicalUserInterface.getInstance().updateRAMCell(whichPlace, newValueSval);
+                GraphicalUserInterface.getInstance().updateRAMCell(Memory.NUMBER_OF_WORDS * whichBlock + whichPlace, newValueSval);
+                // GraphicalUserInterface.getInstance().updateRAMCell(stackBlock * 256 + stackTop, new String(RealMachine.getInstance().getRAM().getWord(stackBlock, stackTop)));
             break;
         }
-    }
-
+      }
 
       public void loadCodeToMemory(int blockNumber, String[] code) {
          int firstFreePlace = ram.getFreeWord(blockNumber);
-         if(code.length + firstFreePlace > 255) {
+         if(code.length > 255) {
             System.out.println("Too big code! No free space left in memory"); //is it enough??
             GraphicalUserInterface.getInstance().setOutputText("Too big code! No free space left in memory");
          }
          else {
-            for(int i = firstFreePlace; i < code.length + firstFreePlace; ++i) {
-               ram.setWord(blockNumber, i, code[i-firstFreePlace].toCharArray());
+            for(int i = 0; i < code.length ; ++i) {
+               ram.setWord(blockNumber, i, code[i].toCharArray());
                GraphicalUserInterface.getInstance().updateRAMCell(blockNumber * 256 + i, new String(ram.getWord(blockNumber, i)));
             }
-            setIP(Utilities.decToHex(firstFreePlace).toCharArray());
+            setIP(Utilities.decToHex(0).toCharArray());
          }
       }
 
@@ -408,6 +436,7 @@ public class RealMachine {
          int ti = Utilities.getInstance().charToInt(getTI(), 16);
          int si = Utilities.getInstance().charToInt(getSI(), 16);
          int ioi = Utilities.getInstance().charToInt(getIOI(), 16);
+         int li = Utilities.getInstance().charToInt(getLI(), 16);
          if(pi > 0) {
             switch(pi) {
                case 1: GraphicalUserInterface.getInstance().setOutputText("Division by 0");
@@ -479,13 +508,16 @@ public class RealMachine {
                        break;
             }
          }
+         if(li > 0) {
+
+         }
       }
 
       public void stopExecution() {
          setSI(new char[] {'0', '3'});
       }
 
-   	// =========== SETERS AND GETTERS ===========
+    // =========== SETERS AND GETTERS ===========
       public boolean getSF() {
          char[] value = getFLAGS();
          return (value[3] == '1');
@@ -496,14 +528,14 @@ public class RealMachine {
          return (value[2] == '1');
       }
 
-   	public void setESP(char[] reg) {
+    public void setESP(char[] reg) {
          if((Utilities.getInstance().charToInt(reg, 16) < 256) & ((Utilities.getInstance().charToInt(reg, 16) >= 192))) {
             this.esp = reg;   
          }
-   		else {
+      else {
             System.out.println("Too big or too small ESP set");
          }
-   	}
+    }
       public boolean incESP(){
          int decValue = Utilities.charToInt(getESP(), 16);
          int decValueSS = Utilities.charToInt(getSS(), 16);
@@ -571,121 +603,128 @@ public class RealMachine {
          this.cx = reg;
       }
 
-   	public void setDS(char[] reg) {
-        if (Utilities.getInstance().charToInt(reg, 16) < 256) {
+    public void setDS(char[] reg) {
+      if (Utilities.getInstance().charToInt(reg, 16) < 256) {
             this.ds = reg; 
         } else {
             System.out.println("Too big DS set");
         }
-   	}
-   	public void setCS(char[] reg) {
-   		if (Utilities.getInstance().charToInt(reg, 16) < 256) {
+    }
+    public void setCS(char[] reg) {
+      if (Utilities.getInstance().charToInt(reg, 16) < 256) {
             this.cs = reg; 
         } else {
             System.out.println("Too big CS set");
         }
-   	}
-   	public void setSS(char[] reg) {
-   		if (Utilities.getInstance().charToInt(reg, 16) < 256) {
+    }
+    public void setSS(char[] reg) {
+      if (Utilities.getInstance().charToInt(reg, 16) < 256) {
             this.ss = reg; 
         } else {
             System.out.println("Too big SS set");
         }
-   	}
-   	public void setPTR(char[] reg) {
-   		this.ptr = reg;
-   	}
-   	public void setIP(char[] reg) {
+    }
+    public void setPTR(char[] reg) {
+      this.ptr = reg;
+    }
+    public void setIP(char[] reg) {
          if(Utilities.getInstance().charToInt(reg, 16) < 256) {
             this.ip = reg;
          }
          else {
             System.out.println("Too big IP set");
          }
-   	}
-   	public void setFLAGS(char[] reg) {
-   		this.flags = reg;
-   	}
-   	public void setC(char[] reg) {
-   		this.c = reg;
-   	}
-   	public void setTI(char[] reg) {
-   		this.ti = reg;
-   	}
-   	public void setPI(char[] reg) {
-   		this.pi = reg;
-   	}
-   	public void setSI(char[] reg) {
-   		this.si = reg;
-   	}
-   	public void setIOI(char[] reg) {
-   		this.ioi = reg;
-   	}
-   	public void setMODE(char[] reg) {
-   		if (Utilities.getInstance().charToInt(reg, 16) < 3) {
+    }
+    public void setFLAGS(char[] reg) {
+      this.flags = reg;
+    }
+    public void setC(char[] reg) {
+      this.c = reg;
+    }
+    public void setTI(char[] reg) {
+      this.ti = reg;
+    }
+    public void setPI(char[] reg) {
+      this.pi = reg;
+    }
+    public void setSI(char[] reg) {
+      this.si = reg;
+    }
+    public void setIOI(char[] reg) {
+      this.ioi = reg;
+    }
+    public void setMODE(char[] reg) {
+      if (Utilities.getInstance().charToInt(reg, 16) < 3) {
             this.mode = reg; 
         } else {
             System.out.println("Too big MODE set");
         }
-   	}
-   	public void setTM(char[] reg) {
-   		this.tm = reg;
-   	}
+    }
+    public void setTM(char[] reg) {
+      this.tm = reg;
+    }
+      public void setLI(char[] reg) {
+         this.li = reg;
+      }
       public char[] getCX() {
          return this.cx;
       }
-   	public char[] getESP() {
-   		return this.esp;
-   	}
-   	public char[] getDS() {
-   		return this.ds;
-   	}
-   	public char[] getCS() {
-   		return this.cs;
-   	}
-   	public char[] getSS() {
-   		return this.ss;
-   	}
-   	public char[] getPTR() {
-   		return this.ptr;
-   	}
+    public char[] getESP() {
+      return this.esp;
+    }
+    public char[] getDS() {
+      return this.ds;
+    }
+    public char[] getCS() {
+      return this.cs;
+    }
+    public char[] getSS() {
+      return this.ss;
+    }
+    public char[] getPTR() {
+      return this.ptr;
+    }
       public char[] getHalfPTR() {
          return new char[] {'0', '0', getPTR()[2], getPTR()[3]};
       }
-   	public char[] getIP() {
-   		return this.ip;
-   	}
-   	public char[] getFLAGS() {
-   		return this.flags;
-   	}
-   	public char[] getC() {
-   		return this.c;
-   	}
-   	public char[] getTI() {
-   		return this.ti;
-   	}
-   	public char[] getPI() {
-   		return this.pi;
-   	}
-   	public char[] getSI() {
-   		return this.si;
-   	}
-   	public char[] getIOI() {
-   		return this.ioi;
-   	}
-   	public char[] getMODE() {
-   		return this.mode;
-   	}
-   	public char[] getTM() {
-   		return this.tm;
-   	}
+    public char[] getIP() {
+      return this.ip;
+    }
+    public char[] getFLAGS() {
+      return this.flags;
+    }
+    public char[] getC() {
+      return this.c;
+    }
+    public char[] getTI() {
+      return this.ti;
+    }
+    public char[] getPI() {
+      return this.pi;
+    }
+    public char[] getSI() {
+      return this.si;
+    }
+    public char[] getIOI() {
+      return this.ioi;
+    }
+    public char[] getMODE() {
+      return this.mode;
+    }
+    public char[] getTM() {
+      return this.tm;
+    }
       public Memory getRAM() {
          return this.ram;
+      }
+
+      public char[] getLI() {
+         return this.li;
       }
 
       public Swapping getSwapping() {
          return this.swapping;
       }
-   	// ============================================
+    // ============================================
 
 }
