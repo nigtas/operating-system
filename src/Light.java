@@ -10,8 +10,9 @@ public class Light {
       }	
 
 	public void turnOn() {
-		if(!isTurnedOn) {
+		if(!isTurnedOn || new String(RealMachine.getInstance().getLI()).equals("00")) {
 			isTurnedOn = true;
+			RealMachine.getInstance().setLI(new char[] {'0', '1'});
 			GraphicalUserInterface.getInstance().setOutputText("Light is turned on");
 		}
 		else {
@@ -20,8 +21,9 @@ public class Light {
 	}
 
 	public void turnOff() {
-		if(isTurnedOn) {
+		if(isTurnedOn || new String(RealMachine.getInstance().getLI()).equals("01")) {
 			isTurnedOn = false;
+			RealMachine.getInstance().setLI(new char[] {'0', '0'});
 			GraphicalUserInterface.getInstance().setOutputText("Light is turned off");
 		}
 		else {

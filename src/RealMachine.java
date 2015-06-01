@@ -30,6 +30,7 @@ public class RealMachine {
     private char[] tm = {'0', '9'};                 // TM registras
       private char[] cx = {'0', '0'};                 // cx register for loop
       private char[] li = {'0', '0'};
+      private int codeSize = 0;
 
       /*
          FLAGS :
@@ -230,6 +231,8 @@ public class RealMachine {
             }
          }
          String[] convertedCode = new String[code.size()-1];
+         int codSz = code.size() - 1;
+         setCodeSize(codSz);
          if(!code.get(0).equals("PROG")) {
              System.out.println("Bad program begining");
                      return;
@@ -306,6 +309,28 @@ public class RealMachine {
                     case "PTR":
                         System.out.println("Changing PTR");
                         inputValue = JOptionPane.showInputDialog("Please input a value");
+                        String twoLastBytes = inputValue;
+                        int lastByt = Integer.parseInt(twoLastBytes, 16);
+                        char[] inputChar = inputValue.toCharArray();
+                        String finalInput = new String(inputChar).substring(2, 4);
+                        if ((lastByt <= ram.NUMBER_OF_BLOCKS)) {
+                          System.out.println("*" + lastByt + " <= " + ram.NUMBER_OF_BLOCKS);
+                        } else {
+                          setPTR(inputValue.toCharArray());
+                          setPI(new char[] {'0', '7'});
+                          System.out.println("Wrong input.");
+                          break;
+                        }
+
+                        int SS = Utilities.getInstance().charToInt(getSS(), 16);
+                        int DS = Utilities.getInstance().charToInt(getDS(), 16);
+                        int CS = Utilities.getInstance().charToInt(getCS(), 16);
+                        if(new String(ram.getWord(lastByt, SS)).equals("----") || new String(ram.getWord(lastByt, CS)).equals("----") 
+                                || new String(ram.getWord(lastByt, DS)).equals("----")) {
+                          setPI(new char[] {'0', '7'});
+                          System.out.println("Wrong input.");
+                          break;
+                        }
                         setPTR(inputValue.toCharArray());
                         System.out.println("New PTR value: " + new String(getPTR()));
                     break;
@@ -416,11 +441,8 @@ public class RealMachine {
                 System.out.println("block integer value: " + whichBlock);
                 System.out.println("place integer value: " + whichPlace);
 
-
                 ram.setWord(whichBlock, whichPlace, newValueSval.toCharArray());   
-                // GraphicalUserInterface.getInstance().updateRAMCell(whichPlace, newValueSval);
                 GraphicalUserInterface.getInstance().updateRAMCell(Memory.NUMBER_OF_WORDS * whichBlock + whichPlace, newValueSval);
-                // GraphicalUserInterface.getInstance().updateRAMCell(stackBlock * 256 + stackTop, new String(RealMachine.getInstance().getRAM().getWord(stackBlock, stackTop)));
             break;
         }
       }
@@ -615,71 +637,111 @@ public class RealMachine {
       }
 
       public void setCX(char[] reg) {
-         this.cx = reg;
+         if (Utilities.getInstance().charToInt(reg, 16) < 256 && Utilities.getInstance().charToInt(reg, 16) >= 0) {
+           this.cx = reg;
+         } else {
+           System.out.println("Too big or small CX set.");
+         }
       }
 
     public void setDS(char[] reg) {
-      if (Utilities.getInstance().charToInt(reg, 16) < 256) {
+      if (Utilities.getInstance().charToInt(reg, 16) < 256 && Utilities.getInstance().charToInt(reg, 16) >= 0) {
             this.ds = reg; 
         } else {
-            System.out.println("Too big DS set");
+            System.out.println("Too big or small DS set");
         }
     }
     public void setCS(char[] reg) {
-      if (Utilities.getInstance().charToInt(reg, 16) < 256) {
+      if (Utilities.getInstance().charToInt(reg, 16) < 256 && Utilities.getInstance().charToInt(reg, 16) >= 0) {
             this.cs = reg; 
         } else {
-            System.out.println("Too big CS set");
+            System.out.println("Too big or small CS set");
         }
     }
     public void setSS(char[] reg) {
-      if (Utilities.getInstance().charToInt(reg, 16) < 256) {
+      if (Utilities.getInstance().charToInt(reg, 16) < 256 && Utilities.getInstance().charToInt(reg, 16) >= 0) {
             this.ss = reg; 
         } else {
-            System.out.println("Too big SS set");
+            System.out.println("Too big or small SS set");
         }
     }
     public void setPTR(char[] reg) {
       this.ptr = reg;
     }
     public void setIP(char[] reg) {
-         if(Utilities.getInstance().charToInt(reg, 16) < 256) {
+         if(Utilities.getInstance().charToInt(reg, 16) <= (getCodeSize() - 1) && Utilities.getInstance().charToInt(reg, 16) >= 0) {
             this.ip = reg;
          }
          else {
-            System.out.println("Too big IP set");
+            System.out.println("Too big or small IP set");
          }
     }
     public void setFLAGS(char[] reg) {
-      this.flags = reg;
+      if ((reg[0] == '0' || reg[0] == '1') && (reg[1] == '0' || reg[1] == '1') && (reg[2] == '0' || reg[2] == '1') 
+        && (reg[3] == '0' || reg[3] == '1')) {
+        this.flags = reg;
+      } else {
+        System.out.println("Wrong input.");
+      }
     }
     public void setC(char[] reg) {
-      this.c = reg;
+      if (Utilities.getInstance().charToInt(reg, 16) < 2 && Utilities.getInstance().charToInt(reg, 16) >= 0) {
+        this.c = reg;
+      } else {
+        System.out.println("Wrong input."); 
+      }
     }
     public void setTI(char[] reg) {
-      this.ti = reg;
+      if (Utilities.getInstance().charToInt(reg, 16) < 2 && Utilities.getInstance().charToInt(reg, 16) >= 0) {
+        this.ti = reg;
+      } else {
+        System.out.println("Wrong input."); 
+      }
     }
     public void setPI(char[] reg) {
-      this.pi = reg;
+      if (Utilities.getInstance().charToInt(reg, 16) < 11 && Utilities.getInstance().charToInt(reg, 16) >= 0) {
+        this.pi = reg;
+      } else {
+        System.out.println("Wrong input."); 
+      }
     }
     public void setSI(char[] reg) {
-      this.si = reg;
+      if (Utilities.getInstance().charToInt(reg, 16) < 4 && Utilities.getInstance().charToInt(reg, 16) >= 0) {
+        this.si = reg;
+      } else {
+        System.out.println("Wrong input."); 
+      }
     }
     public void setIOI(char[] reg) {
-      this.ioi = reg;
+      if (Utilities.getInstance().charToInt(reg, 16) < 4 && Utilities.getInstance().charToInt(reg, 16) >= 0) {
+        this.ioi = reg;
+      } else {
+        System.out.println("Wrong input."); 
+      }
     }
     public void setMODE(char[] reg) {
-      if (Utilities.getInstance().charToInt(reg, 16) < 3) {
+      if (Utilities.getInstance().charToInt(reg, 16) < 2 && Utilities.getInstance().charToInt(reg, 16) >= 0) {
             this.mode = reg; 
         } else {
-            System.out.println("Too big MODE set");
+            System.out.println("Too big or small MODE set");
         }
     }
     public void setTM(char[] reg) {
-      this.tm = reg;
+      if (Utilities.getInstance().charToInt(reg, 16) < 10 && Utilities.getInstance().charToInt(reg, 16) >= 0) {
+        this.tm = reg;
+      } else {
+        System.out.println("Wrong input.");  
+      }
     }
       public void setLI(char[] reg) {
-         this.li = reg;
+        if (Utilities.getInstance().charToInt(reg, 16) < 2 && Utilities.getInstance().charToInt(reg, 16) >= 0) {
+          this.li = reg;
+        } else {
+          System.out.println("Wrong input.");  
+        }
+      }
+      public void setCodeSize(int reg) {
+        this.codeSize = reg;
       }
       public char[] getCX() {
          return this.cx;
@@ -739,6 +801,9 @@ public class RealMachine {
 
       public Swapping getSwapping() {
          return this.swapping;
+      }
+      public int getCodeSize() {
+        return this.codeSize;
       }
     // ============================================
 

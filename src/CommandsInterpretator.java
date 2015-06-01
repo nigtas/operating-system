@@ -10,7 +10,7 @@ public class CommandsInterpretator {
 	}
 
 	public void executeCommand() {
-		if(Utilities.getInstance().charToInt(RealMachine.getInstance().getSI(), 16) == 3) {
+		if(Utilities.getInstance().charToInt(RealMachine.getInstance().getSI(), 16) == 3 || Utilities.getInstance().charToInt(RealMachine.getInstance().getPI(), 16) == 7) {
 			return;
 		}
 
