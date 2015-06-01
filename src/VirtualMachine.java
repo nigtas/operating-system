@@ -17,18 +17,27 @@ public class VirtualMachine {
         if(!new String(RealMachine.getInstance().getPTR()).equals("EROR")){
         	RealMachine.getInstance().countMaxPages();
 	        RealMachine.getInstance().initStack();
-	        RealMachine.getInstance().setESP(new char[]{'0', '0', 'F', 'F'});
-	        RealMachine.getInstance().initDataSegment();
-	        RealMachine.getInstance().initCodeSegment();
+	        if(!isWrongPTR()) {
+	        	RealMachine.getInstance().setESP(new char[]{'0', '0', 'F', 'F'});
+	        	RealMachine.getInstance().initDataSegment();
+	        	if(!isWrongPTR()) {
+	        		RealMachine.getInstance().initCodeSegment();
+	        	}
+	        }
 
-
-	   		char[][] memory = RealMachine.getInstance().getRAM().getMemory();
-	   		String word = "";
-	   		for(int i = 0; i < RealMachine.getInstance().getRAM().NUMBER_OF_BLOCKS * RealMachine.getInstance().getRAM().NUMBER_OF_WORDS; i++) {
-	   			word = "";
-	   			for(int j = 0; j < RealMachine.getInstance().getRAM().WORD_SIZE; j++) {
-	   				word += memory[i][j];
-	   			}
+	        if(isWrongPTR()) {
+	        	GraphicalUserInterface.getInstance().getRAMJList().setModel(GraphicalUserInterface.getInstance().getRAMModel());
+   				GraphicalUserInterface.getInstance().setRegisters(RealMachine.getInstance().collectAllRegisters());
+	        	GraphicalUserInterface.getInstance().appendOutputText("Cannot create new VM");
+	        }
+	        else {
+	        	char[][] memory = RealMachine.getInstance().getRAM().getMemory();
+   				String word = "";
+	   			for(int i = 0; i < RealMachine.getInstance().getRAM().NUMBER_OF_BLOCKS * RealMachine.getInstance().getRAM().NUMBER_OF_WORDS; i++) {
+	   				word = "";
+	   				for(int j = 0; j < RealMachine.getInstance().getRAM().WORD_SIZE; j++) {
+	   					word += memory[i][j];
+	   				}
 	   			GraphicalUserInterface.getInstance().updateRAMCell(i, word);
 	   		}
 
@@ -36,6 +45,10 @@ public class VirtualMachine {
 	   		GraphicalUserInterface.getInstance().getRAMJList().setModel(GraphicalUserInterface.getInstance().getRAMModel());
    			GraphicalUserInterface.getInstance().setRegisters(RealMachine.getInstance().collectAllRegisters());
 			GraphicalUserInterface.getInstance().appendOutputText("...READY!\n");
+	        }
+
+
+	   		
         }
         else {
         	GraphicalUserInterface.getInstance().getRAMJList().setModel(GraphicalUserInterface.getInstance().getRAMModel());
@@ -46,6 +59,10 @@ public class VirtualMachine {
 
 
    		
+	}
+
+	public boolean isWrongPTR() {
+		return new String(RealMachine.getInstance().getPTR()).equals("EROR");
 	}
 
 

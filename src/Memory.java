@@ -159,7 +159,8 @@ public class Memory {
 		Random rand = new Random();
 		for (int i = 0; i < 100; i++) {
 			int randomNum = rand.nextInt(NUMBER_OF_BLOCKS);
-			if (!usedBlock[randomNum]) {
+
+			if (!usedBlock[randomNum] && randomNum <= NUMBER_OF_BLOCKS) {
 				return randomNum;
 			}
 		}
@@ -283,7 +284,12 @@ public class Memory {
 			}
 		}
 		System.out.println("VM BLOCK: " + i);
-		return memory[i+ptrAddress*NUMBER_OF_WORDS];
+		if(i > 255) {
+			return new char[]{'-', '-', '-', '-'};
+		}
+		else {
+			return memory[i+ptrAddress*NUMBER_OF_WORDS];
+		}
 	}
 
 	public int getPageTablePlaceForActiveBlock(char[] ptr, String active) {

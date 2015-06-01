@@ -138,6 +138,11 @@ public class RealMachine {
          String ssValue = new String(ram.getWord(ssAddress - (Memory.NUMBER_OF_WORDS - Memory.NUMBER_OF_STACK_BLOCK), ssAddress));
          if(ssValue.equals("----")) {
             String activeVMBlock = new String( ram.getActiveVMblockForSwapping(getHalfPTR(), getDS(), getSS(), getCS() ) );
+            if(activeVMBlock.equals("----")) {
+              System.out.println("NO FREE BLOCKS!");
+              setPTR(new char[] {'E', 'R', 'O', 'R'});
+              return;
+            }
             System.out.println("init stack: " + activeVMBlock);
             int pageTablePlaceForActiveBlock = ram.getPageTablePlaceForActiveBlock(getHalfPTR(), activeVMBlock);
             int activeBlockNr = Utilities.getInstance().hexToDec(activeVMBlock);
@@ -154,6 +159,11 @@ public class RealMachine {
          System.out.println("INIT DATA SEGMEN: " + new String(getHalfPTR()));
          String findActiveVmBlock = new String( ram.getActiveVMblockForSwapping( getHalfPTR(), getDS(), getSS(), getCS() ) ); 
          System.out.println("active data segment = " + findActiveVmBlock);
+         if(findActiveVmBlock.equals("----")) {
+              System.out.println("NO FREE BLOCKS!");
+              setPTR(new char[] {'E', 'R', 'O', 'R'});
+              return;
+          }
          int block = Utilities.getInstance().hexToDec(findActiveVmBlock);
          System.out.println("INIT DATA SEGME BLOCK: " + block);
          for(int i = 0; i < ram.NUMBER_OF_WORDS - 1; i++) {
@@ -168,6 +178,11 @@ public class RealMachine {
       public void initCodeSegment() {
          String findActiveVmBlock = new String( ram.getActiveVMblockForSwapping( getHalfPTR(), getDS(), getSS(), getCS() ) ); 
          System.out.println("active code segment = " + findActiveVmBlock + " ds " + new String(getDS()));
+         if(findActiveVmBlock.equals("----")) {
+              System.out.println("NO FREE BLOCKS!");
+              setPTR(new char[] {'E', 'R', 'O', 'R'});
+              return;
+         }
          int pageTablePlaceForActiveBlock = ram.getPageTablePlaceForActiveBlock(getHalfPTR(), findActiveVmBlock);
          System.out.println(pageTablePlaceForActiveBlock);
          setCS(Utilities.getInstance().decToHex(pageTablePlaceForActiveBlock).toCharArray());
