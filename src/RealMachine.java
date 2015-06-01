@@ -92,6 +92,66 @@ public class RealMachine {
 		   GraphicalUserInterface.getInstance().appendOutputText("REAL MACHINE READY!\n");
    	}
 
+      public static void distribute() {
+      collectFreeResources();
+    processes.Process [] arr = ProcessManager.getInstance().getProcesses().toArray (new processes.Process [ProcessManager.getInstance().getProcesses().size ()]);
+    Arrays.sort (arr);
+    for (processes.Process process : arr) {
+      // if there is all available resources for this process
+      if(process.requireResources(freeResources)) {
+        System.out.println(process.toString());
+        if(process.getState() == 2) {
+          ProcessManager.getInstance().activateProcess(process.getId()); 
+          System.out.println("MSG: Process taking control: " + process.toString());
+          switch(process.getId()) {
+            case 1: // StartStop
+              StartStop startStop = (StartStop) process;
+              if(!startStop.hasRun()) {
+                startStop.run();
+                startStop.setHasRun(true);
+              } else {
+                System.out.println("MSG: System is shuting down.");
+                startStop.destroyResources();
+                startStop.destroyProcesses();
+                System.exit(0);
+              }
+              break;
+            case 2:  // ReadFromInterface
+              ReadFromInterface readFromInterface = (ReadFromInterface) process;
+              if(!readFromInterface.hasRun()) {
+                System.out.println("go to run");
+                readFromInterface.run();
+                readFromInterface.setHasRun(true);
+              }
+              else {
+                System.out.println("Copying...");
+                readFromInterface.copyToSupervisorMemory();
+                readFromInterface.setHasRun(false);
+                ResourceManager.getInstance().askResource(5).setFreeStatus(false);
+              } 
+              break;
+            case 3: // Swapping
+              break;
+            case 4: // Loader
+              break;
+            case 5: // PrintLine
+              break;
+            case 6: // JCL
+              break;
+            case 7: // MainProc
+              System.out.println("DEBUG: MainProc logic goes here..");
+              break;
+            case 8: // JobGovernor
+              break;
+            case 9: // VirtualMachine
+              break;  
+          }
+        }
+        break;
+      }
+    }
+    }
+
 
    	/* ARRAY OF REGISTERS 
    		0 - ESP
